@@ -1,0 +1,20 @@
+- Kurier zostaje z paczką, jeżeli nie udało się jej dostarczyć w ciągu tego samego dnia, wypadałoby zapytać się nadawcy, czy ponawiamy próbę, czy zwracamy do nadawcy
+- kurier jest typu rower - paczki są małe
+- kontakt do nadawcy musi być zawsze, do odbiorcy opcjonalny
+- paczki są tak małe, że nie ma ograniczenia ile paczek kurier może mieć w danym momencie
+- zlecenia przychodzące w nocy muszą być już poukładane w trasę na następny dzień rano
+- koszt pracy pracownika + koszt przejazdu (km * zł/km) + kara za niezmieszczenie się w oknach czasowych
+- kara nieliniowa, im dalej się odsuwamy od okna klienta tym bardziej rośnie kara
+- trzeba rozważyć: kurier ma okno dostarczenia za pół godziny i może czekać, ale przez to spóźni się na kolejne 5 innych okien czasowych
+- możemy wykorzystać gotowe narzędzie do układania trasy dla kuriera
+- dokładając zamówienie do kuriera tak aby jak najmniej wzrosła jego kara za spóźnienie, wybieramy takiego kuriera któremu jak najmniej kara wzrośnie
+- musi być w systemie opcja na nieprzyjęcie zamówienia, np. mamy za mało kurierów i danej paczki nie możemy przyjąć
+- bieżące przydzielanie zleceń do kurierów, trzeba rozważyć najgorsze przypadki, może być tak, że zlecenia przychodzące w nocy trzeba już będzie wstępnie przydzielać i jeżeli nie
+- niefunkcjonalne - czas odpowiedzi systemu, nadawca wchodzi, wypełnia wszystkie, naciska przycisk i po 3, max 5 sekundach uzyska odpowiedź
+- zakładamy, że system ma działać dla 100 kurierów
+- architektura skalowalna, przemyślana, aby dało się ją rozszerzyć
+- maksymalna liczba zleceń na godzinę będzie zależeć od liczby kurierów i ich trasy (rzędu 5000 na godzinę, można zrobić 2500 zleceń na godzinę)
+- wszystko powinno działać na dwóch serwerach, dwóch laptopach, jeden przestanie działać, to drugi automatycznie przejmuje, zaproponować rozwiązanie niezawodności - wszystko to przemyśleć w architekturze, w opisie niefunkcjonalnych wymagań zaproponować rozwiązanie, ale niekoniecznie musimy to implementować od razu nie robić aplikacji stricte komórkowej, robimy aplikację webową
+- użyć jednego ze znanych narzędzi do autoryzacji np. przez google, nie robić niczego od podstaw
+- walidacja numeru telefonu przy tworzeniu konta
+- skorzystać z openStreetMap do routingu między dwoma punktami
