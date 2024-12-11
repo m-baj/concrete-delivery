@@ -1,0 +1,8 @@
+from sqlmodel import create_engine, SQLModel, Session
+
+from app.core.config import settings
+
+engine = create_engine(str(settings.DATABASE_URL))
+
+with Session(engine) as session:
+    SQLModel.metadata.create_all(engine)

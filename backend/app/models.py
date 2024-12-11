@@ -1,10 +1,6 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float
-from sqlalchemy.orm import relationship
-from app.database import Base
+# This file contains the model classes for the database tables.
+from sqlmodel import SQLModel, Field
 
-
-class Status(Base):
-    __tablename__ = "Status"
-
-    StatusID = Column(Integer, primary_key=True, index=True)
-    Name = Column(String, unique=True, index=True)
+class Status(SQLModel, table=True):
+    StatusID: int = Field(primary_key=True)
+    Name: str = Field(max_length=255, unique=True, index=True)
