@@ -1,4 +1,20 @@
 services:
+
+  neo4j:
+    image: neo4j:latest
+    volumes:
+        - /$HOME/neo4j/logs:/logs
+        - /$HOME/neo4j/config:/config
+        - /$HOME/neo4j/data:/data
+        - /$HOME/neo4j/plugins:/plugins
+        - ./init.cypher:/docker-entrypoint-initdb.d/init.cypher
+    environment:
+        - NEO4J_AUTH=${NEO4J_AUTH}
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    restart: always
+
   postgres:
     image: postgres:15
     container_name: postgres
@@ -19,6 +35,9 @@ services:
       - "8000:8000"
     volumes:
       - ./backend/app:/code/app
+    environment:
+      - NEO4J_URL=${NEO4J_URL}
+      - NEO4J_AUTH=${NEO4J_AUTH}
     depends_on:
       - postgres
     env_file:
@@ -35,18 +54,3 @@ services:
     depends_on:
       - backend
     command: npm run dev
-
-  neo4j:
-    image: neo4j:latest
-    volumes:
-        - /$HOME/neo4j/logs:/logs
-        - /$HOME/neo4j/config:/config
-        - /$HOME/neo4j/data:/data
-        - /$HOME/neo4j/plugins:/plugins
-        - ./init.cypher:/docker-entrypoint-initdb.d/init.cypher
-    environment:
-        - NEO4J_AUTH=${NEO4J_AUTH}
-    ports:
-      - "7474:7474"
-      - "7687:7687"
-    restart: always
