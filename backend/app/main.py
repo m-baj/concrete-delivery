@@ -33,10 +33,11 @@ async def startup_event():
     NEO4J_PASSWORD="krecimybeton"
 
     config = Neo4jConfig(
-        uri=NEO4J_URI,
-        username=NEO4J_USERNAME,
-        password=NEO4J_PASSWORD
+        uri="bolt://localhost:7687",
+        username="neo4j",
+        password="krecimybeton"
     )
+
     init_neontology(config)
 
 
