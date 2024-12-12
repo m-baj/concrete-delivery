@@ -8,6 +8,7 @@ def create_user(*, session: Session, user_to_create: UserCreate) -> User:
     db_obj = User.model_validate(
         user_to_create, update={"hashed_password": get_password_hash(user_to_create.password)}
     )
+    print(db_obj)
     session.add(db_obj)
     session.commit()
     session.refresh(db_obj)
