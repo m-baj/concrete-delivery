@@ -19,7 +19,6 @@ class UserRegister(UserBase):
 
 class UserCreate(UserRegister):
     is_admin: bool = False
-    is_active: bool = True
 
 class User(UserCreate, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -28,3 +27,4 @@ class User(UserCreate, table=True):
 # data returned from API on user creation
 class UserPublic(UserBase):
     id: uuid.UUID
+    is_admin: bool
