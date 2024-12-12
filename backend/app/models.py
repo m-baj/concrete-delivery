@@ -1,6 +1,5 @@
 # This file contains the model classes for the database tables.
 import uuid
-
 from sqlmodel import SQLModel, Field
 from pydantic import EmailStr
 
@@ -14,9 +13,18 @@ class UserBase(SQLModel):
     phone_number: str
     email_address: EmailStr | None = Field(default=None, max_length=255)
 
+# data received by API during user registration
 class UserRegister(UserBase):
     password: str = Field(min_length=8, max_length=40)
 
-class User(UserBase, table=True):
+class UserCreate(UserRegister):
+    is_admin: bool = False
+    is_active: bool = True
+
+class User(UserCreate, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
+
+# data returned from API on user creation
+class UserPublic(UserBase):
+    id: uuid.UUID

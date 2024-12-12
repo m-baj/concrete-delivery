@@ -1,16 +1,14 @@
 from fastapi import FastAPI
+
 from app.core.config import settings
-# from pydantic import BaseModel
-# from typing import List, Annotated
-# from app import models
-# from app.database import engine, SessionLocal
+from app.api.main import router
 
 
 app = FastAPI(
     title=settings.PROJECT_NAME
 )
 
-
+app.include_router(router)
 # class Status(BaseModel):
 #     StatusID: int
 #     Name: str
@@ -27,10 +25,10 @@ app = FastAPI(
 # db_dependency = Annotated[Session, Depends(get_db)]
 
 
-@app.get("/")
-def index():
-    print("Hello, World!")
-    return {"message": "Hello, World!"}
+# @app.get("/")
+# def index():
+#     print("Hello, World!")
+#     return {"message": "Hello, World!"}
 
 
 # @app.get("/status", response_model=List[Status])
