@@ -4,5 +4,5 @@ from app.core.config import settings
 
 engine = create_engine(str(settings.DATABASE_URL))
 
-with Session(engine) as session:
-    SQLModel.metadata.create_all(engine)
+def init_db() -> None:
+        SQLModel.metadata.create_all(engine)
