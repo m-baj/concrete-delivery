@@ -14,4 +14,6 @@ def create_user(*, session: Session, user_to_create: UserCreate) -> User:
     return db_obj
 
 def get_user_by_phone_number(*, session: Session, phone_number: str) -> User | None:
-    pass
+    query = select(User).where(User.phone_number == phone_number)
+    user = session.exec(query).first()
+    return user
