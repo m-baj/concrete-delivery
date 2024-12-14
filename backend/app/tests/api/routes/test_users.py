@@ -3,14 +3,14 @@ from sqlmodel import Session, select
 
 from app.core.security import verify_password
 from app.models import User
-from app.tests.utils.utils import random_string, random_phone_number, random_email
+from app.tests.utils.utils import random_lower_string, random_phone_number, random_email
 
 def test_register_user(client: TestClient, db: Session):
-    name = random_string()
-    surname = random_string()
+    name = random_lower_string()
+    surname = random_lower_string()
     phone_number = random_phone_number()
     email = random_email()
-    password = random_string()
+    password = random_lower_string()
     data = {
         "name": name, "surname": surname, "phone_number": phone_number, "email_address": email, "password": password
     }
@@ -29,11 +29,11 @@ def test_register_user(client: TestClient, db: Session):
     assert verify_password(password, db_user.hashed_password)
 
 def test_register_user_already_exists(client: TestClient, db: Session):
-    name = random_string()
+    name = random_lower_string()
     surname = random_email()
     phone_number = "123"
     email = random_email()
-    password = random_string()
+    password = random_lower_string()
     data = {
         "name": name, "surname": surname, "phone_number": phone_number, "email_address": email, "password": password
     }
