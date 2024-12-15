@@ -19,7 +19,7 @@ class UserRegister(SQLModel):
     name: str = Field(max_length=40)
     surname: str = Field(max_length=40)
     phone_number: str
-    email_address: EmailStr | None = Field(default=None, max_length=255)
+    email_address: EmailStr = Field(max_length=255)
     password: str = Field(min_length=8, max_length=40)
 
 class UserCreate(UserBase):
@@ -32,3 +32,7 @@ class User(UserBase, table=True):
 # data returned from API on user creation
 class UserPublic(UserBase):
     id: uuid.UUID
+
+class Token(SQLModel):
+    access_token: str
+    token_type: str = "bearer"
