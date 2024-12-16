@@ -126,12 +126,10 @@ const DefaultPage = forwardRef<HTMLDivElement, DefaultPageProps>(({
         </Drawer>
 
         {/* Główna sekcja */}
-        <Flex flex="1" direction="column">
-          {/* Obszar roboczy */}
-          <Flex flex="1" bg={colors.secondary} p={8} align="center" justify="center">
+        {/*  /!* Obszar roboczy *!/*/}
+          <Flex flex="1" bg={colors.secondary} p={10}>
             {renderContent(activeView)}
           </Flex>
-        </Flex>
       </Flex>
     </Flex>
   );
