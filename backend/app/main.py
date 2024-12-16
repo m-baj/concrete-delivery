@@ -4,12 +4,14 @@ from app.core.config import settings
 # from typing import List, Annotated
 # from app import models
 # from app.database import engine, SessionLocal
+from app.api.main import router
 
 
 app = FastAPI(
     title=settings.PROJECT_NAME
 )
 
+app.include_router(router)
 
 # class Status(BaseModel):
 #     StatusID: int
