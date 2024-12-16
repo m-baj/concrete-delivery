@@ -12,10 +12,10 @@ import {
   DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody
 } from "@chakra-ui/react";
 
-import { useState } from "react"; // Importowanie hooka useState
+import { useState, forwardRef} from "react"; // Importowanie hooka useState
 import { HamburgerIcon } from "@chakra-ui/icons";
 
-type ViewTypes = "";
+type ViewTypes = string;
 
 interface DefaultPageProps {
   viewTitles: Record<ViewTypes, string>;
@@ -23,11 +23,13 @@ interface DefaultPageProps {
   renderContent: (view: ViewTypes) => JSX.Element; // Funkcja renderująca treść dla aktywnego widoku
 }
 
-export default function DefaultPage({
+// eslint-disable-next-line react/display-name
+const DefaultPage = forwardRef<HTMLDivElement, DefaultPageProps>(({
     viewTitles,
     defaultView,
     renderContent,
-    }: DefaultPageProps) {
+                                                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    }: DefaultPageProps, ref) => {
 
   const colors: Record<string, string> = {
     primary: "white",
@@ -133,4 +135,6 @@ export default function DefaultPage({
       </Flex>
     </Flex>
   );
-}
+});
+
+export default DefaultPage;

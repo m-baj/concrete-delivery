@@ -47,14 +47,12 @@ const renderContent = (view: "currentOrder" | "todaysOrders") => {
   );
 };
 
-const MapView = () => {
+export default function MapView() {
   return (
     <DefaultPage
       viewTitles={viewTitles}
       defaultView="currentOrder"
-      renderContent={renderContent} // Przekazanie funkcji renderContent do DefaultPage
+      renderContent={renderContent}
     />
   );
 }
-
-export default MapView;
