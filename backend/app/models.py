@@ -2,6 +2,7 @@
 import uuid
 from sqlmodel import SQLModel, Field
 from pydantic import EmailStr
+import datetime
 
 
 class UserBase(SQLModel):
@@ -73,3 +74,32 @@ class Status(StatusBase, table=True):
 
 class StatusPublic(StatusBase):
     id: uuid.UUID
+
+
+class OrderBase(SQLModel):
+    user_id: uuid.UUID
+    courier_id: uuid.UUID | None
+    pickup_address_id: uuid.UUID
+    delivery_address_id: uuid.UUID
+    status_id: uuid.UUID | None
+    order_date: datetime.datetime
+
+
+class OrderCreate(SQLModel):
+    pickup_address: AddressCreate
+    delivery_address: AddressCreate
+    order_date: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class Order(OrderBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+
+class OrderPublic(OrderBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+
+
+# Contents of JWT token
+class TokenPayload(SQLModel):
+    sub: str | None = None

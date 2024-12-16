@@ -82,3 +82,11 @@ def add_status(*, session: Session, status: StatusCreate) -> Status:
     session.commit()
     session.refresh(db_obj)
     return db_obj
+
+
+def create_order(*, session: Session, order: OrderBase) -> Order:
+    db_obj = Order.model_validate(order)
+    session.add(db_obj)
+    session.commit()
+    session.refresh(db_obj)
+    return db_obj
