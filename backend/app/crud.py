@@ -1,7 +1,7 @@
 # all database operations are done here
 from sqlmodel import Session, select
 
-from app.models import User, UserCreate, Address, AddressCreate
+from app.models import *
 from app.core.security import get_password_hash, verify_password
 
 
@@ -18,6 +18,12 @@ def create_user(*, session: Session, user_to_create: UserCreate) -> User:
 
 def get_user_by_phone_number(*, session: Session, phone_number: str) -> User | None:
     query = select(User).where(User.phone_number == phone_number)
+    user = session.exec(query).first()
+    return user
+
+
+def get_user_by_id(*, session: Session, user_id: str) -> User | None:
+    query = select(User).where(User.id == user_id)
     user = session.exec(query).first()
     return user
 
@@ -47,3 +53,32 @@ def get_address(*, session: Session, address: AddressCreate) -> Address | None:
     )
     address = session.exec(query).first()
     return address
+
+
+def delete_address(*, session: Session, address_id: str) -> Address | None:
+    query = select(Address).where(Address.id == address_id)
+    address = session.exec(query).first()
+    if address:
+        session.delete(address)
+        session.commit()
+    return address
+
+
+def get_address_by_id(*, session: Session, address_id: str) -> Address | None:
+    query = select(Address).where(Address.id == address_id)
+    address = session.exec(query).first()
+    return address
+
+
+def get_status(*, session: Session, status_id: str) -> Status | None:
+    query = select(Status).where(Status.id == status_id)
+    status = session.exec(query).first()
+    return status
+
+
+def add_status(*, session: Session, status: StatusCreate) -> Status:
+    db_obj = Status.model_validate(status)
+    session.add(db_obj)
+    session.commit()
+    session.refresh(db_obj)
+    return db_obj

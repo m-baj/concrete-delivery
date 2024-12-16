@@ -4,11 +4,6 @@ from sqlmodel import SQLModel, Field
 from pydantic import EmailStr
 
 
-class Status(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str = Field(max_length=40)
-
-
 class UserBase(SQLModel):
     name: str = Field(max_length=40)
     surname: str = Field(max_length=40)
@@ -61,4 +56,20 @@ class Address(AddressBase, table=True):
 
 
 class AddressPublic(AddressBase):
+    id: uuid.UUID
+
+
+class StatusBase(SQLModel):
+    name: str
+
+
+class StatusCreate(StatusBase):
+    pass
+
+
+class Status(StatusBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+
+class StatusPublic(StatusBase):
     id: uuid.UUID
