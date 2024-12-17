@@ -16,6 +16,7 @@ uvicorn==0.32.0
 sqlmodel==0.0.22
 pydantic_settings==2.6.1
 neontology==2.0.1
+folium==0.19.2
 passlib[bcrypt]==1.7.4
 pyjwt==2.10.1
 pytest==8.3.4
