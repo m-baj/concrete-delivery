@@ -24,13 +24,10 @@ import {
 } from "@/utils";
 import Link from "next/link";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { type RegisterData } from "@/types";
+import { signup } from "@/api-calls/auth";
 
-interface RegisterData {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  email: string;
-  password: string;
+interface RegisterFormData extends RegisterData {
   confirmPassword: string;
 }
 
@@ -40,15 +37,16 @@ const registerForm = () => {
     handleSubmit,
     getValues,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterData>({
+  } = useForm<RegisterFormData>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      phoneNumber: "",
-      email: "",
+      name: "",
+      surname: "",
+      phone_number: "",
+      email_address: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
@@ -56,8 +54,10 @@ const registerForm = () => {
   const [show2, setShow2] = useBoolean(false);
 
   const onSubmit = async (data: RegisterData) => {
-    console.log(data);
+    const response = await signup(data);
+    console.log(response);
   };
+  // TODO: Add error handling and display error messages
 
   return (
     <Container as="form" maxW="sm" onSubmit={handleSubmit(onSubmit)}>
@@ -72,13 +72,13 @@ const registerForm = () => {
         <Text fontSize="xl" fontWeight="bold" textAlign="center">
           Sign up
         </Text>
-        <FormControl id="firstName" isInvalid={!!errors.firstName}>
+        <FormControl id="firstName" isInvalid={!!errors.name}>
           <FormLabel htmlFor="firstName" srOnly>
             First Name
           </FormLabel>
           <Input
             type="text"
-            {...register("firstName", {
+            {...register("name", {
               required: "First name is required",
               minLength: { value: 2, message: "First name is too short" },
               pattern: namePattern,
@@ -87,17 +87,17 @@ const registerForm = () => {
             variant="filled"
             required
           />
-          {errors.firstName && (
-            <FormErrorMessage>{errors.firstName.message}</FormErrorMessage>
+          {errors.name && (
+            <FormErrorMessage>{errors.name.message}</FormErrorMessage>
           )}
         </FormControl>
-        <FormControl id="lastName" isInvalid={!!errors.lastName}>
+        <FormControl id="surname" isInvalid={!!errors.name}>
           <FormLabel htmlFor="firstName" srOnly>
             Last Name
           </FormLabel>
           <Input
             type="text"
-            {...register("lastName", {
+            {...register("surname", {
               required: "Last name is required",
               pattern: namePattern,
             })}
@@ -105,19 +105,19 @@ const registerForm = () => {
             variant="filled"
             required
           />
-          {errors.lastName && (
-            <FormErrorMessage>{errors.lastName.message}</FormErrorMessage>
+          {errors.surname && (
+            <FormErrorMessage>{errors.surname.message}</FormErrorMessage>
           )}
         </FormControl>
-        <FormControl id="phoneNumber" isInvalid={!!errors.phoneNumber}>
-          <FormLabel htmlFor="firstName" srOnly>
+        <FormControl id="phone_number" isInvalid={!!errors.phone_number}>
+          <FormLabel htmlFor="phone_number" srOnly>
             Phone number
           </FormLabel>
           <InputGroup>
             <InputLeftAddon children="+48" bg="gray.300" />
             <Input
               type="text"
-              {...register("phoneNumber", {
+              {...register("phone_number", {
                 required: "Phone number is required",
                 pattern: phonePattern,
               })}
@@ -126,14 +126,14 @@ const registerForm = () => {
               required
             />
           </InputGroup>
-          {errors.phoneNumber && (
-            <FormErrorMessage>{errors.phoneNumber.message}</FormErrorMessage>
+          {errors.phone_number && (
+            <FormErrorMessage>{errors.phone_number.message}</FormErrorMessage>
           )}
         </FormControl>
-        <FormControl id="email" isInvalid={!!errors.email}>
+        <FormControl id="email_address" isInvalid={!!errors.email_address}>
           <Input
             type="email"
-            {...register("email", {
+            {...register("email_address", {
               required: "Email is required",
               pattern: emailPatter,
             })}
@@ -141,8 +141,8 @@ const registerForm = () => {
             variant="filled"
             required
           />
-          {errors.email && (
-            <FormErrorMessage>{errors.email.message}</FormErrorMessage>
+          {errors.email_address && (
+            <FormErrorMessage>{errors.email_address.message}</FormErrorMessage>
           )}
         </FormControl>
         <FormControl id="password" isInvalid={!!errors.password}>
