@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import {
+  Container,
   Button,
   Input,
   Stack,
@@ -8,6 +9,7 @@ import {
   InputGroup,
   InputLeftElement,
   Text,
+  InputRightElement,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { LockIcon, PhoneIcon } from "@chakra-ui/icons";
@@ -31,14 +33,15 @@ const LoginForm = () => {
     },
   });
 
-  const onSubmit = handleSubmit((data) => {
-    console.log(data);
-  });
+  const [show, setShow] = useState(false);
+  const handleClick = () => setShow(!show);
 
-  const handleSignup = () => {};
+  const onSubmit: SubmitHandler<LoginData> = async (data) => {
+    console.log(data);
+  };
 
   return (
-    <form onSubmit={onSubmit}>
+    <Container as="form" maxW="sm" onSubmit={handleSubmit(onSubmit)}>
       <Stack
         gap={4}
         rounded="md"
@@ -50,7 +53,7 @@ const LoginForm = () => {
         <Text fontSize="xl" fontWeight="bold" textAlign="center">
           Sign in
         </Text>
-        <FormControl id="username">
+        <FormControl id="username" isInvalid={!!errors.username}>
           <InputGroup>
             <InputLeftElement pointerEvents="none">
               <PhoneIcon color="gray.400" />
@@ -72,7 +75,7 @@ const LoginForm = () => {
               <LockIcon color="gray.400" />
             </InputLeftElement>
             <Input
-              type="password"
+              type={show ? "text" : "password"}
               {...register("password", {
                 required: "Password is required",
               })}
@@ -80,6 +83,11 @@ const LoginForm = () => {
               placeholder="Password"
               required
             />
+            <InputRightElement width="4.5rem">
+              <Button h="1.75rem" size="sm" onClick={handleClick} bg="gray.300">
+                {show ? "Hide" : "Show"}
+              </Button>
+            </InputRightElement>
           </InputGroup>
         </FormControl>
         <Button variant="plain" size="xs" border="1px solid" color="gray.500">
@@ -99,7 +107,7 @@ const LoginForm = () => {
           <Link href={"/register"}>Sign up</Link>
         </Button>
       </Stack>
-    </form>
+    </Container>
   );
 };
 
