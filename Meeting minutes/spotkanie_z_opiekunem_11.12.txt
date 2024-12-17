@@ -1,0 +1,19 @@
+Prezentacja PZSP2:
+	- Slajdy
+	- prezentacja problemu
+	- malowanie trawy na zielono/sprzedawanie wizji
+	- wizja rozwiązania
+	- prezentacja architektury
+	- rozważania
+	- nagranie pokazujące możliwości aplikacji
+	- być przekonującym
+	- Każdy coś tam musi powiedzieć, żeby było widać, że każdy coś zrobił
+	- 10/15min (do sprawdzenia) (nie wolno przekraczać)
+	- Przypisywać zadania, żeby było weryfikowalne, kto co zrobił
+		- Demo
+		- Prezentacja
+		- Elementy programu
+		-	
+TODO:
+	- Umówić spotkanie z właścicielem tematu, żeby przegadać implementacje, czy mu wszystko pasuje. Najlepiej przed świętami jeszcze.
+	
