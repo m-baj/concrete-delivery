@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic_core import MultiHostUrl
 from pydantic import PostgresDsn, computed_field
 
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file="../env",
@@ -33,5 +34,6 @@ class Settings(BaseSettings):
     SUPERUSER_PHONE_NUMBER: str = "000000000"
     SUPERUSER_EMAIL_ADDRESS: str = "superuser@test.com"
     SUPERUSER_PASSWORD: str
+
 
 settings = Settings()
