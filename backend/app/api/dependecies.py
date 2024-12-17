@@ -12,7 +12,7 @@ from app.core.config import settings
 from app.core.database import engine
 from app.models import User, TokenPayload
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/login/access-token")
+reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/login")
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -38,8 +38,8 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
     user = session.get(User, token_data.sub)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    if not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+    # if not user.is_active:
+    #     raise HTTPException(status_code=400, detail="Inactive user")
     return user
 
 

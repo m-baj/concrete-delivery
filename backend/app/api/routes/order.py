@@ -25,7 +25,7 @@ def create_order(
         courier_id=None,
         pickup_address_id=pickup_address.id,
         delivery_address_id=delivery_address.id,
-        status_id=order.status_id,
+        status_id=None,
         order_date=order.order_date,
     )
 
