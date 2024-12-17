@@ -9,9 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "react": "19.0.0-rc-66855b96-20241106",
-    "react-dom": "19.0.0-rc-66855b96-20241106",
-    "next": "15.0.3"
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "next": "15.0.3",
+    "@chakra-ui/react": "^2.10.4",
+    "@chakra-ui/icons": "^2.2.5",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "framer-motion": "^11.15.0"
   },
   "devDependencies": {
     "typescript": "^5",
