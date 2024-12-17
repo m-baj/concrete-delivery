@@ -46,6 +46,8 @@ class AddressBase(SQLModel):
     postal_code: str
     street: str
     house_number: str
+    X_coordinate: float | None = None
+    Y_coordinate: float | None = None
 
 
 class AddressCreate(AddressBase):
