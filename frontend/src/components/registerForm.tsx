@@ -202,7 +202,7 @@ const registerForm = () => {
         <Text textAlign="center">
           Already have an account?{" "}
           <Button variant="link" color="blue.500" textAlign="center">
-            <Link href={"/login"}>Sign in</Link>
+            <Link href={"login"}>Sign in</Link>
           </Button>
         </Text>
       </Stack>

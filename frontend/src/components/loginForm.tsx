@@ -102,7 +102,7 @@ const LoginForm = () => {
           </InputGroup>
         </FormControl>
         <Button variant="link" color="blue.500">
-          <Link href={"/recover-password"}>Forgot password?</Link>
+          <Link href={"recover-password"}>Forgot password?</Link>
         </Button>
         <Button type="submit" border="1px" isLoading={isSubmitting}>
           Submit
@@ -110,7 +110,7 @@ const LoginForm = () => {
         <Text textAlign="center">
           Already have an account?{" "}
           <Button variant="link" color="blue.500" textAlign="center">
-            <Link href={"/register"}>Sign up</Link>
+            <Link href={"register"}>Sign up</Link>
           </Button>
         </Text>
       </Stack>
