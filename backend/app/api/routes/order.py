@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import Any
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.models import OrderPublic, OrderCreate, Order, OrderBase
 from app.api.dependecies import SessionDep
@@ -12,7 +13,9 @@ router = APIRouter(prefix="/order", tags=["order"])
 
 @router.post("/", response_model=OrderPublic)
 def create_order(
-    session: SessionDep, order: OrderCreate, current_user: CurrentUser
+    session: SessionDep,
+    current_user: CurrentUser,
+    order: OrderCreate,
 ) -> Any:
     """
     Create an order for the currently logged in user
