@@ -41,6 +41,11 @@ class Token(SQLModel):
     token_type: str = "bearer"
 
 
+# Contents of JWT token
+class TokenPayload(SQLModel):
+    sub: str | None = None
+
+
 class AddressBase(SQLModel):
     city: str
     postal_code: str
@@ -100,8 +105,3 @@ class Order(OrderBase, table=True):
 class OrderPublic(OrderBase):
     id: uuid.UUID
     user_id: uuid.UUID
-
-
-# Contents of JWT token
-class TokenPayload(SQLModel):
-    sub: str | None = None
