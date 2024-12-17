@@ -1,0 +1,106 @@
+import React from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import {
+  Button,
+  Input,
+  Stack,
+  FormControl,
+  InputGroup,
+  InputLeftElement,
+  Text,
+} from "@chakra-ui/react";
+import Link from "next/link";
+import { LockIcon, PhoneIcon } from "@chakra-ui/icons";
+
+interface LoginData {
+  username: string;
+  password: string;
+}
+
+const LoginForm = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginData>({
+    mode: "onBlur",
+    criteriaMode: "all",
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = handleSubmit((data) => {
+    console.log(data);
+  });
+
+  const handleSignup = () => {};
+
+  return (
+    <form onSubmit={onSubmit}>
+      <Stack
+        gap={4}
+        rounded="md"
+        p={4}
+        shadow="md"
+        border="1px solid"
+        borderColor="gray.200"
+      >
+        <Text fontSize="xl" fontWeight="bold" textAlign="center">
+          Sign in
+        </Text>
+        <FormControl id="username">
+          <InputGroup>
+            <InputLeftElement pointerEvents="none">
+              <PhoneIcon color="gray.400" />
+            </InputLeftElement>
+            <Input
+              type="text"
+              {...register("username", {
+                required: "Username is required",
+              })}
+              variant="filled"
+              placeholder="Phone number"
+              required
+            />
+          </InputGroup>
+        </FormControl>
+        <FormControl label="Password">
+          <InputGroup>
+            <InputLeftElement pointerEvents="none">
+              <LockIcon color="gray.400" />
+            </InputLeftElement>
+            <Input
+              type="password"
+              {...register("password", {
+                required: "Password is required",
+              })}
+              variant="filled"
+              placeholder="Password"
+              required
+            />
+          </InputGroup>
+        </FormControl>
+        <Button variant="plain" size="xs" border="1px solid" color="gray.500">
+          <Link href={"/recover-password"}>Forgot password?</Link>
+        </Button>
+        <Button
+          type="submit"
+          variant="solid"
+          border="1px solid"
+          color="gray.500"
+          size="xs"
+        >
+          Submit
+        </Button>
+        <Text>Don't have an account?</Text>
+        <Button variant="plain" size="xs" border="1px solid" color="gray.500">
+          <Link href={"/register"}>Sign up</Link>
+        </Button>
+      </Stack>
+    </form>
+  );
+};
+
+export default LoginForm;
