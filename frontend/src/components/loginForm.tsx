@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { Form, useForm, type SubmitHandler } from "react-hook-form";
 import {
   Container,
   Button,
@@ -10,9 +10,11 @@ import {
   InputLeftElement,
   Text,
   InputRightElement,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { LockIcon, PhoneIcon } from "@chakra-ui/icons";
+import { phonePattern } from "@/utils";
 
 interface LoginData {
   username: string;
@@ -62,12 +64,16 @@ const LoginForm = () => {
               type="text"
               {...register("username", {
                 required: "Username is required",
+                pattern: phonePattern,
               })}
               variant="filled"
               placeholder="Phone number"
               required
             />
           </InputGroup>
+          {errors.username && (
+            <FormErrorMessage>{errors.username.message}</FormErrorMessage>
+          )}
         </FormControl>
         <FormControl label="Password">
           <InputGroup>
