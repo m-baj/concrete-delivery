@@ -1,7 +1,13 @@
+"use client";
 import React from "react";
+import RegisterForm from "@/components/registerForm";
 
-const RecoverPassword = () => {
-  return <div>Reover password</div>;
+const Register = () => {
+  return (
+    <div className="flex justify-center items-center h-screen">
+      <RegisterForm />
+    </div>
+  );
 };
 
-export default RecoverPassword;
+export default Register;

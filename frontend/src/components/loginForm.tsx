@@ -90,22 +90,18 @@ const LoginForm = () => {
             </InputRightElement>
           </InputGroup>
         </FormControl>
-        <Button variant="plain" size="xs" border="1px solid" color="gray.500">
+        <Button variant="link" color="blue.500">
           <Link href={"/recover-password"}>Forgot password?</Link>
         </Button>
-        <Button
-          type="submit"
-          variant="solid"
-          border="1px solid"
-          color="gray.500"
-          size="xs"
-        >
+        <Button type="submit" border="1px" isLoading={isSubmitting}>
           Submit
         </Button>
-        <Text>Don't have an account?</Text>
-        <Button variant="plain" size="xs" border="1px solid" color="gray.500">
-          <Link href={"/register"}>Sign up</Link>
-        </Button>
+        <Text textAlign="center">
+          Already have an account?{" "}
+          <Button variant="link" color="blue.500" textAlign="center">
+            <Link href={"/register"}>Sign up</Link>
+          </Button>
+        </Text>
       </Stack>
     </Container>
   );
