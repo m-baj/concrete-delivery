@@ -11,9 +11,11 @@ import {
   Text,
   InputRightElement,
   FormErrorMessage,
+  useBoolean,
+  Icon,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { LockIcon, PhoneIcon } from "@chakra-ui/icons";
+import { LockIcon, PhoneIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { phonePattern } from "@/utils";
 
 interface LoginData {
@@ -35,8 +37,7 @@ const LoginForm = () => {
     },
   });
 
-  const [show, setShow] = useState(false);
-  const handleClick = () => setShow(!show);
+  const [show, setShow] = useBoolean(false);
 
   const onSubmit: SubmitHandler<LoginData> = async (data) => {
     console.log(data);
@@ -89,10 +90,14 @@ const LoginForm = () => {
               placeholder="Password"
               required
             />
-            <InputRightElement width="4.5rem">
-              <Button h="1.75rem" size="sm" onClick={handleClick} bg="gray.300">
-                {show ? "Hide" : "Show"}
-              </Button>
+            <InputRightElement width="2.5rem" _hover={{ cursor: "pointer" }}>
+              <Icon
+                as={show ? ViewOffIcon : ViewIcon}
+                onClick={setShow.toggle}
+                aria-label={show ? "Hide password" : "Show password"}
+              >
+                {show ? <ViewOffIcon /> : <ViewIcon />}
+              </Icon>
             </InputRightElement>
           </InputGroup>
         </FormControl>

@@ -11,6 +11,8 @@ import {
   Button,
   FormLabel,
   FormErrorMessage,
+  useBoolean,
+  Icon,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import {
@@ -21,6 +23,7 @@ import {
   phonePattern,
 } from "@/utils";
 import Link from "next/link";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 interface RegisterData {
   firstName: string;
@@ -49,11 +52,8 @@ const registerForm = () => {
     },
   });
 
-  const [show1, setShow1] = useState(false);
-  const handleClick1 = () => setShow1(!show1);
-
-  const [show2, setShow2] = useState(false);
-  const handleClick2 = () => setShow2(!show2);
+  const [show1, setShow1] = useBoolean(false);
+  const [show2, setShow2] = useBoolean(false);
 
   const onSubmit = async (data: RegisterData) => {
     console.log(data);
@@ -157,15 +157,14 @@ const registerForm = () => {
               placeholder="Password"
               required
             />
-            <InputRightElement width="4.5rem">
-              <Button
-                h="1.75rem"
-                size="sm"
-                onClick={handleClick1}
-                bg="gray.300"
+            <InputRightElement width="2.5rem" _hover={{ cursor: "pointer" }}>
+              <Icon
+                as={show1 ? ViewOffIcon : ViewIcon}
+                onClick={setShow1.toggle}
+                aria-label={show1 ? "Hide password" : "Show password"}
               >
-                {show1 ? "Hide" : "Show"}
-              </Button>
+                {show1 ? <ViewOffIcon /> : <ViewIcon />}
+              </Icon>
             </InputRightElement>
           </InputGroup>
           {errors.password && (
@@ -181,15 +180,14 @@ const registerForm = () => {
               placeholder="Repeat Password"
               required
             />
-            <InputRightElement width="4.5rem">
-              <Button
-                h="1.75rem"
-                size="sm"
-                onClick={handleClick2}
-                bg="gray.300"
+            <InputRightElement width="2.5rem" _hover={{ cursor: "pointer" }}>
+              <Icon
+                as={show2 ? ViewOffIcon : ViewIcon}
+                onClick={setShow2.toggle}
+                aria-label={show2 ? "Hide password" : "Show password"}
               >
-                {show2 ? "Hide" : "Show"}
-              </Button>
+                {show2 ? <ViewOffIcon /> : <ViewIcon />}
+              </Icon>
             </InputRightElement>
           </InputGroup>
           {errors.confirmPassword && (
