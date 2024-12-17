@@ -2,7 +2,7 @@ import os
 
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
-from app.services.map_service import create_map
+from app.services.map_service import create_map,  get_osrm_route
 
 router = APIRouter(tags=["map"])
 
@@ -32,7 +32,12 @@ def get_map():
     zoom = -23 * (lat_max - lat_min + lon_max - lon_min) / 2 + 17 - (lat_max - lat_min)/ (lon_max - lon_min)
     print(zoom)
 
-    file_path = create_map(lat, lon, zoom_start=zoom, markers=markers)
+    route_coordinates = get_osrm_route([(m[0], m[1]) for m in markers])
+
+    # Tworzenie mapy z trasą
+    file_path = create_map(lat, lon, zoom_start=zoom, markers=markers, route=route_coordinates)
+
+    # file_path = create_map(lat, lon, zoom_start=zoom, markers=markers)
 
     # Wczytywanie wygenerowanego pliku HTML
     with open(file_path, "r") as file:
