@@ -1,15 +1,23 @@
-from neomodel import StructuredNode, StringProperty, RelationshipTo, RelationshipFrom
+from neomodel import (
+    StructuredNode,
+    StringProperty,
+    RelationshipTo,
+    RelationshipFrom,
+    UniqueIdProperty,
+)
+from neomodel.contrib.spatial_properties import NeomodelPoint
 
 class Courier(StructuredNode):
+    courierID = UniqueIdProperty()
     name = StringProperty()
-    phone_number = StringProperty()
 
     is_at = RelationshipTo('Location', 'IS_AT')
     delivers_to = RelationshipTo('Location', 'DELIVERS_TO')
 
 class Location(StructuredNode):
-    name = StringProperty()
+    locationID = UniqueIdProperty()
     address = StringProperty()
+    coordinates = NeomodelPoint()
 
     is_visited_by = RelationshipFrom('Courier', 'IS_AT')
     delivered_by = RelationshipFrom('Courier', 'DELIVERS_TO')
