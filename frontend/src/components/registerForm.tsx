@@ -26,6 +26,8 @@ import Link from "next/link";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { type RegisterData } from "@/types";
 import { signup } from "@/api-calls/auth";
+import useCustomToast from "@/hooks/useCustomToast";
+import { redirect } from "next/navigation";
 
 interface RegisterFormData extends RegisterData {
   confirmPassword: string;
@@ -52,12 +54,21 @@ const registerForm = () => {
 
   const [show1, setShow1] = useBoolean(false);
   const [show2, setShow2] = useBoolean(false);
+  const showToast = useCustomToast();
 
   const onSubmit = async (data: RegisterData) => {
     const response = await signup(data);
-    console.log(response);
+    if (response.status) {
+      showToast(
+        "Account created successfully",
+        "You can now log in",
+        "success"
+      );
+      redirect("/auth/login");
+    } else {
+      showToast("An error occurred", response.message, "error");
+    }
   };
-  // TODO: Add error handling and display error messages
 
   return (
     <Container as="form" maxW="sm" onSubmit={handleSubmit(onSubmit)}>
