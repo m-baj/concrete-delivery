@@ -70,6 +70,32 @@ def get_address_by_id(*, session: Session, address_id: str) -> Address | None:
     return address
 
 
+def update_X_coordinate(
+    *, session: Session, address_id: str, new_X: str
+) -> Address | None:
+    query = select(Address).where(Address.id == address_id)
+    address = session.exec(query).first()
+    if address:
+        address.X_coordinate = new_X
+        session.add(address)
+        session.commit()
+        session.refresh(address)
+    return address
+
+
+def update_Y_coordinate(
+    *, session: Session, address_id: str, new_Y: str
+) -> Address | None:
+    query = select(Address).where(Address.id == address_id)
+    address = session.exec(query).first()
+    if address:
+        address.Y_coordinate = new_Y
+        session.add(address)
+        session.commit()
+        session.refresh(address)
+    return address
+
+
 def get_status(*, session: Session, status_id: str) -> Status | None:
     query = select(Status).where(Status.id == status_id)
     status = session.exec(query).first()
@@ -92,6 +118,38 @@ def create_order(*, session: Session, order: OrderBase) -> Order:
     return db_obj
 
 
+def assign_courier_to_order(
+    *, session: Session, order_id: str, courier_id: str
+) -> Order | None:
+    query = select(Order).where(Order.id == order_id)
+    order = session.exec(query).first()
+    if order:
+        order.courier_id = courier_id
+        session.add(order)
+        session.commit()
+        session.refresh(order)
+    return order
+
+
+def get_order_by_id(*, session: Session, order_id: str) -> Order | None:
+    query = select(Order).where(Order.id == order_id)
+    order = session.exec(query).first()
+    return order
+
+
+def set_order_status(
+    *, session: Session, order_id: str, status_id: str
+) -> Order | None:
+    query = select(Order).where(Order.id == order_id)
+    order = session.exec(query).first()
+    if order:
+        order.status_id = status_id
+        session.add(order)
+        session.commit()
+        session.refresh(order)
+    return order
+
+
 def get_courier_by_phone_number(
     *, session: Session, phone_number: str
 ) -> Courier | None:
@@ -112,3 +170,16 @@ def create_courier(*, session: Session, courier_to_create: CourierBase) -> Couri
     session.commit()
     session.refresh(db_obj)
     return db_obj
+
+
+def set_courier_status(
+    *, session: Session, courier_id: str, status_id: str
+) -> Courier | None:
+    query = select(Courier).where(Courier.id == courier_id)
+    courier = session.exec(query).first()
+    if courier:
+        courier.status_id = status_id
+        session.add(courier)
+        session.commit()
+        session.refresh(courier)
+    return courier

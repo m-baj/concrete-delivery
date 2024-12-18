@@ -25,9 +25,29 @@ def get_address(address_id: str, session: SessionDep) -> Any:
     return address
 
 
-@router.delete("/{address_id}")
+@router.delete("/{address_id}", response_model=AddressPublic)
 def delete_address(address_id: str, session: SessionDep) -> Any:
     address = crud.delete_address(session=session, address_id=address_id)
+    if not address:
+        raise HTTPException(status_code=404, detail="Address not found")
+    return address
+
+
+@router.put("/X/{address_id}", response_model=AddressPublic)
+def update_X_coordinate(session: SessionDep, address_id: str, new_X: str) -> Any:
+    address = crud.update_X_coordinate(
+        session=session, address_id=address_id, new_X=new_X
+    )
+    if not address:
+        raise HTTPException(status_code=404, detail="Address not found")
+    return address
+
+
+@router.put("/Y/{address_id}", response_model=AddressPublic)
+def update_Y_coordinate(session: SessionDep, address_id: str, new_Y: str) -> Any:
+    address = crud.update_Y_coordinate(
+        session=session, address_id=address_id, new_Y=new_Y
+    )
     if not address:
         raise HTTPException(status_code=404, detail="Address not found")
     return address

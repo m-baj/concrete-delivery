@@ -66,3 +66,17 @@ def register_courier(
 
     crud.create_user(session=session, user_to_create=courier_to_create_as_user)
     return courier
+
+
+@router.put("/status/{courier_id}")
+def set_courier_status(session: SessionDep, courier_id: str, status_id: str) -> Any:
+    """
+    Set status of a courier
+    """
+    courier = crud.get_courier_by_id(session=session, courier_id=courier_id)
+    if not courier:
+        raise HTTPException(status_code=404, detail="Courier not found")
+    courier = crud.set_courier_status(
+        session=session, courier_id=courier_id, status_id=status_id
+    )
+    return courier

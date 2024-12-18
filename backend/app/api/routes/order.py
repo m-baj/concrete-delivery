@@ -34,3 +34,39 @@ def create_order(
 
     db_order = crud.create_order(session=session, order=order_data)
     return db_order
+
+
+@router.put("/assign_courier/{order_id}")
+def assign_courier_to_order(
+    session: SessionDep,
+    order_id: str,
+    courier_id: str,
+) -> Any:
+    """
+    Assign a courier to an order
+    """
+    order = crud.get_order_by_id(session=session, order_id=order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    order = crud.assign_courier_to_order(
+        session=session, order_id=order_id, courier_id=courier_id
+    )
+    return order
+
+
+@router.put("/status/{order_id}")
+def set_order_status(
+    session: SessionDep,
+    order_id: str,
+    status_id: str,
+) -> Any:
+    """
+    Set status of an order
+    """
+    order = crud.get_order_by_id(session=session, order_id=order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    order = crud.set_order_status(
+        session=session, order_id=order_id, status_id=status_id
+    )
+    return order
