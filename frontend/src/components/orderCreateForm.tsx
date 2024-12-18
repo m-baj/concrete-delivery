@@ -10,19 +10,17 @@ import {
     FormErrorMessage,
     Text,
     Box,
-    NumberInput,
-    NumberInputField,
-    NumberInputStepper,
-    NumberIncrementStepper,
-    NumberDecrementStepper,
     Select,
+    useBoolean,
 } from "@chakra-ui/react";
 import { type OrderRegisterFormData } from "@/types";
 import { generateTimeOptions } from "@/utils";
+import { createOrder } from "@/api-calls/create_order";
+import useCustomToast from "@/hooks/useCustomToast";
 
 const timeOptions = generateTimeOptions();
 
-const OrderRegisterForm = () => {
+const OrderCreateForm = () => {
     const {
         register,
         handleSubmit,
@@ -52,14 +50,24 @@ const OrderRegisterForm = () => {
         },
     });
 
+    const [show1, setShow1] = useBoolean(false);
+    const [show2, setShow2] = useBoolean(false);
+    const showToast = useCustomToast();
+
     const onSubmit: SubmitHandler<OrderRegisterFormData> = async (data) => {
-        try {
-            // Submit the form data to the server
-            console.log(data);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+        const response = await createOrder(data);
+        if (response.status) {
+            showToast(
+                "Order created successfully",
+                "Order created successfully",
+                "success");
+        } else {
+            showToast(
+                "An errer occured",
+                response.message,
+                "error");
+        };
+    }
 
     return (
         <Container
@@ -263,31 +271,6 @@ const OrderRegisterForm = () => {
                                 <FormErrorMessage>{errors.delivery_address.apartment_number.message}</FormErrorMessage>
                             )}
                         </FormControl>
-                        <FormControl id="delivery_address_apartment_number" isInvalid={!!errors.delivery_address?.apartment_number}>
-                            <FormLabel htmlFor="delivery_address_apartment_number"></FormLabel>
-                            <Input
-                                type="text"
-                                {...register("delivery_address.apartment_number", { required: "Apartment number is required" })}
-                                placeholder="Apartment Number"
-                                variant="filled"
-                                required
-                            />
-                            {errors.delivery_address?.apartment_number && (
-                                <FormErrorMessage>{errors.delivery_address.apartment_number.message}</FormErrorMessage>
-                            )}
-                        </FormControl><FormControl id="delivery_address_apartment_number" isInvalid={!!errors.delivery_address?.apartment_number}>
-                            <FormLabel htmlFor="delivery_address_apartment_number"></FormLabel>
-                            <Input
-                                type="text"
-                                {...register("delivery_address.apartment_number", { required: "Apartment number is required" })}
-                                placeholder="Apartment Number"
-                                variant="filled"
-                                required
-                            />
-                            {errors.delivery_address?.apartment_number && (
-                                <FormErrorMessage>{errors.delivery_address.apartment_number.message}</FormErrorMessage>
-                            )}
-                        </FormControl>
                     </Box>
                 </Box>
                 <Text fontSize="md" fontWeight="bold">
@@ -338,4 +321,4 @@ const OrderRegisterForm = () => {
     );
 }
 
-export default OrderRegisterForm;
+export default OrderCreateForm;

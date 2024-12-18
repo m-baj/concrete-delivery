@@ -104,19 +104,19 @@ class OrderBase(SQLModel):
     pickup_address_id: uuid.UUID
     delivery_address_id: uuid.UUID
     status_id: uuid.UUID | None
-    pickup_start_time: datetime.datetime | None = None
-    pickup_end_time: datetime.datetime | None = None
-    delivery_start_time: datetime.datetime | None = None
-    delivery_end_time: datetime.datetime | None = None
+    pickup_start_time: str | None = None
+    pickup_end_time: str | None = None
+    delivery_start_time: str | None = None
+    delivery_end_time: str | None = None
 
 
 class OrderCreate(SQLModel):
     pickup_address: AddressCreate
     delivery_address: AddressCreate
-    pickup_start_time: datetime.datetime
-    pickup_end_time: datetime.datetime
-    delivery_start_time: datetime.datetime
-    delivery_end_time: datetime.datetime
+    pickup_start_time: str
+    pickup_end_time: str
+    delivery_start_time: str
+    delivery_end_time: str
 
 
 class Order(OrderBase, table=True):
