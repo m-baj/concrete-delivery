@@ -36,17 +36,17 @@ services:
       - backend
     command: npm run dev
 
-  # neo4j:
-  #   image: neo4j:latest
-  #   volumes:
-  #       - /$HOME/neo4j/logs:/logs
-  #       - /$HOME/neo4j/config:/config
-  #       - /$HOME/neo4j/data:/data
-  #       - /$HOME/neo4j/plugins:/plugins
-  #       - ./init.cypher:/docker-entrypoint-initdb.d/init.cypher
-  #   environment:
-  #       - NEO4J_AUTH=${NEO4J_AUTH}
-  #   ports:
-  #     - "7474:7474"
-  #     - "7687:7687"
-  #   restart: always
+  neo4j:
+    image: neo4j:latest
+    volumes:
+        - /$HOME/neo4j/logs:/logs
+        - /$HOME/neo4j/config:/config
+        - /$HOME/neo4j/data:/data
+        - /$HOME/neo4j/plugins:/plugins
+        - ./init.cypher:/docker-entrypoint-initdb.d/init.cypher
+    environment:
+        - NEO4J_AUTH=${NEO4J_AUTH}
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    restart: always

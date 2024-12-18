@@ -3,6 +3,13 @@ import uuid
 from sqlmodel import SQLModel, Field
 from pydantic import EmailStr
 import datetime
+from enum import Enum
+
+
+class AccountType(str, Enum):
+    USER = "user"
+    COURIER = "courier"
+    ADMIN = "admin"
 
 
 class UserBase(SQLModel):
@@ -10,7 +17,7 @@ class UserBase(SQLModel):
     surname: str = Field(max_length=40)
     phone_number: str
     email_address: EmailStr | None = Field(default=None, max_length=255)
-    is_admin: bool = False
+    account_type: AccountType = AccountType.USER
 
 
 # data received by API during user registration
@@ -26,14 +33,21 @@ class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=40)
 
 
+class UserCourierCreate(UserCreate):
+    courier_id: uuid.UUID
+    account_type: AccountType = AccountType.COURIER
+
+
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
+    courier_id: uuid.UUID | None = None
 
 
 # data returned from API on user creation
 class UserPublic(UserBase):
     id: uuid.UUID
+    courier_id: uuid.UUID | None = None
 
 
 class Token(SQLModel):
@@ -105,3 +119,28 @@ class Order(OrderBase, table=True):
 class OrderPublic(OrderBase):
     id: uuid.UUID
     user_id: uuid.UUID
+
+
+class CourierBase(SQLModel):
+    name: str
+    surname: str
+    phone_number: str
+    home_address_id: uuid.UUID
+    status_id: uuid.UUID | None = None
+
+
+class CourierRegister(SQLModel):
+    name: str
+    surname: str
+    phone_number: str
+    home_address: AddressCreate
+    email_address: EmailStr | None = Field(default=None, max_length=255)
+    password: str = Field(min_length=8, max_length=40)
+
+
+class Courier(CourierBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+
+class CourierPublic(CourierBase):
+    id: uuid.UUID

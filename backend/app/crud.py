@@ -90,3 +90,25 @@ def create_order(*, session: Session, order: OrderBase) -> Order:
     session.commit()
     session.refresh(db_obj)
     return db_obj
+
+
+def get_courier_by_phone_number(
+    *, session: Session, phone_number: str
+) -> Courier | None:
+    query = select(Courier).where(Courier.phone_number == phone_number)
+    courier = session.exec(query).first()
+    return courier
+
+
+def get_courier_by_id(*, session, courier_id: str) -> Courier | None:
+    query = select(Courier).where(Courier.id == courier_id)
+    courier = session.exec(query).first()
+    return courier
+
+
+def create_courier(*, session: Session, courier_to_create: CourierBase) -> Courier:
+    db_obj = Courier.model_validate(courier_to_create)
+    session.add(db_obj)
+    session.commit()
+    session.refresh(db_obj)
+    return db_obj

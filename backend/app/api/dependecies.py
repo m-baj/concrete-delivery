@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from app.core import security
 from app.core.config import settings
 from app.core.database import engine
-from app.models import User, TokenPayload
+from app.models import User, TokenPayload, AccountType
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/login")
 
@@ -44,3 +44,14 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+def get_current_admin_user(current_user: CurrentUser) -> User:
+    if not current_user.account_type == AccountType.ADMIN:
+        raise HTTPException(
+            status_code=403, detail="The user doesn't have enough privileges"
+        )
+    return current_user
+
+
+CurrentAdmin = Annotated[User, Depends(get_current_admin_user)]
