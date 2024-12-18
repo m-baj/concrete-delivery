@@ -36,36 +36,36 @@ services:
       - backend
     command: npm run dev
 
-  neo4j:
-    image: neo4j:latest
-    volumes:
-        - /$HOME/neo4j/logs:/logs
-        - /$HOME/neo4j/config:/config
-        - /$HOME/neo4j/data:/data
-        - /$HOME/neo4j/plugins:/plugins
-        - ./init.cypher:/docker-entrypoint-initdb.d/init.cypher
-    environment:
-        - NEO4J_AUTH=${NEO4J_AUTH}
-    ports:
-      - "7474:7474"
-      - "7687:7687"
-    restart: always
+#  neo4j:
+#    image: neo4j:latest
+#    volumes:
+#        - /$HOME/neo4j/logs:/logs
+#        - /$HOME/neo4j/config:/config
+#        - /$HOME/neo4j/data:/data
+#        - /$HOME/neo4j/plugins:/plugins
+#        - ./init.cypher:/docker-entrypoint-initdb.d/init.cypher
+#    environment:
+#        - NEO4J_AUTH=${NEO4J_AUTH}
+#    ports:
+#      - "7474:7474"
+#      - "7687:7687"
+#    restart: always
 
-  osrm-backend:
-    image: ghcr.io/project-osrm/osrm-backend
-    container_name: osrm-backend
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./osrm-data:/data
-    command: >
-      sh -c "
-      osrm-extract -p /opt/car.lua /data/mazowieckie-latest.osm.pbf &&
-      osrm-partition /data/mazowieckie-latest.osrm &&
-      osrm-customize /data/mazowieckie-latest.osrm &&
-      osrm-routed --algorithm mld /data/mazowieckie-latest.osrm
-      "
-    restart: always
+#  osrm-backend:
+#    image: ghcr.io/project-osrm/osrm-backend
+#    container_name: osrm-backend
+#    ports:
+#      - "5000:5000"
+#    volumes:
+#      - ./osrm-data:/data
+#    command: >
+#      sh -c "
+#      osrm-extract -p /opt/car.lua /data/mazowieckie-latest.osm.pbf &&
+#      osrm-partition /data/mazowieckie-latest.osrm &&
+#      osrm-customize /data/mazowieckie-latest.osrm &&
+#      osrm-routed --algorithm mld /data/mazowieckie-latest.osrm
+#      "
+#    restart: always
 
 #  osrm-frontend:
 #    image: osrm/osrm-frontend

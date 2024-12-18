@@ -1,6 +1,6 @@
 # frontend/Dockerfile
 # Użyj oficjalnego obrazu Node.js jako bazowego
-FROM node:18-alpine
+FROM node:23.4.0-alpine
 
 # Ustaw katalog roboczy w kontenerze
 WORKDIR /app
