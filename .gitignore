@@ -22,6 +22,8 @@ var/
 wheels/
 share/python-wheels/
 *.egg-info/
+postgres-data/
+neo4j-data/
 .installed.cfg
 *.egg
 MANIFEST
