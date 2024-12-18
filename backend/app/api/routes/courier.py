@@ -1,77 +1,87 @@
-from email.policy import default
-
 from fastapi import APIRouter, HTTPException
-from backend.app.services_neo4j import (
-    get_current_location,
-    get_assigned_locations_in_order,
-    add_locations_to_courier,
+from neomodel import DoesNotExist
+from neomodel.contrib.spatial_properties import NeomodelPoint
+from app.models_neo4j import Courier, Location
+from app.api_models_neo4j import (
+    LocationAPI,
+    LocationsAPI,
+    CourierAPI,
+    AddLocationsRequest,
+    CreateCourierRequest,
 )
 
-router = APIRouter()
+router = APIRouter(prefix="/courier", tags=["courier"])
 
-@router.get("/courier/{courier_id}/current_location", tags=["Neo4j"])
-async def current_location_route(courier_id: int):
+@router.get("/{courier_id}/current_location", tags=["courier"], response_model=LocationAPI)
+async def get_courier_current_location(courier_id: int):
     """
-    Get the current location of a courier based on IS_AT relationship.
+    Endpoint to get the current location of a courier based on the IS_AT relationship.
     """
-    current_location = await get_current_location(courier_id)
-    if not current_location:
-        raise HTTPException(status_code=404, detail="Courier not found or has no current location.")
-    return {
-        "courier_id": courier_id,
-        "current_location": {
-            "locationID": current_location.locationID,
-            "address": current_location.address,
-            "coordinates": current_location.coordinates,
-        },
-    }
+    try:
+        courier = Courier.nodes.get(courierID=courier_id)
+        current_location = courier.location.single()  # Get current location from IS_AT
+
+        if not current_location:
+            raise HTTPException(status_code=404, detail="Courier's current location not found.")
+
+        return LocationAPI(
+            locationID=current_location.locationID,
+            address=current_location.address,
+            coordinates=current_location.coordinates.get("coordinates", []),
+        )
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Courier not found")
 
 
-@router.get("/courier/{courier_id}/locations_in_order", tags=["Neo4j"])
-async def locations_in_order_route(courier_id: int):
+@router.get("/{courier_id}/locations_in_order", tags=["courier"], response_model=LocationsAPI)
+async def get_courier_deliveries_in_order(courier_id: int):
     """
-    Get all locations assigned to a courier in order based on THEN relationship.
+    Endpoint to get the list of delivery locations for a courier, in the order defined by the NEXT relationship.
     """
-    locations = await get_assigned_locations_in_order(courier_id)
-    if locations is None:
-        raise HTTPException(status_code=404, detail="Courier not found or has no assigned locations.")
-    elif not locations:
-        return {"courier_id": courier_id, "locations": []}
+    try:
+        courier = Courier.nodes.get(courierID=courier_id)
+        deliveries = courier.delivers_to.all()
+        locations = []
+        for loc in deliveries:
+            delivery_chain = []
+            while loc:
+                delivery_chain.append(
+                    LocationAPI(
+                        locationID=loc.locationID,
+                        address=loc.address,
+                        coordinates=loc.coordinates.get("coordinates", []),
+                    )
+                )
+                loc = loc.next_location.single()
+            locations.extend(delivery_chain)
 
-    formatted_locations = [
-        {
-            "locationID": location.locationID,
-            "address": location.address,
-            "coordinates": location.coordinates,
-        }
-        for location in locations
-    ]
-    return {
-        "courier_id": courier_id,
-        "locations_in_order": formatted_locations,
-    }
+        return LocationsAPI(locations=locations)
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Courier not found")
 
 
-@router.post("/courier/{courier_id}/add_locations", tags=["Neo4j"])
-async def add_locations_route(courier_id: int, locations_data: list[dict]):
+@router.post("/{courier_id}/add_locations", tags=["courier"], response_model=AddLocationsRequest)
+async def add_deliveries_to_courier(courier_id: int, request: AddLocationsRequest):
     """
-    Add a list of locations to a given courier in order.
+    Endpoint to add a list of locations to a courier and connect them via the NEXT relationship.
     """
-    if not locations_data:
-        raise HTTPException(status_code=400, detail="No locations provided.")
+    try:
+        courier = Courier.nodes.get(courierID=courier_id)
+        previous_location = None
+        for loc in request.locations:
+            location, _ = Location.get_or_create((
+                {
+                    "locationID": loc.locationID,
+                    "address": loc.address,
+                    "coordinates": NeomodelPoint(loc.coordinates)
+                },
+            ))
+            if previous_location:
+                previous_location.next_location.connect(location)
 
-    created_locations, error = await add_locations_to_courier(courier_id, locations_data)
-    if error:
-        raise HTTPException(status_code=404, detail=error)
+            previous_location = location
 
-    return {
-        "courier_id": courier_id,
-        "created_locations": [
-            {
-                "locationID": location.locationID,
-                "address": location.address,
-                "coordinates": location.coordinates,
-            }
-            for location in created_locations
-        ],
-    }
+        return LocationsAPI(locations=request.locations)
+
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Courier not found")
