@@ -67,10 +67,10 @@ services:
       "
     restart: always
 
-  osrm-frontend:
-    image: osrm/osrm-frontend
-    container_name: osrm-frontend
-    ports:
-      - "9966:9966"
-    depends_on:
-      - osrm-backend
+#  osrm-frontend:
+#    image: osrm/osrm-frontend
+#    container_name: osrm-frontend
+#    ports:
+#      - "9966:9966"
+#    depends_on:
+#      - osrm-backend

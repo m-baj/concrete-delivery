@@ -9,8 +9,8 @@ router = APIRouter(tags=["map"])
 @router.get("/map", response_class=HTMLResponse)
 def get_map():
     markers = [(52.2297, 21.0122, "ul. Marszałkowska 10"),
-                 (52.2385, 21.0144, "ul. Tadeusza Czackiego 21"),
-                 (52.2333, 21.0102, "ul. Marszałkowska 104")]
+               (52.2333, 21.0102, "ul. Marszałkowska 104"),
+                 (52.2385, 21.0144, "ul. Tadeusza Czackiego 21")]
     # markers = [(52.1997, 20.8822, "ul. Marszałkowska 10"),
     #              (52.2885, 21.2144, "ul. Tadeusza Czackiego 21"),
     #              (52.2333, 21.1102, "ul. Marszałkowska 104")]

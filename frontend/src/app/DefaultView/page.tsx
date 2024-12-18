@@ -64,9 +64,11 @@ const DefaultPage = forwardRef<HTMLDivElement, DefaultPageProps>(({
           );
         })}
       </VStack>
-      <Button left="20%" variant="link" color={"black"} mt="auto">
-        Settings
-      </Button>
+    <Box w="100%" display="flex" justifyContent="center">
+        <Button variant="link" color="black">
+            Settings
+        </Button>
+    </Box>
     </>
   );
 

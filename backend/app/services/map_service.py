@@ -13,6 +13,7 @@ def get_osrm_route(markers: list) -> list:
     """
     osrm_url = "http://osrm-backend:5000/route/v1/driving/"
     waypoints = ";".join([f"{lon},{lat}" for lat, lon in markers])
+    print(waypoints)
 
     # Ustawienia zapytania bez alternatyw, aby unikać pętli
     query = f"{osrm_url}{waypoints}?overview=full&geometries=geojson&alternatives=false"
