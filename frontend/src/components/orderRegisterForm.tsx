@@ -27,12 +27,14 @@ const OrderRegisterForm = () => {
                 postal_code: "",
                 street: "",
                 house_number: "",
+                apartment_number: "",
             },
             delivery_address: {
                 city: "",
                 postal_code: "",
                 street: "",
                 house_number: "",
+                apartment_number: "",
             },
             order_date: "",
         },
@@ -62,10 +64,10 @@ const OrderRegisterForm = () => {
                 border="1px solid"
                 borderColor="gray.200"
             >
+                <Text fontSize="xl" fontWeight="bold" textAlign="center">
+                    Create Order
+                </Text>
                 <Box>
-                    <Text fontSize="xl" fontWeight="bold" textAlign="center">
-                        Create Order
-                    </Text>
                     <Text fontSize="lg" fontWeight="bold">
                         Pickup Address
                     </Text>
@@ -122,6 +124,19 @@ const OrderRegisterForm = () => {
                                 <FormErrorMessage>{errors.pickup_address.house_number.message}</FormErrorMessage>
                             )}
                         </FormControl>
+                        <FormControl id="pickup_address_apartment_number" isInvalid={!!errors.pickup_address?.apartment_number}>
+                            <FormLabel htmlFor="pickup_address_apartment_number"></FormLabel>
+                            <Input
+                                type="text"
+                                {...register("pickup_address.apartment_number", { required: "Apartment number is required" })}
+                                placeholder="Apartment Number"
+                                variant="filled"
+                                required
+                            />
+                            {errors.pickup_address?.apartment_number && (
+                                <FormErrorMessage>{errors.pickup_address.apartment_number.message}</FormErrorMessage>
+                            )}
+                        </FormControl>
                     </Box>
                 </Box>
                 <Box>
@@ -130,7 +145,7 @@ const OrderRegisterForm = () => {
                     </Text>
                     <Box pl={4}>
                         <FormControl id="delivery_address_city" isInvalid={!!errors.delivery_address?.city}>
-                            <FormLabel htmlFor="delivery_address_city">City</FormLabel>
+                            <FormLabel htmlFor="delivery_address_city"></FormLabel>
                             <Input
                                 type="text"
                                 {...register("delivery_address.city", { required: "City is required" })}
@@ -143,7 +158,7 @@ const OrderRegisterForm = () => {
                             )}
                         </FormControl>
                         <FormControl id="delivery_address_postal_code" isInvalid={!!errors.delivery_address?.postal_code}>
-                            <FormLabel htmlFor="delivery_address_postal_code">Postal Code</FormLabel>
+                            <FormLabel htmlFor="delivery_address_postal_code"></FormLabel>
                             <Input
                                 type="text"
                                 {...register("delivery_address.postal_code", { required: "Postal code is required" })}
@@ -156,7 +171,7 @@ const OrderRegisterForm = () => {
                             )}
                         </FormControl>
                         <FormControl id="delivery_address_street" isInvalid={!!errors.delivery_address?.street}>
-                            <FormLabel htmlFor="delivery_address_street">Street</FormLabel>
+                            <FormLabel htmlFor="delivery_address_street"></FormLabel>
                             <Input
                                 type="text"
                                 {...register("delivery_address.street", { required: "Street is required" })}
@@ -169,7 +184,7 @@ const OrderRegisterForm = () => {
                             )}
                         </FormControl>
                         <FormControl id="delivery_address_house_number" isInvalid={!!errors.delivery_address?.house_number}>
-                            <FormLabel htmlFor="delivery_address_house_number">House Number</FormLabel>
+                            <FormLabel htmlFor="delivery_address_house_number"></FormLabel>
                             <Input
                                 type="text"
                                 {...register("delivery_address.house_number", { required: "House number is required" })}
@@ -181,10 +196,23 @@ const OrderRegisterForm = () => {
                                 <FormErrorMessage>{errors.delivery_address.house_number.message}</FormErrorMessage>
                             )}
                         </FormControl>
+                        <FormControl id="delivery_address_apartment_number" isInvalid={!!errors.delivery_address?.apartment_number}>
+                            <FormLabel htmlFor="delivery_address_apartment_number"></FormLabel>
+                            <Input
+                                type="text"
+                                {...register("delivery_address.apartment_number", { required: "Apartment number is required" })}
+                                placeholder="Apartment Number"
+                                variant="filled"
+                                required
+                            />
+                            {errors.delivery_address?.apartment_number && (
+                                <FormErrorMessage>{errors.delivery_address.apartment_number.message}</FormErrorMessage>
+                            )}
+                        </FormControl>
                     </Box>
                 </Box>
                 <FormControl id="order_date" isInvalid={!!errors.order_date}>
-                    <FormLabel htmlFor="order_date">Order Date</FormLabel>
+                    <FormLabel htmlFor="order_date"></FormLabel>
                     <Input
                         type="datetime-local"
                         {...register("order_date")}
@@ -195,7 +223,7 @@ const OrderRegisterForm = () => {
                     )}
                 </FormControl>
                 <Button border="1px" isLoading={isSubmitting} type="submit">
-                    Submit
+                    Create
                 </Button>
             </Stack>
         </Container>

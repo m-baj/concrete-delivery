@@ -65,8 +65,7 @@ class AddressBase(SQLModel):
     postal_code: str
     street: str
     house_number: str
-    X_coordinate: float | None = None
-    Y_coordinate: float | None = None
+    apartment_number: str | None = Field(default=None)
 
 
 class AddressCreate(AddressBase):
@@ -75,6 +74,8 @@ class AddressCreate(AddressBase):
 
 class Address(AddressBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    X_coordinate: float | None = None
+    Y_coordinate: float | None = None
 
 
 class AddressPublic(AddressBase):
@@ -103,17 +104,24 @@ class OrderBase(SQLModel):
     pickup_address_id: uuid.UUID
     delivery_address_id: uuid.UUID
     status_id: uuid.UUID | None
-    order_date: datetime.datetime
+    pickup_start_time: datetime.datetime | None = None
+    pickup_end_time: datetime.datetime | None = None
+    delivery_start_time: datetime.datetime | None = None
+    delivery_end_time: datetime.datetime | None = None
 
 
 class OrderCreate(SQLModel):
     pickup_address: AddressCreate
     delivery_address: AddressCreate
-    order_date: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    pickup_start_time: datetime.datetime
+    pickup_end_time: datetime.datetime
+    delivery_start_time: datetime.datetime
+    delivery_end_time: datetime.datetime
 
 
 class Order(OrderBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    order_date: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
 class OrderPublic(OrderBase):
