@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import {
     Container,
@@ -14,9 +14,11 @@ import {
     useBoolean,
 } from "@chakra-ui/react";
 import { type OrderRegisterFormData } from "@/types";
-import { generateTimeOptions } from "@/utils";
+import { generateTimeOptions, validateTimeOrder } from "@/utils";
 import { createOrder } from "@/api-calls/create_order";
 import useCustomToast from "@/hooks/useCustomToast";
+import { isLoggedIn } from "@/hooks/useAuth";
+import { redirect } from "next/navigation";
 
 const timeOptions = generateTimeOptions();
 
@@ -50,11 +52,29 @@ const OrderCreateForm = () => {
         },
     });
 
-    const [show1, setShow1] = useBoolean(false);
-    const [show2, setShow2] = useBoolean(false);
+    useEffect(() => {
+        if (!isLoggedIn()) {
+            redirect("/auth/login");
+        }
+    }, []);
+
     const showToast = useCustomToast();
 
     const onSubmit: SubmitHandler<OrderRegisterFormData> = async (data) => {
+        const validationMessage = validateTimeOrder(
+            data.pickup_start_time,
+            data.pickup_end_time,
+            data.delivery_start_time,
+            data.delivery_end_time
+        );
+        if (validationMessage !== true) {
+            showToast(
+                "Error",
+                validationMessage,
+                "error");
+            return;
+        }
+
         const response = await createOrder(data);
         if (response.status) {
             showToast(

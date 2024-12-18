@@ -63,3 +63,31 @@ export const generateTimeOptions = () => {
     times.push(time);
     return times;
 };
+
+export const validateTimeOrder = (
+  pickupStart: string,
+  pickupEnd: string,
+  deliveryStart: string,
+  deliveryEnd: string
+) => {
+  const parseTime = (time: string) => {
+    const [hour, minute] = time.split(":").map(Number);
+    return new Date(0, 0, 0, hour, minute);
+  };
+
+  const pickupStartTime = parseTime(pickupStart);
+  const pickupEndTime = parseTime(pickupEnd);
+  const deliveryStartTime = parseTime(deliveryStart);
+  const deliveryEndTime = parseTime(deliveryEnd);
+
+  if (pickupStartTime >= pickupEndTime) {
+    return "Pickup start time must be earlier than pickup end time";
+  }
+  if (deliveryStartTime >= deliveryEndTime) {
+    return "Delivery start time must be earlier than delivery end time";
+  }
+  if (pickupStartTime >= deliveryEndTime) {
+    return "Pickup start time must be earlier than delivery end time";
+  }
+  return true;
+};
