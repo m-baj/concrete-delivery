@@ -73,3 +73,45 @@ def set_order_status(
         session=session, order_id=order_id, status_id=status_id
     )
     return order
+
+
+@router.get("/user_orders/{user_id}")
+def get_user_orders(
+    session: SessionDep,
+    user_id: str,
+) -> Any:
+    """
+    Get all orders for a user
+    """
+    orders = crud.get_orders_by_user_id(session=session, user_id=user_id)
+    return orders
+
+
+@router.get("/courier_orders/{courier_id}")
+def get_courier_orders(
+    session: SessionDep,
+    courier_id: str,
+) -> Any:
+    """
+    Get all orders for a courier
+    """
+    orders = crud.get_orders_by_courier_id(session=session, courier_id=courier_id)
+    return orders
+
+
+@router.put("/set_courier_id/{order_id}")
+def set_courier_id(
+    session: SessionDep,
+    order_id: str,
+    courier_id: str,
+) -> Any:
+    """
+    Set courier id for an order
+    """
+    order = crud.get_order_by_id(session=session, order_id=order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    order = crud.set_order_courier_id(
+        session=session, order_id=order_id, courier_id=courier_id
+    )
+    return order

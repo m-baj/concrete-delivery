@@ -183,3 +183,28 @@ def set_courier_status(
         session.commit()
         session.refresh(courier)
     return courier
+
+
+def get_orders_by_user_id(*, session: Session, user_id: str) -> list[Order]:
+    query = select(Order).where(Order.user_id == user_id)
+    orders = session.exec(query).all()
+    return orders
+
+
+def get_orders_by_courier_id(*, session: Session, courier_id: str) -> list[Order]:
+    query = select(Order).where(Order.courier_id == courier_id)
+    orders = session.exec(query).all()
+    return orders
+
+
+def set_order_courier_id(
+    *, session: Session, order_id: str, courier_id: str
+) -> Order | None:
+    query = select(Order).where(Order.id == order_id)
+    order = session.exec(query).first()
+    if order:
+        order.courier_id = courier_id
+        session.add(order)
+        session.commit()
+        session.refresh(order)
+    return order

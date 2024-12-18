@@ -93,9 +93,6 @@ def set_courier_status(session: SessionDep, courier_id: str, status_id: str) -> 
     return courier
 
 
-router = APIRouter(prefix="/courier", tags=["courier"])
-
-
 @router.get(
     "/{courier_id}/current_location", tags=["courier"], response_model=LocationAPI
 )
