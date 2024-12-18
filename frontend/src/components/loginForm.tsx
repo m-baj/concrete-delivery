@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { Form, useForm, type SubmitHandler } from "react-hook-form";
 import {
   Container,
@@ -17,6 +17,10 @@ import {
 import Link from "next/link";
 import { LockIcon, PhoneIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { phonePattern } from "@/utils";
+import { login } from "@/api-calls/auth";
+import useCustomToast from "@/hooks/useCustomToast";
+import { redirect } from "next/navigation";
+import { isLoggedIn } from "@/hooks/useAuth";
 
 interface LoginData {
   username: string;
@@ -37,10 +41,24 @@ const LoginForm = () => {
     },
   });
 
+  useEffect(() => {
+    if (isLoggedIn()) {
+      redirect("/");
+    }
+  }, []);
+
   const [show, setShow] = useBoolean(false);
+  const showToast = useCustomToast();
 
   const onSubmit: SubmitHandler<LoginData> = async (data) => {
-    console.log(data);
+    const response = await login(data);
+    if (response.status) {
+      showToast("Success", response.message, "success");
+      localStorage.setItem("token", response.token);
+      redirect("/");
+    } else {
+      showToast("Error", response.message, "error");
+    }
   };
 
   return (
@@ -64,7 +82,7 @@ const LoginForm = () => {
             <Input
               type="text"
               {...register("username", {
-                required: "Username is required",
+                required: "Phone number is required",
                 pattern: phonePattern,
               })}
               variant="filled"
