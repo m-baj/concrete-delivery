@@ -8,6 +8,7 @@ const isLoggedIn = () => {
 
 const useAuth = () => {
   const handleLogout = () => {
+    console.log("handleLogout");
     localStorage.removeItem("token");
     redirect("/auth/login");
   };

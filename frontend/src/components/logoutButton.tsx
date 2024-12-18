@@ -6,7 +6,7 @@ import useAuth from "@/hooks/useAuth";
 const LogoutButton = () => {
   const { handleLogout } = useAuth();
   return (
-    <Button onClick={handleLogout} border="1px">
+    <Button onClick={handleLogout} bg="white">
       {" "}
       Log out
     </Button>

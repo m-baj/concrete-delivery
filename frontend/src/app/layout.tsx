@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ChakraProvider } from "@chakra-ui/react";
+import NavBar from "@/components/navBar";
+import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Concrete Delivery",
@@ -16,7 +18,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ChakraProvider>{children}</ChakraProvider>
+        <ChakraProvider>
+          <NavBar />
+          {children}
+          <div className="pt-10">
+            <Footer />
+          </div>
+        </ChakraProvider>
       </body>
     </html>
   );

@@ -2,9 +2,5 @@ import Image from "next/image";
 import LogoutButton from "@/components/logoutButton";
 
 export default function Home() {
-  return (
-    <div>
-      <LogoutButton />
-    </div>
-  );
+  return <div></div>;
 }
