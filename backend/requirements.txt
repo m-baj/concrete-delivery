@@ -22,3 +22,5 @@ pytest==8.3.4
 python-multipart==0.0.19
 coverage==7.6.9
 httpx==0.28.1
+pydantic-settings~=2.6.1
+neomodel~=5.4.2

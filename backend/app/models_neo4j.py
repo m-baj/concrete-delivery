@@ -1,34 +1,16 @@
-from neontology import BaseNode, BaseRelationship
-from typing import ClassVar, List
+from neomodel import StructuredNode, StringProperty, RelationshipTo, RelationshipFrom
 
-class Location(BaseNode):
-    __primarylabel__: ClassVar[str] = "Location"
-    __primaryproperty__: ClassVar[int] = "locationID"
+class Courier(StructuredNode):
+    name = StringProperty()
+    phone_number = StringProperty()
 
-    locationID: int
-    address: str
-    coordinates: List[float]
-    orderID: int
+    is_at = RelationshipTo('Location', 'IS_AT')
+    delivers_to = RelationshipTo('Location', 'DELIVERS_TO')
 
-class Courier(BaseNode):
-    __primarylabel__: ClassVar[str] = "Courier"
-    __primaryproperty__: ClassVar[int] = "courierID"
+class Location(StructuredNode):
+    name = StringProperty()
+    address = StringProperty()
 
-    courierID: int
-    name: str
-    locationID: int
-
-class IsAt(BaseRelationship):
-    __relationshiptype__: ClassVar[str] = "IS_AT"
-    source: Courier
-    target: Location
-
-class DeliversTo(BaseRelationship):
-    __relationshiptype__: ClassVar[str] = "DELIVERS_TO"
-    source: Courier
-    target: Location
-
-class Then(BaseRelationship):
-    __relationshiptype__: ClassVar[str] = "THEN"
-    source: Location
-    target: Location
+    is_visited_by = RelationshipFrom('Courier', 'IS_AT')
+    delivered_by = RelationshipFrom('Courier', 'DELIVERS_TO')
+    next_location = RelationshipTo('Location', 'NEXT')
