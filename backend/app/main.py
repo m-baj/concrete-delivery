@@ -1,21 +1,23 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.api.main import router
-from fastapi.middleware.cors import CORSMiddleware
 
 
-app = FastAPI(
-    title=settings.PROJECT_NAME
-)
+app = FastAPI(title=settings.PROJECT_NAME)
 
-# Dodanie CORS middleware (wrzucasz tutaj)
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Zezwala na dowolne źródła (używaj tylko na testach)
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Wszystkie metody (GET, POST, PUT, DELETE)
-    allow_headers=["*"],  # Wszystkie nagłówki
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(router)
