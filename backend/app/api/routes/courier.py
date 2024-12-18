@@ -9,7 +9,7 @@ from backend.app.services_neo4j import (
 
 router = APIRouter()
 
-@router.get("/couriers/{courier_id}/current_location", tags=["Neo4j"])
+@router.get("/courier/{courier_id}/current_location", tags=["Neo4j"])
 async def current_location_route(courier_id: int):
     """
     Get the current location of a courier based on IS_AT relationship.
@@ -27,7 +27,7 @@ async def current_location_route(courier_id: int):
     }
 
 
-@router.get("/couriers/{courier_id}/locations_in_order", tags=["Neo4j"])
+@router.get("/courier/{courier_id}/locations_in_order", tags=["Neo4j"])
 async def locations_in_order_route(courier_id: int):
     """
     Get all locations assigned to a courier in order based on THEN relationship.
@@ -52,7 +52,7 @@ async def locations_in_order_route(courier_id: int):
     }
 
 
-@router.post("/couriers/{courier_id}/add_locations", tags=["Neo4j"])
+@router.post("/courier/{courier_id}/add_locations", tags=["Neo4j"])
 async def add_locations_route(courier_id: int, locations_data: list[dict]):
     """
     Add a list of locations to a given courier in order.
