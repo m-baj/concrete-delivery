@@ -10,8 +10,17 @@ import {
     FormErrorMessage,
     Text,
     Box,
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
+    NumberIncrementStepper,
+    NumberDecrementStepper,
+    Select,
 } from "@chakra-ui/react";
 import { type OrderRegisterFormData } from "@/types";
+import { generateTimeOptions } from "@/utils";
+
+const timeOptions = generateTimeOptions();
 
 const OrderRegisterForm = () => {
     const {
@@ -36,7 +45,10 @@ const OrderRegisterForm = () => {
                 house_number: "",
                 apartment_number: "",
             },
-            order_date: "",
+            pickup_start_time: "",
+            pickup_end_time: "",
+            delivery_start_time: "",
+            delivery_end_time: "",
         },
     });
 
@@ -52,7 +64,7 @@ const OrderRegisterForm = () => {
     return (
         <Container
             as="form"
-            maxW="sm"
+            maxW="lg"
             onSubmit={handleSubmit(onSubmit)}
             style={{ margin: '20px 0' }}
         >
@@ -71,7 +83,7 @@ const OrderRegisterForm = () => {
                     <Text fontSize="lg" fontWeight="bold">
                         Pickup Address
                     </Text>
-                    <Box pl={4}>
+                    <Box>
                         <FormControl id="pickup_address_city" isInvalid={!!errors.pickup_address?.city}>
                             <FormLabel htmlFor="pickup_address_city"></FormLabel>
                             <Input
@@ -138,12 +150,54 @@ const OrderRegisterForm = () => {
                             )}
                         </FormControl>
                     </Box>
+                    <Box height={4} />
+                    <Text fontSize="md" fontWeight="bold">
+                        Choose Pickup Time Window
+                    </Text>
+                    <Box height={4} />
+                    <Stack direction={['column', 'row']} spacing={4}>
+                        <FormControl id="pickup_start_time" isInvalid={!!errors.pickup_start_time}>
+                            <Select
+                                {...register("pickup_start_time", { required: "Start time is required" })}
+                                placeholder="Pickup start time"
+                                variant="filled"
+                                required
+                            >
+                                {timeOptions.map((time) => (
+                                    <option key={time} value={time}>
+                                        {time}
+                                    </option>
+                                ))}
+                            </Select>
+                            {errors.pickup_start_time && (
+                                <FormErrorMessage>{errors.pickup_start_time.message}</FormErrorMessage>
+                            )}
+                        </FormControl>
+                        <Box height={4} />
+                        <FormControl id="pickup_end_time" isInvalid={!!errors.pickup_end_time}>
+                            <Select
+                                {...register("pickup_end_time", { required: "End time is required" })}
+                                placeholder="Pickup end time"
+                                variant="filled"
+                                required
+                            >
+                                {timeOptions.map((time) => (
+                                    <option key={time} value={time}>
+                                        {time}
+                                    </option>
+                                ))}
+                            </Select>
+                            {errors.pickup_end_time && (
+                                <FormErrorMessage>{errors.pickup_end_time.message}</FormErrorMessage>
+                            )}
+                        </FormControl>
+                    </Stack>
                 </Box>
                 <Box>
                     <Text fontSize="lg" fontWeight="bold">
                         Delivery Address
                     </Text>
-                    <Box pl={4}>
+                    <Box>
                         <FormControl id="delivery_address_city" isInvalid={!!errors.delivery_address?.city}>
                             <FormLabel htmlFor="delivery_address_city"></FormLabel>
                             <Input
@@ -209,19 +263,73 @@ const OrderRegisterForm = () => {
                                 <FormErrorMessage>{errors.delivery_address.apartment_number.message}</FormErrorMessage>
                             )}
                         </FormControl>
+                        <FormControl id="delivery_address_apartment_number" isInvalid={!!errors.delivery_address?.apartment_number}>
+                            <FormLabel htmlFor="delivery_address_apartment_number"></FormLabel>
+                            <Input
+                                type="text"
+                                {...register("delivery_address.apartment_number", { required: "Apartment number is required" })}
+                                placeholder="Apartment Number"
+                                variant="filled"
+                                required
+                            />
+                            {errors.delivery_address?.apartment_number && (
+                                <FormErrorMessage>{errors.delivery_address.apartment_number.message}</FormErrorMessage>
+                            )}
+                        </FormControl><FormControl id="delivery_address_apartment_number" isInvalid={!!errors.delivery_address?.apartment_number}>
+                            <FormLabel htmlFor="delivery_address_apartment_number"></FormLabel>
+                            <Input
+                                type="text"
+                                {...register("delivery_address.apartment_number", { required: "Apartment number is required" })}
+                                placeholder="Apartment Number"
+                                variant="filled"
+                                required
+                            />
+                            {errors.delivery_address?.apartment_number && (
+                                <FormErrorMessage>{errors.delivery_address.apartment_number.message}</FormErrorMessage>
+                            )}
+                        </FormControl>
                     </Box>
                 </Box>
-                <FormControl id="order_date" isInvalid={!!errors.order_date}>
-                    <FormLabel htmlFor="order_date"></FormLabel>
-                    <Input
-                        type="datetime-local"
-                        {...register("order_date")}
-                        variant="filled"
-                    />
-                    {errors.order_date && (
-                        <FormErrorMessage>{errors.order_date.message}</FormErrorMessage>
-                    )}
-                </FormControl>
+                <Text fontSize="md" fontWeight="bold">
+                    Choose Delivery Time Window
+                </Text>
+                <Stack direction={['column', 'row']} spacing={4}>
+                    <FormControl id="delivery_start_time" isInvalid={!!errors.delivery_start_time}>
+                        <Select
+                            {...register("delivery_start_time", { required: "Start time is required" })}
+                            placeholder="Delivery start time"
+                            variant="filled"
+                            required
+                        >
+                            {timeOptions.map((time) => (
+                                <option key={time} value={time}>
+                                    {time}
+                                </option>
+                            ))}
+                        </Select>
+                        {errors.delivery_start_time && (
+                            <FormErrorMessage>{errors.delivery_start_time.message}</FormErrorMessage>
+                        )}
+                    </FormControl>
+                    <Box height={4} />
+                    <FormControl id="delivery_end_time" isInvalid={!!errors.delivery_end_time}>
+                        <Select
+                            {...register("delivery_end_time", { required: "End time is required" })}
+                            placeholder="Delivery end time"
+                            variant="filled"
+                            required
+                        >
+                            {timeOptions.map((time) => (
+                                <option key={time} value={time}>
+                                    {time}
+                                </option>
+                            ))}
+                        </Select>
+                        {errors.delivery_end_time && (
+                            <FormErrorMessage>{errors.delivery_end_time.message}</FormErrorMessage>
+                        )}
+                    </FormControl>
+                </Stack>
                 <Button border="1px" isLoading={isSubmitting} type="submit">
                     Create
                 </Button>

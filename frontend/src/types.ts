@@ -19,5 +19,8 @@ export type AddressCreateData = {
 export type OrderRegisterFormData = {
     pickup_address: AddressCreateData;
     delivery_address: AddressCreateData;
-    order_date: string; // Date
+    pickup_start_time: string;
+    pickup_end_time: string;
+    delivery_start_time: string;
+    delivery_end_time: string;
 };

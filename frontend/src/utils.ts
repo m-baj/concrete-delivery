@@ -50,3 +50,16 @@ export const confirmPasswordRules = (
 
   return rules;
 };
+
+export const generateTimeOptions = () => {
+    const times = [];
+    for (let hour = 8; hour < 16; hour++) {
+        for (let minute = 0; minute < 60; minute += 30) {
+            const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+            times.push(time);
+        }
+    }
+    const time = '16:00';
+    times.push(time);
+    return times;
+};
