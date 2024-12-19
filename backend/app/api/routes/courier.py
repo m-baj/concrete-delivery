@@ -122,9 +122,6 @@ async def get_courier_current_location(courier_id: int):
     "/{courier_id}/locations_in_order", tags=["courier"], response_model=LocationsAPI
 )
 async def get_courier_deliveries_in_order(courier_id: int):
-    """
-    Endpoint to get the list of delivery locations for a courier, in the order defined by the NEXT relationship.
-    """
     try:
         courier = Courier.nodes.get(courierID=courier_id)
         deliveries = courier.delivers_to.all()
@@ -137,6 +134,7 @@ async def get_courier_deliveries_in_order(courier_id: int):
                         locationID=loc.locationID,
                         address=loc.address,
                         coordinates=loc.coordinates.get("coordinates", []),
+                        next_location=loc.next_location.single().locationID if loc.next_location.single() else None,
                     )
                 )
                 loc = loc.next_location.single()
@@ -151,9 +149,6 @@ async def get_courier_deliveries_in_order(courier_id: int):
     "/{courier_id}/add_locations", tags=["courier"], response_model=AddLocationsRequest
 )
 async def add_deliveries_to_courier(courier_id: int, request: AddLocationsRequest):
-    """
-    Endpoint to add a list of locations to a courier and connect them via the NEXT relationship.
-    """
     try:
         courier = Courier.nodes.get(courierID=courier_id)
         previous_location = None
