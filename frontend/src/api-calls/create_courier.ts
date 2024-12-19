@@ -1,12 +1,12 @@
 import axios from "axios";
-import { CourierRegisterFormData } from "@/types";
+import { CourierRegisterData } from "@/types";
 
 type Response = {
   message: string;
   status: boolean;
 };
 
-export const createCourier = async (courier: CourierRegisterFormData) => {
+export const createCourier = async (courier: CourierRegisterData) => {
   try {
     const token = localStorage.getItem("token");
 
@@ -15,7 +15,7 @@ export const createCourier = async (courier: CourierRegisterFormData) => {
     }
 
     const response = await axios.post(
-      `http://localhost:8000/courier/`,
+      `http://localhost:8000/courier/register`,
       courier,
       {
         headers: {

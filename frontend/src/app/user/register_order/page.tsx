@@ -4,7 +4,7 @@ import OrderCreateForm from "@/components/orderCreateForm";
 
 const RegisterOrderPage = () => {
     return (
-        <div className="flex justify-center h-screen">
+        <div className="flex justify-center">
             <OrderCreateForm />
         </div>
     );

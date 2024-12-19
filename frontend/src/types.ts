@@ -25,7 +25,7 @@ export type OrderRegisterFormData = {
     delivery_end_time: string;
 };
 
-export type CourierRegisterFormData = {
+export type CourierRegisterData = {
     name: string;
     surname: string;
     phone_number: string;

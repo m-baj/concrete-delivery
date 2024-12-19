@@ -4,7 +4,7 @@ import RegisterCourierForm from "@/components/registerCourierForm";
 
 const RegisterCourierPage = () => {
     return (
-        <div className="flex justify-center h-screen">
+        <div className="flex justify-center">
             <RegisterCourierForm />
         </div>
     );

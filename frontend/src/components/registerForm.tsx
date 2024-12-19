@@ -17,7 +17,7 @@ import {
 import { useForm } from "react-hook-form";
 import {
   confirmPasswordRules,
-  emailPatter,
+  emailPattern,
   namePattern,
   passwordRules,
   phonePattern,
@@ -146,7 +146,7 @@ const registerForm = () => {
             type="email"
             {...register("email_address", {
               required: "Email is required",
-              pattern: emailPatter,
+              pattern: emailPattern,
             })}
             placeholder="Email"
             variant="filled"
