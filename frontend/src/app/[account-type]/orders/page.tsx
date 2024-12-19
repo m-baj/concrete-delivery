@@ -48,7 +48,6 @@ const page = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        // Retrieve token from localStorage
         const token = localStorage.getItem("token");
         if (!token) {
           throw new Error("Brak tokena uwierzytelniającego.");
@@ -56,7 +55,6 @@ const page = () => {
 
         const { sub } = jwtDecode<JwtPayload>(token);
 
-        // Fetch the orders
         const response = await fetch(
           `http://localhost:8000/order/user_orders/${sub}`,
           {
@@ -75,10 +73,8 @@ const page = () => {
         const data = await response.json();
         console.log(data);
 
-        // Fetch the additional details for each order
         const ordersWithDetails = await Promise.all(
           data.map(async (order: any) => {
-            // Fetch order status using the status_id
             console.log(order.status_id);
             const statusResponse = await fetch(
               `http://localhost:8000/status/${order.status_id}`,
@@ -92,9 +88,8 @@ const page = () => {
             );
 
             const statusData = await statusResponse.json();
-            const orderStatus = statusData.name; // Assuming the response has a 'status' field
+            const orderStatus = statusData.name;
 
-            // Fetch address details for pick up and delivery
             const pickUpAddressResponse = await fetch(
               `http://localhost:8000/address/${order.pickup_address_id}`,
               {
@@ -120,7 +115,6 @@ const page = () => {
             const deliveryAddressData = await deliveryAddressResponse.json();
             console.log(pickUpAddressData);
 
-            // Transform the data to match the Order interface
             return {
               orderNumber: order.id,
               orderDate: order.order_date,
