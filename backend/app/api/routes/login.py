@@ -27,5 +27,5 @@ def login(
             detail="Incorrect phone number or password",
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(user.id, access_token_expires)
+    access_token = create_access_token(user.id, user.account_type, access_token_expires)
     return Token(access_token=access_token, token_type="bearer")

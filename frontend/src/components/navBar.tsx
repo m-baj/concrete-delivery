@@ -27,7 +27,7 @@ import {
   SettingsIcon,
 } from "@chakra-ui/icons";
 import { RiLogoutBoxRLine } from "react-icons/ri";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import handleLogout, { isLoggedIn } from "@/hooks/useAuth";
 
@@ -65,15 +65,8 @@ export default function WithAction() {
   }, []);
 
   const handleLogoutClick = () => {
-    console.log("handleLogoutClick");
-    console.log();
-    if (isLoggedIn()) {
-      localStorage.removeItem("token");
-      window.location.reload();
-      router.push("/auth/login");
-    } else {
-      router.push("/auth/login");
-    }
+    localStorage.removeItem("token");
+    redirect("/auth/login");
   };
 
   return (
@@ -88,7 +81,7 @@ export default function WithAction() {
             onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems={"center"}>
-            <Box>
+            <Box className="hidden md:flex">
               <Image
                 src="/assets/logo.png"
                 alt="Logo"
@@ -138,7 +131,7 @@ export default function WithAction() {
                 </MenuItem>
                 <MenuDivider />
                 <MenuItem justifyContent="center" onClick={handleLogoutClick}>
-                  {isLoggedIn() ? "Log out" : "Log in"}{" "}
+                  Log out
                   <Icon as={RiLogoutBoxRLine} size="" />
                 </MenuItem>
               </MenuList>

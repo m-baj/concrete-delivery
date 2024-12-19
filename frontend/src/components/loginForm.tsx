@@ -43,7 +43,7 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (isLoggedIn()) {
-      redirect("/my-orders");
+      redirect("/user");
     }
   }, []);
 
@@ -55,8 +55,7 @@ const LoginForm = () => {
     if (response.status) {
       showToast("Success", response.message, "success");
       localStorage.setItem("token", response.token);
-      window.location.reload();
-      redirect("/my-orders");
+      redirect("/user");
     } else {
       showToast("Error", response.message, "error");
     }
