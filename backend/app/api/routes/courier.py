@@ -176,3 +176,16 @@ async def add_deliveries_to_courier(courier_id: int, request: AddLocationsReques
 
     except DoesNotExist:
         raise HTTPException(status_code=404, detail="Courier not found")
+
+
+@router.get("/all_couriers", response_model=list[CourierPublic])
+def get_all_couriers(session: SessionDep, current_user: CurrentAdmin) -> Any:
+    """
+    Get all couriers
+    """
+    if current_user.account_type != AccountType.ADMIN:
+        raise HTTPException(
+            status_code=403, detail="The user doesn't have enough privileges"
+        )
+    couriers = crud.get_all_couriers(session=session)
+    return couriers

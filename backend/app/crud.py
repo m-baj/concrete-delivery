@@ -208,3 +208,9 @@ def set_order_courier_id(
         session.commit()
         session.refresh(order)
     return order
+
+
+def get_all_couriers(*, session: Session) -> list[Courier]:
+    query = select(Courier)
+    couriers = session.exec(query).all()
+    return couriers
