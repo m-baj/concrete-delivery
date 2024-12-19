@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { fetchMapData } from "@/api-calls/fetch_map_data";
-import { Box, Spinner, Text } from "@chakra-ui/react";
+import { Box, Spinner, Text, Flex, AspectRatio } from "@chakra-ui/react";
 
 const MapView = () => {
     const [mapData, setMapData] = useState<any>(null);
@@ -32,10 +32,26 @@ const MapView = () => {
     }
 
     return (
-        <Box>
-            {/* Render map data here */}
-            <Text>Map Data: {JSON.stringify(mapData)}</Text>
-        </Box>
+        <Flex flex="1" direction="column" height="100vh">
+            <Box
+                flex="1"
+                backgroundColor={"gray"}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                boxShadow="0 4px 6px rgba(0, 0, 0, 0.1)"
+                borderRadius="md"
+                overflow="hidden"
+                width="100%"
+                height="100%"
+            >
+                <iframe
+                    src="http://localhost:8000/map"
+                    style={{ width: "100%", height: "100%", border: "none", borderRadius: "inherit" }}
+                    title="Embedded Map"
+                />
+            </Box>
+        </Flex>
     );
 };
 

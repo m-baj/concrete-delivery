@@ -1,12 +1,15 @@
 import React from "react";
+import MapViewBox from "@/components/mapViewBox";
 import MapView from "@/components/mapView";
-import { Container } from "@chakra-ui/react";
+import { Flex, AspectRatio, Box } from "@chakra-ui/react";
 
 const MapViewPage = () => {
   return (
-    <Container maxW="container.xl" py={4}>
-      <MapView />
-    </Container>
+    <AspectRatio maxW="800px" ratio={16 / 9}>
+      <Box>
+        <MapView />
+      </Box>
+    </AspectRatio >
   );
 };
 
