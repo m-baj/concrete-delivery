@@ -25,7 +25,7 @@ interface Order {
       houseNumber: string;
       apartmentNumber?: string;
     };
-    pickUpTimne: {
+    pickUpTime: {
       start: string;
       end: string;
     };

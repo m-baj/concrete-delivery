@@ -9,7 +9,11 @@ const User = () => {
     redirect("/auth/login");
   }
 
-  const token: string | null = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+  if (!token) {
+    redirect("/auth/login");
+    return null;
+  }
   const { sub } = jwtDecode(token);
   return <div></div>;
 };
