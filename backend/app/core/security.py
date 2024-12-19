@@ -18,10 +18,8 @@ def verify_password(plain_password: str, hashed_password) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(
-    subject: str | Any, account_type: str | Any, expires_delta: timedelta
-) -> str:
+def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
     expire = datetime.now() + expires_delta
-    to_encode = {"exp": expire, "sub": str(subject), "account_type": str(account_type)}
+    to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
