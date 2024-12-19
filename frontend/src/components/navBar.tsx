@@ -36,8 +36,6 @@ interface NavLinkProps {
   onClick?: () => void;
 }
 
-const Links = ["Register", "My orders"];
-
 const NavLink = ({ children, onClick }: NavLinkProps) => {
   return (
     <Box
@@ -80,7 +78,7 @@ export default function WithAction({ accountType }: NavBarProps) {
   } = {
     user: { label: "My orders", redirectTo: "orders" },
     courier: { label: "My route", redirectTo: "route" },
-    admin: { label: "All users", redirectTo: "users" },
+    admin: { label: "All couriers", redirectTo: "couriers" },
   };
 
   const rightLink =
@@ -179,7 +177,7 @@ export default function WithAction({ accountType }: NavBarProps) {
         {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
-              {Links.map((link) => (
+              {leftLinks[accountType].label.map((link) => (
                 <NavLink key={link}>{link}</NavLink>
               ))}
             </Stack>
