@@ -33,14 +33,12 @@ interface OrderCardProps {
       houseNumber: string;
       apartmentNumber?: string;
     };
-    deliveryDetails: {
-      deliveryLocation: {
-        city: string;
-        street: string;
-        zipCode: string;
-        houseNumber: string;
-        apartmentNumber?: string;
-      };
+    deliveryLocation: {
+      city: string;
+      street: string;
+      zipCode: string;
+      houseNumber: string;
+      apartmentNumber?: string;
     };
     pickUpTimne: {
       start: string;
@@ -74,14 +72,13 @@ const OrderCard = (props: OrderCardProps) => {
           <Box>
             <Heading size="sm">Delivery address:</Heading>
             <Text>
-              {props.orderDetails.deliveryDetails.deliveryLocation.street}{" "}
-              {props.orderDetails.deliveryDetails.deliveryLocation.houseNumber}
-              {props.orderDetails.deliveryDetails.deliveryLocation
-                .apartmentNumber
-                ? `/${props.orderDetails.deliveryDetails.deliveryLocation.apartmentNumber}`
+              {props.orderDetails.deliveryLocation.street}{" "}
+              {props.orderDetails.deliveryLocation.houseNumber}
+              {props.orderDetails.deliveryLocation.apartmentNumber
+                ? `/${props.orderDetails.deliveryLocation.apartmentNumber}`
                 : ""}
-              , {props.orderDetails.deliveryDetails.deliveryLocation.zipCode}{" "}
-              {props.orderDetails.deliveryDetails.deliveryLocation.city}
+              , {props.orderDetails.deliveryLocation.zipCode}{" "}
+              {props.orderDetails.deliveryLocation.city}
             </Text>
           </Box>
         </Stack>
@@ -126,20 +123,19 @@ const OrderCard = (props: OrderCardProps) => {
             </Text>
             <Text>
               <strong>Pick-Up Time:</strong>{" "}
-              {props.orderDetails.pickUpTimne.start} -{" "}
-              {props.orderDetails.pickUpTimne.end}
+              {props.orderDetails.pickUpTime.start} -{" "}
+              {props.orderDetails.pickUpTime.end}
             </Text>
             <Text>
               <strong>Delivery Location:</strong>{" "}
-              {props.orderDetails.deliveryDetails.deliveryLocation.street}{" "}
-              {props.orderDetails.deliveryDetails.deliveryLocation.houseNumber}
-              {props.orderDetails.deliveryDetails.deliveryLocation
-                .apartmentNumber
-                ? `/${props.orderDetails.deliveryDetails.deliveryLocation.apartmentNumber}`
+              {props.orderDetails.deliveryLocation.street}{" "}
+              {props.orderDetails.deliveryLocation.houseNumber}
+              {props.orderDetails.deliveryLocation.apartmentNumber
+                ? `/${props.orderDetails.deliveryLocation.apartmentNumber}`
                 : ""}
               {", "}
-              {props.orderDetails.deliveryDetails.deliveryLocation.city}{" "}
-              {props.orderDetails.deliveryDetails.deliveryLocation.zipCode}
+              {props.orderDetails.deliveryLocation.city}{" "}
+              {props.orderDetails.deliveryLocation.zipCode}
             </Text>
 
             <Text>

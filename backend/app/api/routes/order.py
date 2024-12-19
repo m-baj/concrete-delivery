@@ -36,6 +36,7 @@ def create_order(
     )
 
     db_order = crud.create_order(session=session, order=order_data)
+    crud.set_order_status(session=session, order_id=db_order.id, status_id="1268a2f7-ffa3-46f7-8c18-ea9e70f605b7")
     return db_order
 
 
