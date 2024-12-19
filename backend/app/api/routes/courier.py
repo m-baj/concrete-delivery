@@ -189,3 +189,46 @@ def get_all_couriers(session: SessionDep, current_user: CurrentAdmin) -> Any:
         )
     couriers = crud.get_all_couriers(session=session)
     return couriers
+
+
+@router.get("/home_address/{courier_id}")
+def get_courier_home_address(session: SessionDep, courier_id: str) -> Any:
+    """
+    Get the home address of a courier
+    """
+    courier = crud.get_courier_by_id(session=session, courier_id=courier_id)
+    if not courier:
+        raise HTTPException(status_code=404, detail="Courier not found")
+    home_address = crud.get_address_by_id(
+        session=session, address_id=courier.home_address_id
+    )
+    return home_address
+
+
+@router.get("/complex/{courier_id}")
+def get_courier_complex(session: SessionDep, courier_id: str) -> Any:
+    """
+    Get the home address of a courier
+    """
+    courier = crud.get_courier_by_id(session=session, courier_id=courier_id)
+    if not courier:
+        raise HTTPException(status_code=404, detail="Courier not found")
+    home_address = crud.get_address_by_id(
+        session=session, address_id=courier.home_address_id
+    )
+    status = crud.get_status(session=session, status_id=courier.status_id)
+    return_data = {
+        "id": courier.id,
+        "name": courier.name,
+        "surname": courier.surname,
+        "phoneNumber": courier.phone_number,
+        "status": status.name,
+        "homeAddress": {
+            "city": home_address.city,
+            "street": home_address.street,
+            "postalCode": home_address.postal_code,
+            "houseNumber": home_address.house_number,
+            "apartmentNumber": home_address.apartment_number,
+        },
+    }
+    return return_data
