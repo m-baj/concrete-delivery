@@ -232,3 +232,34 @@ def get_courier_complex(session: SessionDep, courier_id: str) -> Any:
         },
     }
     return return_data
+
+
+@router.get("/complex_all")
+def get_all_couriers_complex(session: SessionDep) -> Any:
+    """
+    Get list of complex courier data
+    """
+    couriers = crud.get_all_couriers(session=session)
+    return_data = []
+    for courier in couriers:
+        home_address = crud.get_address_by_id(
+            session=session, address_id=courier.home_address_id
+        )
+        status = crud.get_status(session=session, status_id=courier.status_id)
+        return_data.append(
+            {
+                "id": courier.id,
+                "name": courier.name,
+                "surname": courier.surname,
+                "phoneNumber": courier.phone_number,
+                "status": status.name,
+                "homeAddress": {
+                    "city": home_address.city,
+                    "street": home_address.street,
+                    "postalCode": home_address.postal_code,
+                    "houseNumber": home_address.house_number,
+                    "apartmentNumber": home_address.apartment_number,
+                },
+            }
+        )
+    return return_data
