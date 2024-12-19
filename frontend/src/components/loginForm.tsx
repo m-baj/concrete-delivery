@@ -20,7 +20,7 @@ import { phonePattern } from "@/utils";
 import { login } from "@/api-calls/auth";
 import useCustomToast from "@/hooks/useCustomToast";
 import { redirect } from "next/navigation";
-import { isLoggedIn } from "@/hooks/useAuth";
+import useAuth from "@/hooks/useAuth";
 
 interface LoginData {
   username: string;
@@ -28,6 +28,8 @@ interface LoginData {
 }
 
 const LoginForm = () => {
+  useAuth({ loggedIn: false, redirectTo: "/" });
+
   const {
     register,
     handleSubmit,
@@ -41,22 +43,17 @@ const LoginForm = () => {
     },
   });
 
-  useEffect(() => {
-    if (isLoggedIn()) {
-      redirect("/my-orders");
-    }
-  }, []);
-
   const [show, setShow] = useBoolean(false);
   const showToast = useCustomToast();
 
   const onSubmit: SubmitHandler<LoginData> = async (data) => {
     const response = await login(data);
+    console.log(response);
     if (response.status) {
       showToast("Success", response.message, "success");
       localStorage.setItem("token", response.token);
       window.location.reload();
-      redirect("/my-orders");
+      redirect("/");
     } else {
       showToast("Error", response.message, "error");
     }
