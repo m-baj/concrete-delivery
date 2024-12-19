@@ -1,15 +1,18 @@
+"use client";
 import { Footer } from "@/components/footer";
 import NavBar from "@/components/navBar";
 import React from "react";
+import { useParams } from "next/navigation";
 
 const UserLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
+  const params = useParams();
+  console.log(params);
+  const accountType = params["account-type"] as "user" | "courier" | "admin";
   return (
     <div className="flex flex-col min-h-screen">
       {" "}
-      {/* Flexbox na pełną wysokość */}
-      <NavBar />
+      <NavBar accountType={accountType} />
       <main className="flex-grow">{children}</main>{" "}
-      {/* Rozciągająca się sekcja */}
       <div className="pt-10">
         <Footer />
       </div>

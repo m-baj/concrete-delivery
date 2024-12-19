@@ -21,10 +21,18 @@ import { login } from "@/api-calls/auth";
 import useCustomToast from "@/hooks/useCustomToast";
 import { redirect } from "next/navigation";
 import { isLoggedIn } from "@/hooks/useAuth";
+import { jwtDecode } from "jwt-decode";
+import { formatAccountType } from "@/utils";
 
 interface LoginData {
   username: string;
   password: string;
+}
+
+interface JwtPayload {
+  exp: number;
+  sub: string;
+  account_type: string;
 }
 
 const LoginForm = () => {
@@ -52,10 +60,12 @@ const LoginForm = () => {
 
   const onSubmit: SubmitHandler<LoginData> = async (data) => {
     const response = await login(data);
+    const { account_type } = jwtDecode<JwtPayload>(response.token);
+
     if (response.status) {
       showToast("Success", response.message, "success");
       localStorage.setItem("token", response.token);
-      redirect("/user");
+      redirect(`/${formatAccountType(account_type)}`);
     } else {
       showToast("Error", response.message, "error");
     }
