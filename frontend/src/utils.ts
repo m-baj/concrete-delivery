@@ -18,6 +18,11 @@ export const phonePattern = {
   message: "Invalid phone number",
 };
 
+export const smsCodePattern = {
+  value: /^\d{6}$/,
+  message: "Invalid SMS code",
+};
+
 export const passwordRules = (isRequired = true) => {
   const rules: any = {
     minLength: {

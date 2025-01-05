@@ -11,8 +11,16 @@ import {
     FormErrorMessage,
     Icon,
 } from "@chakra-ui/react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { smsCodePattern } from "@/utils";
+import { LockIcon } from "@chakra-ui/icons";
+
+type FormData = {
+    smsCode: string;
+};
 
 const VerifyPhoneNumberForm = () => {
+    const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [timer, setTimer] = useState(30);
 
@@ -44,8 +52,12 @@ const VerifyPhoneNumberForm = () => {
         // Logika wysyłania nowego kodu
     };
 
+    const onSubmit: SubmitHandler<FormData> = async (data) => {
+        // Logika weryfikacji kodu
+    };
+
     return (
-        <Container as="form" maxW="sm">
+        <Container as="form" maxW="sm" onSubmit={handleSubmit(onSubmit)}>
             <Stack
                 gap={4}
                 rounded="md"
@@ -55,28 +67,32 @@ const VerifyPhoneNumberForm = () => {
                 borderColor="gray.200"
             >
                 <Text fontSize="xl" textAlign="center">Enter verification code we sent to your mobile</Text>
-                <FormControl>
+                <FormControl isInvalid={!!errors.smsCode}>
                     <InputGroup>
-                        <InputLeftElement
-                            pointerEvents="none"
-                            children={<Icon name="phone" color="gray.300" />}
-                        />
+                        <InputLeftElement pointerEvents="none">
+                            <LockIcon color="gray.400" />
+                        </InputLeftElement>
                         <Input
-                            type="tel"
+                            type="text"
                             placeholder="Code"
                             aria-label="Code"
+                            {...register("smsCode", {
+                                required: "SMS code is required",
+                                pattern: smsCodePattern,
+                            })}
                         />
                     </InputGroup>
-                    <FormErrorMessage>This is an error message</FormErrorMessage>
+                    <FormErrorMessage>{errors.smsCode && errors.smsCode.message}</FormErrorMessage>
                 </FormControl>
                 <Button
                     variant="solid"
                     onClick={handleSendNewCode}
                     isDisabled={isButtonDisabled}
+                    border="1px"
                 >
                     {isButtonDisabled ? `Send new code (${timer}s)` : "Send new code"}
                 </Button>
-                <Button variant="solid">
+                <Button type="submit" variant="solid" border="1px">
                     Verify code
                 </Button>
             </Stack>
