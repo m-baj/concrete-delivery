@@ -28,3 +28,14 @@ class TwilioService:
             return {"success": False, "message": "Invalid code"}
         except Exception as e:
             return {"success": False, "error": str(e)}
+
+    def send_sms(self, phone_number: str, message: str) -> dict:
+        try:
+            message = self.client.messages.create(
+                to=f"+48{phone_number}",
+                from_=settings.TWILIO_PHONE_NUMBER,
+                body=message
+            )
+            return {"success": True, "sid": message.sid}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
