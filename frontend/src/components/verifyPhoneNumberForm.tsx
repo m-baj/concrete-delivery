@@ -15,16 +15,22 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { smsCodePattern } from "@/utils";
 import { LockIcon } from "@chakra-ui/icons";
 import { sendVerificationCode, verifyCode } from "@/api-calls/verification";
+import { useRouter } from "next/navigation";
 
 type FormData = {
     smsCode: string;
 };
 
-const VerifyPhoneNumberForm = () => {
+type VerifyPhoneNumberFormProps = {
+    context: "register" | "resetPassword";
+    phoneNumber: string | null;
+};
+
+const VerifyPhoneNumberForm: React.FC<VerifyPhoneNumberFormProps> = ({ context, phoneNumber }) => {
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [timer, setTimer] = useState(30);
-    const [phoneNumber, setPhoneNumber] = useState("");
+    const router = useRouter();
 
     useEffect(() => {
         let interval: NodeJS.Timeout | null = null;
@@ -41,22 +47,13 @@ const VerifyPhoneNumberForm = () => {
                 });
             }, 1000);
         }
+
         return () => {
             if (interval) {
                 clearInterval(interval);
             }
         };
     }, [isButtonDisabled]);
-
-
-    useEffect(() => {
-        const storedPhoneNumber = localStorage.getItem("phoneNumber");
-        if (storedPhoneNumber) {
-            setPhoneNumber(storedPhoneNumber);
-        } else {
-            alert("No phone number found. Please sign up again.");
-        }
-    }, []);
 
     const handleSendNewCode = async () => {
         setIsButtonDisabled(true);
@@ -75,10 +72,17 @@ const VerifyPhoneNumberForm = () => {
             console.log("Number received:", phoneNumber);
             await verifyCode(phoneNumber, data.smsCode);
             alert("Code verified successfully!");
+            console.log(data);
+            if (context === "register") {
+                router.push("/auth/login");
+            } else if (context === "resetPassword" && phoneNumber) {
+                router.push(`/auth/set-new-password?phoneNumber=${phoneNumber}`);
+            }
         } catch (error) {
             console.error("Verification failed:", error);
             alert("Invalid code. Please try again.");
         }
+
     };
 
     return (

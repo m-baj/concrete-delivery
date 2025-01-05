@@ -62,13 +62,12 @@ const registerForm = () => {
     if (response.status) {
 
       await sendVerificationCode(data.phone_number);
-      localStorage.setItem("phoneNumber", data.phone_number);
       showToast(
-        "Account created successfully",
-        "You can now log in",
+        "Verification SMS sent",
+        "Please check your phone for the verification code",
         "success"
       );
-      redirect("/auth/verify-phone-number");
+      redirect("/auth/verify-phone-number?context=register");
     } else {
       showToast("An error occurred", response.message, "error");
     }
