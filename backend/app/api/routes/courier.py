@@ -154,15 +154,20 @@ async def add_deliveries_to_courier(courier_id: int, request: AddLocationsReques
     try:
         courier = Courier.nodes.get(courierID=courier_id)
         previous_location = None
+        first_location = True
+        print("request.locations: ", request.locations)
         for loc in request.locations:
-            location = Location.get_or_create(
-                {
-                    "locationID": loc.locationID,
-                    "address": loc.address,
-                    "coordinates": loc.coordinates,
-                }
-            )[0]
-            if previous_location:
+            location = Location.nodes.get_or_none(locationID=loc.locationID)
+            if not location:
+                location = Location(
+                    locationID=loc.locationID,
+                    address=loc.address,
+                    coordinates=loc.coordinates,
+                ).save()
+            if first_location:
+                courier.delivers_to.connect(location)
+                first_location = False
+            elif previous_location:
                 previous_location.next_location.connect(location)
 
             previous_location = location
@@ -171,3 +176,5 @@ async def add_deliveries_to_courier(courier_id: int, request: AddLocationsReques
 
     except DoesNotExist:
         raise HTTPException(status_code=404, detail="Courier not found")
+
+
