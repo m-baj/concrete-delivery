@@ -1,13 +1,15 @@
 "use client";
 import React from "react";
 import VerifyPhoneNumberForm from "@/components/verifyPhoneNumberForm";
+import { useSearchParams } from "next/navigation";
 
-const VerifyPhoneNumber = () => {
+const VerifyPhoneNumberPage = () => {
+  const searchParams = useSearchParams();
+  const context = searchParams.get("context");
+
   return (
-    <div className="flex justify-center ">
-      <VerifyPhoneNumberForm />
-    </div>
+    <VerifyPhoneNumberForm context={context === "register" ? "register" : "resetPassword"} />
   );
 };
 
-export default VerifyPhoneNumber;
+export default VerifyPhoneNumberPage;

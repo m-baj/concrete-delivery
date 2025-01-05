@@ -14,15 +14,21 @@ import {
 import { useForm, SubmitHandler } from "react-hook-form";
 import { smsCodePattern } from "@/utils";
 import { LockIcon } from "@chakra-ui/icons";
+import { useRouter } from "next/navigation";
 
 type FormData = {
     smsCode: string;
 };
 
-const VerifyPhoneNumberForm = () => {
+type VerifyPhoneNumberFormProps = {
+    context: "register" | "resetPassword";
+};
+
+const VerifyPhoneNumberForm: React.FC<VerifyPhoneNumberFormProps> = ({ context }) => {
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [timer, setTimer] = useState(30);
+    const router = useRouter();
 
     useEffect(() => {
         let interval: NodeJS.Timeout | null = null;
@@ -54,6 +60,12 @@ const VerifyPhoneNumberForm = () => {
 
     const onSubmit: SubmitHandler<FormData> = async (data) => {
         // Logika weryfikacji kodu
+        console.log(data);
+        if (context === "register") {
+            router.push("/auth/login");
+        } else if (context === "resetPassword") {
+            router.push("/auth/set-new-password");
+        }
     };
 
     return (
