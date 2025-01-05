@@ -75,7 +75,7 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - ./conf:/conf
+      - ./vroom/conf:/conf
     environment:
       - VROOM_ROUTER=osrm
     restart: always
