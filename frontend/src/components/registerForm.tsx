@@ -60,11 +60,11 @@ const registerForm = () => {
     const response = await signup(data);
     if (response.status) {
       showToast(
-        "Account created successfully",
-        "You can now log in",
+        "Verification SMS sent",
+        "Please check your phone for the verification code",
         "success"
       );
-      redirect("/auth/login");
+      redirect("/auth/verify-phone-number?context=register");
     } else {
       showToast("An error occurred", response.message, "error");
     }
