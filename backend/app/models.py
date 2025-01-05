@@ -152,3 +152,8 @@ class Courier(CourierBase, table=True):
 
 class CourierPublic(CourierBase):
     id: uuid.UUID
+
+
+class UserChangePassword(SQLModel):
+    phone_number: str
+    new_password: str = Field(min_length=8, max_length=40)

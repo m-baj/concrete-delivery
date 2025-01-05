@@ -2,7 +2,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import Any
 
-from app.models import UserPublic, UserRegister, UserCreate
+from app.models import UserPublic, UserRegister, UserCreate, UserChangePassword
 from app.api.dependecies import SessionDep
 from app import crud
 
@@ -25,9 +25,11 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
 
 
 @router.post("/change_password")
-def change_password(session: SessionDep, user_phone_number: str, new_password: str):
+def change_password(session: SessionDep, user_change_in: UserChangePassword) -> Any:
     user = crud.change_password(
-        session=session, phone_number=user_phone_number, new_password=new_password
+        session=session,
+        phone_number=user_change_in.phone_number,
+        new_password=user_change_in.new_password,
     )
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
