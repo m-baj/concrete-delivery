@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 
 from app.models import *
 from app.core.security import get_password_hash, verify_password
+from app.utils.geocoding import get_coordinates
 
 
 def create_user(*, session: Session, user_to_create: UserCreate) -> User:
@@ -38,7 +39,18 @@ def authenticate(*, session: Session, phone_number: str, password: str) -> User 
 
 
 def add_address(*, session: Session, address: AddressCreate) -> Address:
-    db_obj = Address.model_validate(address)
+    X, Y = get_coordinates(
+        f"{address.city}, {address.street} {address.house_number}"
+    )
+    db_obj = Address(
+        city=address.city,
+        postal_code=address.postal_code,
+        street=address.street,
+        house_number=address.house_number,
+        apartment_number=address.apartment_number,
+        X_coordinate=X,
+        Y_coordinate=Y,
+    )
     session.add(db_obj)
     session.commit()
     session.refresh(db_obj)

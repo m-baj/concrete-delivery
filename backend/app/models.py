@@ -74,12 +74,14 @@ class AddressCreate(AddressBase):
 
 class Address(AddressBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    X_coordinate: float
-    Y_coordinate: float 
+    X_coordinate: float | None
+    Y_coordinate: float | None
 
 
 class AddressPublic(AddressBase):
     id: uuid.UUID
+    X_coordinate: float | None
+    Y_coordinate: float | None
 
 
 class StatusBase(SQLModel):
