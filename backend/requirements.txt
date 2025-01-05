@@ -27,3 +27,4 @@ pydantic-settings~=2.6.1
 neomodel~=5.4.2
 shapely==2.0.6
 bcrypt==3.2.0
+twilio==9.4.1
