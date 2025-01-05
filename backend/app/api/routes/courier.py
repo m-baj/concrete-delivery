@@ -103,13 +103,8 @@ async def get_courier_current_location(courier_id: int):
     Endpoint to get the current location of a courier based on the IS_AT relationship.
     """
     try:
-        print("Querying for courier with ID: ", courier_id)
-        print("courierID is type: ", type(courier_id))
-
         courier = Courier.nodes.get(courierID=courier_id)
-        print("Courier found: ", courier)
         current_location = courier.is_at.single()  # Get current location from IS_AT
-        print("Current location: ", current_location)
 
         if not current_location:
             raise HTTPException(
@@ -160,15 +155,13 @@ async def add_deliveries_to_courier(courier_id: int, request: AddLocationsReques
         courier = Courier.nodes.get(courierID=courier_id)
         previous_location = None
         for loc in request.locations:
-            location, _ = Location.get_or_create(
-                (
-                    {
-                        "locationID": loc.locationID,
-                        "address": loc.address,
-                        "coordinates": loc.coordinates,
-                    },
-                )
-            )
+            location = Location.get_or_create(
+                {
+                    "locationID": loc.locationID,
+                    "address": loc.address,
+                    "coordinates": loc.coordinates,
+                }
+            )[0]
             if previous_location:
                 previous_location.next_location.connect(location)
 
