@@ -20,13 +20,17 @@ services:
       - ./neo4j-data/config:/config
       - ./neo4j-data/data:/data
       - ./neo4j-data/plugins:/plugins
-#      - ./init.cypher:/docker-entrypoint-initdb.d/init.cypher
+      - ./init.cypher:/init.cypher
     environment:
-      - NEO4J_AUTH=${NEO4J_AUTH}
+      - NEO4J_AUTH=neo4j/krecimybeton
     ports:
       - "7474:7474"
       - "7687:7687"
     restart: always
+#    command: >
+#      sh -c "neo4j start && sleep 10 &&
+#      cypher-shell -u neo4j -p krecimybeton -f init.cypher &&
+#      neo4j stop && neo4j start"
 
   backend:
     build: ./backend

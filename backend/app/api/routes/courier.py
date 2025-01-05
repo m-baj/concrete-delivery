@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import Any
 
+# PostgreSQL queries
 from app.models import (
     CourierPublic,
     CourierRegister,
@@ -12,6 +13,7 @@ from app.api.dependecies import SessionDep, CurrentAdmin
 from app import crud
 from app.api.routes.address import add_address
 
+# Neo4j queries
 from neomodel import DoesNotExist
 from neomodel.contrib.spatial_properties import NeomodelPoint
 from app.models_neo4j import Courier, Location
@@ -101,8 +103,13 @@ async def get_courier_current_location(courier_id: int):
     Endpoint to get the current location of a courier based on the IS_AT relationship.
     """
     try:
+        print("Querying for courier with ID: ", courier_id)
+        print("courierID is type: ", type(courier_id))
+
         courier = Courier.nodes.get(courierID=courier_id)
-        current_location = courier.location.single()  # Get current location from IS_AT
+        print("Courier found: ", courier)
+        current_location = courier.is_at.single()  # Get current location from IS_AT
+        print("Current location: ", current_location)
 
         if not current_location:
             raise HTTPException(
@@ -112,7 +119,7 @@ async def get_courier_current_location(courier_id: int):
         return LocationAPI(
             locationID=current_location.locationID,
             address=current_location.address,
-            coordinates=current_location.coordinates.get("coordinates", []),
+            coordinates=current_location.coordinates,
         )
     except DoesNotExist:
         raise HTTPException(status_code=404, detail="Courier not found")
@@ -133,7 +140,7 @@ async def get_courier_deliveries_in_order(courier_id: int):
                     LocationAPI(
                         locationID=loc.locationID,
                         address=loc.address,
-                        coordinates=loc.coordinates.get("coordinates", []),
+                        coordinates=loc.coordinates,
                         next_location=loc.next_location.single().locationID if loc.next_location.single() else None,
                     )
                 )
@@ -158,7 +165,7 @@ async def add_deliveries_to_courier(courier_id: int, request: AddLocationsReques
                     {
                         "locationID": loc.locationID,
                         "address": loc.address,
-                        "coordinates": NeomodelPoint(loc.coordinates),
+                        "coordinates": loc.coordinates,
                     },
                 )
             )

@@ -1,6 +1,5 @@
 from typing import List, Optional
 from pydantic import BaseModel
-import uuid
 
 
 #Response model for location
@@ -16,7 +15,7 @@ class LocationsAPI(BaseModel):
 
 #Response model for courier
 class CourierAPI(BaseModel):
-    courierID: uuid.UUID
+    courierID: int
     name: str
     current_location: LocationAPI
     deliveries: List[LocationAPI]
