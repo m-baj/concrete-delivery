@@ -134,7 +134,7 @@ class CourierBase(SQLModel):
     surname: str
     phone_number: str
     home_address_id: uuid.UUID
-    status_id: uuid.UUID | None = None
+    status_id: uuid.UUID | None = "af332c5b-b69b-4a5d-8b1b-18728456798d"
 
 
 class CourierRegister(SQLModel):
