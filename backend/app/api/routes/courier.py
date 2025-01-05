@@ -178,3 +178,29 @@ async def add_deliveries_to_courier(courier_id: int, request: AddLocationsReques
         raise HTTPException(status_code=404, detail="Courier not found")
 
 
+@router.post("/{courier_id}/package_delivered", tags=["courier"])
+async def package_delivered(courier_id: int):
+    try:
+        courier = Courier.nodes.get(courierID=courier_id)
+        current_location = courier.is_at.single()
+        next_location = courier.delivers_to.single()
+
+        if not next_location:
+            raise HTTPException(status_code=404, detail="No next delivery location found")
+
+        courier.is_at.disconnect(current_location)
+        courier.is_at.connect(next_location)
+
+        next_next_location = next_location.next_location.single()
+        courier.delivers_to.disconnect(next_location)
+        if next_next_location:
+            courier.delivers_to.connect(next_next_location)
+            next_location.next_location.disconnect(next_next_location)
+
+        if not next_location.is_visited_by and not next_location.delivered_by and not next_location.next_location:
+            next_location.delete()
+
+        return {"message": "Package delivered and courier location updated"}
+
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Courier not found")
