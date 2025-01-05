@@ -9,7 +9,7 @@ class TwilioService:
     def send_verification_code(self, phone_number: str) -> dict:
         try:
             verification = self.client.verify.services(self.service_sid).verifications.create(
-                to=phone_number,
+                to=f"+48{phone_number}",
                 channel="sms"
             )
             return {"success": True, "sid": verification.sid}
@@ -20,7 +20,7 @@ class TwilioService:
     def verify_code(self, phone_number: str, code: str) -> dict:
         try:
             verification_check = self.client.verify.services(self.service_sid).verification_checks.create(
-                to=phone_number,
+                to=f"+48{phone_number}",
                 code=code
             )
             if verification_check.status == "approved":

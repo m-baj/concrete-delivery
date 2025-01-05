@@ -152,3 +152,10 @@ class Courier(CourierBase, table=True):
 
 class CourierPublic(CourierBase):
     id: uuid.UUID
+
+class SendCodeRequest(SQLModel):
+    phone_number: str
+
+class VerifyCodeRequest(SQLModel):
+    phone_number: str
+    code: str

@@ -28,6 +28,7 @@ import { type RegisterData } from "@/types";
 import { signup } from "@/api-calls/auth";
 import useCustomToast from "@/hooks/useCustomToast";
 import { redirect } from "next/navigation";
+import { sendVerificationCode } from "@/api-calls/verification";
 
 interface RegisterFormData extends RegisterData {
   confirmPassword: string;
@@ -59,12 +60,15 @@ const registerForm = () => {
   const onSubmit = async (data: RegisterData) => {
     const response = await signup(data);
     if (response.status) {
+
+      await sendVerificationCode(data.phone_number);
+      localStorage.setItem("phoneNumber", data.phone_number);
       showToast(
         "Account created successfully",
         "You can now log in",
         "success"
       );
-      redirect("/auth/login");
+      redirect("/auth/verify-phone-number");
     } else {
       showToast("An error occurred", response.message, "error");
     }

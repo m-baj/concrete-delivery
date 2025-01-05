@@ -14,6 +14,7 @@ import {
 import { useForm, SubmitHandler } from "react-hook-form";
 import { smsCodePattern } from "@/utils";
 import { LockIcon } from "@chakra-ui/icons";
+import { sendVerificationCode, verifyCode } from "@/api-calls/verification";
 
 type FormData = {
     smsCode: string;
@@ -23,6 +24,7 @@ const VerifyPhoneNumberForm = () => {
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [timer, setTimer] = useState(30);
+    const [phoneNumber, setPhoneNumber] = useState("");
 
     useEffect(() => {
         let interval: NodeJS.Timeout | null = null;
@@ -39,7 +41,6 @@ const VerifyPhoneNumberForm = () => {
                 });
             }, 1000);
         }
-
         return () => {
             if (interval) {
                 clearInterval(interval);
@@ -47,13 +48,37 @@ const VerifyPhoneNumberForm = () => {
         };
     }, [isButtonDisabled]);
 
-    const handleSendNewCode = () => {
+
+    useEffect(() => {
+        const storedPhoneNumber = localStorage.getItem("phoneNumber");
+        if (storedPhoneNumber) {
+            setPhoneNumber(storedPhoneNumber);
+        } else {
+            alert("No phone number found. Please sign up again.");
+        }
+    }, []);
+
+    const handleSendNewCode = async () => {
         setIsButtonDisabled(true);
-        // Logika wysyłania nowego kodu
+        try {
+            await sendVerificationCode(phoneNumber);
+            console.log("Verification code sent successfully.");
+        } catch (error) {
+            console.error("Failed to send verification code:", error);
+            alert("Failed to send code. Please try again.");
+            setIsButtonDisabled(false);
+        }
     };
 
     const onSubmit: SubmitHandler<FormData> = async (data) => {
-        // Logika weryfikacji kodu
+        try {
+            console.log("Number received:", phoneNumber);
+            await verifyCode(phoneNumber, data.smsCode);
+            alert("Code verified successfully!");
+        } catch (error) {
+            console.error("Verification failed:", error);
+            alert("Invalid code. Please try again.");
+        }
     };
 
     return (
