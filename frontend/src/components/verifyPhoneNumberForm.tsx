@@ -22,9 +22,10 @@ type FormData = {
 
 type VerifyPhoneNumberFormProps = {
     context: "register" | "resetPassword";
+    phoneNumber: string | null;
 };
 
-const VerifyPhoneNumberForm: React.FC<VerifyPhoneNumberFormProps> = ({ context }) => {
+const VerifyPhoneNumberForm: React.FC<VerifyPhoneNumberFormProps> = ({ context, phoneNumber }) => {
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [timer, setTimer] = useState(30);
@@ -63,8 +64,8 @@ const VerifyPhoneNumberForm: React.FC<VerifyPhoneNumberFormProps> = ({ context }
         console.log(data);
         if (context === "register") {
             router.push("/auth/login");
-        } else if (context === "resetPassword") {
-            router.push("/auth/set-new-password");
+        } else if (context === "resetPassword" && phoneNumber) {
+            router.push(`/auth/set-new-password?phoneNumber=${phoneNumber}`);
         }
     };
 

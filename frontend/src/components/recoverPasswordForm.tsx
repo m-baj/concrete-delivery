@@ -27,7 +27,7 @@ const RecoverPasswordForm = () => {
         // Logika wysyłania kodu odzyskiwania hasła
         console.log(data);
         // Przekierowanie do strony verify-phone-number
-        redirect("/auth/verify-phone-number");
+        redirect("/auth/verify-phone-number?context=resetPassword&phoneNumber=" + data.phoneNumber);
     };
 
     return (

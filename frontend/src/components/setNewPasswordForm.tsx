@@ -13,16 +13,21 @@ import {
     InputRightElement,
     Icon,
 } from "@chakra-ui/react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { passwordRules } from "@/utils";
+import { setNewPassword } from "@/api-calls/set_new_password";
 
 type FormData = {
     newPassword: string;
     confirmPassword: string;
 };
 
-const SetNewPasswordForm = () => {
+type SetNewPasswordFormProps = {
+    phoneNumber: string;
+};
+
+const SetNewPasswordForm: React.FC<SetNewPasswordFormProps> = ({ phoneNumber }) => {
     const { register, handleSubmit, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
         mode: "onBlur",
         criteriaMode: "all",
@@ -34,12 +39,21 @@ const SetNewPasswordForm = () => {
 
     const [show1, setShow1] = useState(false);
     const [show2, setShow2] = useState(false);
+    const router = useRouter();
 
     const onSubmit: SubmitHandler<FormData> = async (data) => {
-        // Logika zmiany hasła
-        console.log(data);
-        // Przekierowanie do strony logowania
-        redirect("/auth/login");
+        try {
+            const response = await setNewPassword(phoneNumber, data.newPassword);
+            if (response.status) {
+                // Przekierowanie do strony logowania po pomyślnej zmianie hasła
+                router.push("/auth/login");
+            } else {
+                // Obsługa błędów
+                console.error("Error changing password:", response.message);
+            }
+        } catch (error) {
+            console.error("Error changing password:", error);
+        }
     };
 
     return (
