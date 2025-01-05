@@ -22,3 +22,13 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     user_to_create = UserCreate.model_validate(user_in)
     user = crud.create_user(session=session, user_to_create=user_to_create)
     return user
+
+
+@router.post("/change_password")
+def change_password(session: SessionDep, user_phone_number: str, new_password: str):
+    user = crud.change_password(
+        session=session, phone_number=user_phone_number, new_password=new_password
+    )
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"msg": "Password changed successfully"}
