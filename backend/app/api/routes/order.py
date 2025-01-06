@@ -29,6 +29,7 @@ def create_order(
         pickup_address_id=pickup_address.id,
         delivery_address_id=delivery_address.id,
         status_id=None,
+        recipient_phone_number=order.recipient_phone_number,
         pickup_start_time=order.pickup_start_time,
         pickup_end_time=order.pickup_end_time,
         delivery_start_time=order.delivery_start_time,
