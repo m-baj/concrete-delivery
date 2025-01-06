@@ -72,3 +72,7 @@ class OptimizationResult:
     summary: dict
     unassigned: List[int]
     routes: List[Route]
+
+
+PICKUP_VROOMJOB_OFFSET = 1
+DELIVERY_VROOMJOB_OFFSET = 2
