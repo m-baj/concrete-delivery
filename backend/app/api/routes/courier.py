@@ -23,6 +23,8 @@ from app.api_models_neo4j import (
     AddLocationsRequest,
 )
 
+from backend.app.crud_neo4j import get_courier_by_id, get_location_by_id, create_location, write_locations_to_courier
+
 router = APIRouter(prefix="/courier", tags=["courier"])
 
 
@@ -186,41 +188,26 @@ async def get_courier_deliveries_in_order(courier_id: str):
         raise HTTPException(status_code=404, detail="Courier not found")
 
 
-@router.post(
-    "/{courier_id}/add_locations", tags=["courier"], response_model=AddLocationsRequest
-)
+@router.post("/{courier_id}/add_locations", tags=["courier"], response_model=AddLocationsRequest)
 async def add_deliveries_to_courier(courier_id: str, request: AddLocationsRequest):
-    """
-    Endpoint to add a list of locations to a courier in order
-    """
-    try:
-        courier = Courier.nodes.get(courierID=courier_id)
-
-        for location in courier.delivers_to.all():
-            courier.delivers_to.disconnect(location)
-
-        previous_location = None
-        first_location = True
-        for loc in request.locations:
-            location = Location.nodes.get_or_none(locationID=loc.locationID)
-            if not location:
-                location = Location(
-                    locationID=loc.locationID,
-                    address=loc.address,
-                    coordinates=loc.coordinates,
-                ).save()
-            if first_location:
-                courier.delivers_to.connect(location)
-                first_location = False
-            elif previous_location:
-                previous_location.next_location.connect(location)
-
-            previous_location = location
-
-        return LocationsAPI(locations=request.locations)
-
-    except DoesNotExist:
+    courier = get_courier_by_id(courier_id)
+    if not courier:
         raise HTTPException(status_code=404, detail="Courier not found")
+
+    locations = []
+    for loc in request.locations:
+        location = get_location_by_id(loc.locationID)
+        if not location:
+            location = create_location(
+                location_id=loc.locationID,
+                address=loc.address,
+                coordinates=loc.coordinates,
+            )
+        locations.append(location)
+
+    write_locations_to_courier(courier_id, locations)
+
+    return LocationsAPI(locations=request.locations)
 
 
 @router.post("/{courier_id}/package_delivered", tags=["courier"])

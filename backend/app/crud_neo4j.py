@@ -37,10 +37,15 @@ def connect_current_location(courier: Courier, new_location: Location):
 
 def write_locations_to_courier(courierID: str, locations: list[Location]):
     courier = get_courier_by_id(courierID)
-    disconnect_all_delivers_to(courier)
-    connect_delivers_to(courier, locations[0])
-    try:
-        for location in locations[1:]:
-            connect_next_location(location, locations[locations.index(location) + 1])
-    except IndexError:
-        pass
+    existing_delivers_to = courier.delivers_to.all()
+
+    if existing_delivers_to:
+        last_existing_location = existing_delivers_to[-1]
+        connect_next_location(last_existing_location, locations[0])
+    else:
+        connect_delivers_to(courier, locations[0])
+
+    previous_location = locations[0]
+    for location in locations[1:]:
+        connect_next_location(previous_location, location)
+        previous_location = location
