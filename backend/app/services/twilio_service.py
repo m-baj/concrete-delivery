@@ -31,10 +31,11 @@ class TwilioService:
 
     def send_sms(self, phone_number: str, message: str) -> dict:
         try:
+            print(f"Sending SMS to {phone_number}: {message}")
             message = self.client.messages.create(
-                to=f"+48{phone_number}",
                 from_=settings.TWILIO_PHONE_NUMBER,
-                body=message
+                body=message,
+                to=f"+48{phone_number}"
             )
             return {"success": True, "sid": message.sid}
         except Exception as e:

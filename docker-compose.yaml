@@ -12,21 +12,21 @@ services:
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
 
-  neo4j:
-    image: neo4j:latest
-    container_name: neo4j
-    volumes:
-      - ./neo4j-data/logs:/logs
-      - ./neo4j-data/config:/config
-      - ./neo4j-data/data:/data
-      - ./neo4j-data/plugins:/plugins
-    #      - ./init.cypher:/docker-entrypoint-initdb.d/init.cypher
-    environment:
-      - NEO4J_AUTH=${NEO4J_AUTH}
-    ports:
-      - "7474:7474"
-      - "7687:7687"
-    restart: always
+#  neo4j:
+#    image: neo4j:latest
+#    container_name: neo4j
+#    volumes:
+#      - ./neo4j-data/logs:/logs
+#      - ./neo4j-data/config:/config
+#      - ./neo4j-data/data:/data
+#      - ./neo4j-data/plugins:/plugins
+#    #      - ./init.cypher:/docker-entrypoint-initdb.d/init.cypher
+#    environment:
+#      - NEO4J_AUTH=${NEO4J_AUTH}
+#    ports:
+#      - "7474:7474"
+#      - "7687:7687"
+#    restart: always
 
   backend:
     build: ./backend
@@ -37,7 +37,7 @@ services:
       - ./backend/app:/code/app
     depends_on:
       - postgres
-      - neo4j
+#      - neo4j
     env_file:
       - .env
 
@@ -53,37 +53,37 @@ services:
       - backend
     command: npm run dev
 
-  osrm-backend:
-    image: ghcr.io/project-osrm/osrm-backend
-    container_name: osrm-backend
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./osrm-data:/data
-    command: >
-      sh -c "
-      osrm-extract -p /opt/car.lua /data/mazowieckie-latest.osm.pbf &&
-      osrm-partition /data/mazowieckie-latest.osrm &&
-      osrm-customize /data/mazowieckie-latest.osrm &&
-      osrm-routed --algorithm mld /data/mazowieckie-latest.osrm
-      "
-    restart: always
-
-  vroom:
-    image: vroomvrp/vroom-docker:v1.10.0
-    container_name: vroom
-    ports:
-      - "4000:4000"
-    volumes:
-      - ./vroom/conf:/conf
-    environment:
-      - VROOM_ROUTER=osrm
-    restart: always
-
-  osrm-frontend:
-    image: osrm/osrm-frontend
-    container_name: osrm-frontend
-    ports:
-      - "9966:9966"
-    depends_on:
-      - osrm-backend
+#  osrm-backend:
+#    image: ghcr.io/project-osrm/osrm-backend
+#    container_name: osrm-backend
+#    ports:
+#      - "5000:5000"
+#    volumes:
+#      - ./osrm-data:/data
+#    command: >
+#      sh -c "
+#      osrm-extract -p /opt/car.lua /data/mazowieckie-latest.osm.pbf &&
+#      osrm-partition /data/mazowieckie-latest.osrm &&
+#      osrm-customize /data/mazowieckie-latest.osrm &&
+#      osrm-routed --algorithm mld /data/mazowieckie-latest.osrm
+#      "
+#    restart: always
+#
+#  vroom:
+#    image: vroomvrp/vroom-docker:v1.10.0
+#    container_name: vroom
+#    ports:
+#      - "4000:4000"
+#    volumes:
+#      - ./vroom/conf:/conf
+#    environment:
+#      - VROOM_ROUTER=osrm
+#    restart: always
+#
+#  osrm-frontend:
+#    image: osrm/osrm-frontend
+#    container_name: osrm-frontend
+#    ports:
+#      - "9966:9966"
+#    depends_on:
+#      - osrm-backend
