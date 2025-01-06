@@ -10,6 +10,8 @@ import {
   FormErrorMessage,
   Text,
   Select,
+  InputGroup,
+  InputLeftAddon,
 } from "@chakra-ui/react";
 import { type OrderRegisterFormData } from "@/types";
 import { generateTimeOptions, validateTimeOrder } from "@/utils";
@@ -17,6 +19,7 @@ import { createOrder } from "@/api-calls/create_order";
 import useCustomToast from "@/hooks/useCustomToast";
 import { isLoggedIn } from "@/hooks/useAuth";
 import { redirect } from "next/navigation";
+import { phonePattern } from "@/utils";
 
 const timeOptions = generateTimeOptions();
 
@@ -43,6 +46,7 @@ const OrderCreateForm = () => {
         house_number: "",
         apartment_number: "",
       },
+      recipient_phone_number: "",
       pickup_start_time: "",
       pickup_end_time: "",
       delivery_start_time: "",
@@ -101,6 +105,30 @@ const OrderCreateForm = () => {
         <Text fontSize="xl" fontWeight="bold" textAlign="center">
           Create Order
         </Text>
+        <Text fontSize="lg" fontWeight="bold">
+          Recipient phone number
+        </Text>
+        <FormControl id="recipient_phone_number" isInvalid={!!errors.recipient_phone_number}>
+          <FormLabel htmlFor="recipient_phone_number" srOnly>
+            Recipient phone number
+          </FormLabel>
+          <InputGroup>
+            <InputLeftAddon children="+48" bg="gray.300" />
+            <Input
+              type="text"
+              {...register("recipient_phone_number", {
+                required: "Recipient phone number is required",
+                pattern: phonePattern,
+              })}
+              placeholder="Recipient phone number"
+              variant="filled"
+              required
+            />
+          </InputGroup>
+          {errors.recipient_phone_number && (
+            <FormErrorMessage>{errors.recipient_phone_number.message}</FormErrorMessage>
+          )}
+        </FormControl>
         <Text fontSize="lg" fontWeight="bold">
           Pickup Address
         </Text>

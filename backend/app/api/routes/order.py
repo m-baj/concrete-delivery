@@ -6,10 +6,12 @@ from app.models import OrderPublic, OrderCreate, Order, OrderBase
 from app.api.dependecies import SessionDep
 from app import crud
 from app.api.dependecies import CurrentUser
-from app.api.routes.address import add_address2
+from app.api.routes.address import add_address
+from app.services.twilio_service import TwilioService
 from app.utils.vroom.vroom import Vroom
 
 router = APIRouter(prefix="/order", tags=["order"])
+twilio_service = TwilioService()
 
 
 @router.post("/", response_model=OrderPublic)
@@ -30,6 +32,7 @@ def create_order(
         pickup_address_id=pickup_address.id,
         delivery_address_id=delivery_address.id,
         status_id=None,
+        recipient_phone_number=order.recipient_phone_number,
         pickup_start_time=order.pickup_start_time,
         pickup_end_time=order.pickup_end_time,
         delivery_start_time=order.delivery_start_time,
@@ -44,13 +47,14 @@ def create_order(
     if not vroom.verify_result():
         raise HTTPException(status_code=400, detail="Unable to accept order")
     
-    
-
+    order_accepted = crud.get_status_by_name(
+        session=session, status_name="Order Accepted"
+    )
     db_order = crud.create_order(session=session, order=order_data)
     crud.set_order_status(
         session=session,
         order_id=db_order.id,
-        status_id="1268a2f7-ffa3-46f7-8c18-ea9e70f605b7",
+        status_id=order_accepted.id,
     )
     return db_order
 
@@ -88,6 +92,11 @@ def set_order_status(
     order = crud.set_order_status(
         session=session, order_id=order_id, status_id=status_id
     )
+    user = crud.get_user_by_id(session=session, user_id=order.user_id)
+    status = crud.get_status(session=session, status_id=status_id)
+    message = f"Order {order_id} change the status to {status.name}"
+    twilio_service.send_sms(phone_number=user.phone_number, message=message)
+    twilio_service.send_sms(phone_number=order.recipient_phone_number, message=message)
     return order
 
 

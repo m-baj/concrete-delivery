@@ -1,10 +1,13 @@
 # all database operations are done here
 from sqlmodel import Session, select
+from typing import Tuple, List, Dict
 
 from app.models import *
 from app.utils.vroom.models import VroomVehicle, VroomJob
 from app.core.security import get_password_hash, verify_password
 from app.utils.geocoding import get_coordinates
+from .crud_neo4j import get_courier_current_location
+from .utils.hour import hour_from_str_to_seconds
 
 
 def create_user(*, session: Session, user_to_create: UserCreate) -> User:
@@ -30,6 +33,19 @@ def get_user_by_id(*, session: Session, user_id: str) -> User | None:
     return user
 
 
+def change_password(
+    *, session: Session, phone_number: str, new_password: str
+) -> User | None:
+    user = get_user_by_phone_number(session=session, phone_number=phone_number)
+    if not user:
+        return None
+    user.hashed_password = get_password_hash(new_password)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
 def authenticate(*, session: Session, phone_number: str, password: str) -> User | None:
     user = get_user_by_phone_number(session=session, phone_number=phone_number)
     if not user:
@@ -40,9 +56,7 @@ def authenticate(*, session: Session, phone_number: str, password: str) -> User 
 
 
 def add_address(*, session: Session, address: AddressCreate) -> Address:
-    X, Y = get_coordinates(
-        f"{address.city}, {address.street} {address.house_number}"
-    )
+    X, Y = get_coordinates(f"{address.city}, {address.street} {address.house_number}")
     db_obj = Address(
         city=address.city,
         postal_code=address.postal_code,
@@ -111,6 +125,12 @@ def update_Y_coordinate(
 
 def get_status(*, session: Session, status_id: str) -> Status | None:
     query = select(Status).where(Status.id == status_id)
+    status = session.exec(query).first()
+    return status
+
+
+def get_status_by_name(*, session: Session, status_name: str) -> Status | None:
+    query = select(Status).where(Status.name == status_name)
     status = session.exec(query).first()
     return status
 
@@ -229,8 +249,29 @@ def get_all_couriers(*, session: Session) -> list[Courier]:
     return couriers
 
 
-def get_all_working_couriers(*, session: Session) -> list[VroomVehicle]:
-    pass
+def get_all_working_couriers(
+    *, session: Session
+) -> Tuple[List[VroomVehicle], Dict[int, str]]:
+    couriers = get_all_couriers(session=session)
+    couriers_as_vehicles = []
+    vroom_id_dict = {}
+    for index, courier in enumerate(couriers):
+        vroom_id_dict[index] = courier.id
+        home_address = get_address_by_id(
+            session=session, address_id=courier.home_address_id
+        )
+        courier_as_vehicle = VroomVehicle(
+            id=index,
+            description=f"{courier.name} {courier.surname}, {courier.phone_number}",
+            start=get_courier_current_location(courierID=courier.id),
+            end=[home_address.X_coordinate, home_address.Y_coordinate],
+            time_window=[
+                hour_from_str_to_seconds("08:00"),
+                hour_from_str_to_seconds("16:00"),
+            ],  # TODO: get working hours from courier, by adding working_hours field to Courier model in database
+        )
+        couriers_as_vehicles.append(courier_as_vehicle)
+    return couriers_as_vehicles, vroom_id_dict
 
 
 def get_all_unstarted_orders(*, session: Session) -> list[VroomJob]:

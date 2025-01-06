@@ -2,7 +2,9 @@ import secrets
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic_core import MultiHostUrl
 from pydantic import PostgresDsn, computed_field
+from neomodel import config
 
+config.DATABASE_URL = "bolt://neo4j:krecimybeton@neo4j:7687"
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -38,6 +40,11 @@ class Settings(BaseSettings):
             port=self.POSTGRES_PORT,
             path=f"{self.POSTGRES_DB}",
         )
+
+    TWILIO_ACCOUNT_SID: str
+    TWILIO_AUTH_TOKEN: str
+    TWILIO_VERIFY_SERVICE_SID: str
+    TWILIO_PHONE_NUMBER: str
 
 
 settings = Settings()
