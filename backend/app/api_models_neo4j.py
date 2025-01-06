@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 #Response model for location
 class LocationAPI(BaseModel):
-    locationID: int
+    locationID: str
     address: str
     coordinates: List[float]
     next_location: Optional[int] = None

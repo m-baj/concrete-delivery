@@ -28,6 +28,7 @@ from app.crud_neo4j import (
     get_location_by_id,
     create_location,
     write_locations_to_courier,
+    create_courier
 )
 
 router = APIRouter(prefix="/courier", tags=["courier"])
@@ -85,8 +86,12 @@ def register_courier(
     crud.create_user(session=session, user_to_create=courier_to_create_as_user)
 
     # Automatically adding the courier to neo4j
-    neo4j_courier = Courier(courierID=courier.id, name=courier_in.name).save()
-
+    neo4j_courier = create_courier(courier.id, name=f"{courier_in.name} {courier_in.surname}")
+    # Upon creating courier automatically setting the courier's location to his home address
+    home_location_coordinates = [home_address.X_coordinate, home_address.Y_coordinate]
+    home_address_string = f"{home_address.street} {home_address.house_number}, {home_address.city}"
+    home_location = create_location(home_address.id, home_address_string, home_location_coordinates)
+    neo4j_courier.is_at.connect(home_location)
     return courier
 
 

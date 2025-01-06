@@ -13,16 +13,11 @@ def get_courier_by_id(courier_id: str) -> Courier:
 def create_courier(courier_id: str, name: str) -> Courier:
     return Courier(courierID=courier_id, name=name).save()
 
-
-def get_location_by_id(location_id: int) -> Location:
+def get_location_by_id(location_id: str) -> Location:
     return Location.nodes.get_or_none(locationID=location_id)
 
-
-def create_location(location_id: int, address: str, coordinates: list) -> Location:
-    return Location(
-        locationID=location_id, address=address, coordinates=coordinates
-    ).save()
-
+def create_location(location_id: str, address: str, coordinates: list) -> Location:
+    return Location(locationID=location_id, address=address, coordinates=coordinates).save()
 
 def disconnect_all_delivers_to(courier: Courier):
     for location in courier.delivers_to.all():
