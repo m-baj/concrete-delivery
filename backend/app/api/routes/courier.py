@@ -15,14 +15,12 @@ from app.api.routes.address import add_address
 
 # Neo4j queries
 from neomodel import DoesNotExist
-from neomodel.contrib.spatial_properties import NeomodelPoint
 from app.models_neo4j import Courier, Location
 from app.api_models_neo4j import (
     LocationAPI,
     LocationsAPI,
     CourierAPI,
     AddLocationsRequest,
-    CreateCourierRequest,
 )
 
 router = APIRouter(prefix="/courier", tags=["courier"])
