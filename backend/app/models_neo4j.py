@@ -8,7 +8,7 @@ from neomodel import (
 )
 
 class Courier(StructuredNode):
-    courierID = IntegerProperty()
+    courierID = StringProperty()
     name = StringProperty()
 
     is_at = RelationshipTo('Location', 'IS_AT')
