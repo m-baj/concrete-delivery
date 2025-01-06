@@ -7,13 +7,6 @@ const VerifyPhoneNumberPage = () => {
   const searchParams = useSearchParams();
   const context = searchParams.get("context");
   const phoneNumber = searchParams.get("phoneNumber");
-  const router = useRouter();
-
-  if (!phoneNumber) {
-    // Przekierowanie na stronę błędu lub wyświetlenie komunikatu
-    router.push("/error?message=Phone number is required");
-    return null;
-  }
 
   return (
     <VerifyPhoneNumberForm

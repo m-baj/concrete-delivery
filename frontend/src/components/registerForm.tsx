@@ -67,7 +67,7 @@ const registerForm = () => {
         "Please check your phone for the verification code",
         "success"
       );
-      redirect("/auth/verify-phone-number?context=register");
+      redirect("/auth/verify-phone-number?context=register&phoneNumber=" + data.phone_number);
     } else {
       showToast("An error occurred", response.message, "error");
     }

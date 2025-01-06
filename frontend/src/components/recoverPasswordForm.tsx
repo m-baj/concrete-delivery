@@ -15,6 +15,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { LockIcon } from "@chakra-ui/icons";
 import { redirect } from "next/navigation";
 import { phonePattern } from "@/utils";
+import {sendVerificationCode} from "@/api-calls/verification";
 
 type FormData = {
     phoneNumber: string;
@@ -24,7 +25,7 @@ const RecoverPasswordForm = () => {
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
 
     const onSubmit: SubmitHandler<FormData> = async (data) => {
-        // Logika wysyłania kodu odzyskiwania hasła
+        await sendVerificationCode(data.phoneNumber);
         console.log(data);
         // Przekierowanie do strony verify-phone-number
         redirect("/auth/verify-phone-number?context=resetPassword&phoneNumber=" + data.phoneNumber);
