@@ -1,10 +1,13 @@
 # all database operations are done here
 from sqlmodel import Session, select
+from typing import Tuple, List, Dict
 
 from app.models import *
 from app.utils.vroom.models import VroomVehicle, VroomJob
 from app.core.security import get_password_hash, verify_password
 from app.utils.geocoding import get_coordinates
+from .crud_neo4j import get_courier_current_location
+from .utils.hour import hour_from_str_to_seconds
 
 
 def create_user(*, session: Session, user_to_create: UserCreate) -> User:
@@ -125,10 +128,12 @@ def get_status(*, session: Session, status_id: str) -> Status | None:
     status = session.exec(query).first()
     return status
 
+
 def get_status_by_name(*, session: Session, status_name: str) -> Status | None:
     query = select(Status).where(Status.name == status_name)
     status = session.exec(query).first()
     return status
+
 
 def add_status(*, session: Session, status: StatusCreate) -> Status:
     db_obj = Status.model_validate(status)
@@ -244,27 +249,29 @@ def get_all_couriers(*, session: Session) -> list[Courier]:
     return couriers
 
 
-def get_all_working_couriers(*, session: Session) -> list[VroomVehicle]:
+def get_all_working_couriers(
+    *, session: Session
+) -> Tuple[List[VroomVehicle], Dict[int, str]]:
     couriers = get_all_couriers(session=session)
     couriers_as_vehicles = []
     vroom_id_dict = {}
     for index, courier in enumerate(couriers):
-        vroom_id_dict[courier.id] = index
+        vroom_id_dict[index] = courier.id
+        home_address = get_address_by_id(
+            session=session, address_id=courier.home_address_id
+        )
         courier_as_vehicle = VroomVehicle(
-            id=vroom_id_dict[courier.id],
-            description=f"{courier.name} {courier.surname}",
-            start=[
-                courier.home_address.X_coordinate,
-                courier.home_address.Y_coordinate,
-            ],
-            end=[courier.home_address.X_coordinate, courier.home_address.Y_coordinate],
+            id=index,
+            description=f"{courier.name} {courier.surname}, {courier.phone_number}",
+            start=get_courier_current_location(courierID=courier.id),
+            end=[home_address.X_coordinate, home_address.Y_coordinate],
             time_window=[
-                28800,
-                57600,
+                hour_from_str_to_seconds("08:00"),
+                hour_from_str_to_seconds("16:00"),
             ],  # TODO: get working hours from courier, by adding working_hours field to Courier model in database
         )
         couriers_as_vehicles.append(courier_as_vehicle)
-    return couriers_as_vehicles
+    return couriers_as_vehicles, vroom_id_dict
 
 
 def get_all_unstarted_orders(*, session: Session) -> list[VroomJob]:

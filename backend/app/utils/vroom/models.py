@@ -10,21 +10,26 @@ class VroomVehicle:
     end: List[float]
     time_window: List[int]  # working hours
 
+
 @dataclass
 class VroomJob:
     id: int
+    description: str
     location: List[float]
     time_window: List[int]
+
 
 @dataclass
 class Violation:
     cause: str
+
 
 @dataclass
 class Input:
     vehicles: List[VroomVehicle]
     jobs: List[VroomJob]
     options: dict
+
 
 @dataclass
 class Step:
@@ -36,9 +41,11 @@ class Step:
     duration: int
     violations: List[Violation]
 
+
 @dataclass
 class StartEndStep(Step):
     pass
+
 
 @dataclass
 class JobStep(Step):
@@ -58,6 +65,7 @@ class Route:
     priority: int
     steps: List[Step]
     violations: List[Violation]
+
 
 @dataclass
 class OptimizationResult:
