@@ -1,5 +1,7 @@
 from neomodel import DoesNotExist
 from .models_neo4j import Courier, Location
+from crud import get_address_by_coordinates
+from typing import List
 
 def get_courier_by_id(courier_id: str) -> Courier:
     try:
@@ -13,7 +15,7 @@ def create_courier(courier_id: str, name: str) -> Courier:
 def get_location_by_id(location_id: str) -> Location:
     return Location.nodes.get_or_none(locationID=location_id)
 
-def create_location(location_id: str, address: str, coordinates: list) -> Location:
+def create_location(location_id: str, address: str, coordinates: List[float]) -> Location:
     return Location(locationID=location_id, address=address, coordinates=coordinates).save()
 
 def disconnect_all_delivers_to(courier: Courier):
@@ -35,9 +37,12 @@ def disconnect_current_location(courier: Courier, current_location: Location):
 def connect_current_location(courier: Courier, new_location: Location):
     courier.is_at.connect(new_location)
 
-def write_locations_to_courier(courierID: str, locations: list[Location]):
+def write_locations_to_courier(courierID: str, locations: List[List[float]]):
     courier = get_courier_by_id(courierID)
     existing_delivers_to = courier.delivers_to.all()
+    locations_objects = []
+    for location in locations:
+        address = get_address_by_coordinates(session, location[0], location[1])
 
     if existing_delivers_to:
         last_existing_location = existing_delivers_to[-1]
