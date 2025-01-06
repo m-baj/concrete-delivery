@@ -21,7 +21,6 @@ from app.api_models_neo4j import (
     LocationsAPI,
     CourierAPI,
     AddLocationsRequest,
-    CreateCourierRequest,
 )
 
 router = APIRouter(prefix="/courier", tags=["courier"])
@@ -80,7 +79,7 @@ def register_courier(
 
     # Automatically adding the courier to neo4j
     neo4j_courier = Courier(
-        courierID=str(courier.id),
+        courierID=courier.id,
         name=courier_in.name
     ).save()
 
@@ -126,6 +125,34 @@ async def get_courier_current_location(courier_id: str):
         raise HTTPException(status_code=404, detail="Courier not found")
 
 
+@router.post("/{courier_id}/set_current_location", tags=["courier"], response_model=LocationAPI)
+async def set_current_location(courier_id: str, request: LocationAPI):
+    try:
+        courier = Courier.nodes.get(courierID=courier_id)
+
+        current_location = courier.is_at.single()
+        if current_location:
+            courier.is_at.disconnect(current_location)
+
+        new_location = Location.nodes.get_or_none(locationID=request.locationID)
+        if not new_location:
+            new_location = Location(
+                locationID=request.locationID,
+                address=request.address,
+                coordinates=request.coordinates,
+            ).save()
+
+        courier.is_at.connect(new_location)
+
+        return LocationAPI(
+            locationID=new_location.locationID,
+            address=new_location.address,
+            coordinates=new_location.coordinates,
+        )
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Courier not found")
+
+
 @router.get(
     "/{courier_id}/locations_in_order", tags=["courier"], response_model=LocationsAPI
 )
@@ -159,9 +186,12 @@ async def get_courier_deliveries_in_order(courier_id: str):
 async def add_deliveries_to_courier(courier_id: str, request: AddLocationsRequest):
     try:
         courier = Courier.nodes.get(courierID=courier_id)
+
+        for location in courier.delivers_to.all():
+            courier.delivers_to.disconnect(location)
+
         previous_location = None
         first_location = True
-        print("request.locations: ", request.locations)
         for loc in request.locations:
             location = Location.nodes.get_or_none(locationID=loc.locationID)
             if not location:

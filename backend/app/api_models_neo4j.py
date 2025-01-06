@@ -25,8 +25,8 @@ class AddLocationsRequest(BaseModel):
     locations: List[LocationAPI]
     
 #Request model for creating a courier
-class CreateCourierRequest(BaseModel):
-    courierID: str
-    name: str
-    current_location: LocationAPI
-    deliveries: List[LocationAPI]
+# class CreateCourierRequest(BaseModel):
+#     courierID: str
+#     name: str
+#     current_location: LocationAPI
+#     deliveries: List[LocationAPI]
