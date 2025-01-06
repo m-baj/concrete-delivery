@@ -8,7 +8,7 @@
     "waiting_time": 10100,
     "priority": 0,
     "violations": [],
-    "computing_times": { "loading": 29, "solving": 1 }
+    "computing_times": { "loading": 54, "solving": 0 }
   },
   "unassigned": [],
   "routes": [
