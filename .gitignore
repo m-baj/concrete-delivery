@@ -26,6 +26,7 @@ share/python-wheels/
 *.egg-info/
 postgres-data/
 neo4j-data/
+osrm-data/
 .installed.cfg
 *.egg
 MANIFEST
