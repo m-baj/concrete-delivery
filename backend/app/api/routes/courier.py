@@ -23,7 +23,7 @@ from app.api_models_neo4j import (
     AddLocationsRequest,
 )
 
-from backend.app.crud_neo4j import get_courier_by_id, get_location_by_id, create_location, write_locations_to_courier
+from app.crud_neo4j import get_courier_by_id, get_location_by_id, create_location, write_locations_to_courier
 
 router = APIRouter(prefix="/courier", tags=["courier"])
 

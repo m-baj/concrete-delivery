@@ -1,5 +1,5 @@
 from neomodel import DoesNotExist
-from models_neo4j import Courier, Location
+from .models_neo4j import Courier, Location
 
 def get_courier_by_id(courier_id: str) -> Courier:
     try:
