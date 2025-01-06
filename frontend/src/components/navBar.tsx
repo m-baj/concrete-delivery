@@ -27,18 +27,16 @@ import {
   SettingsIcon,
 } from "@chakra-ui/icons";
 import { RiLogoutBoxRLine } from "react-icons/ri";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import handleLogout, { isLoggedIn } from "@/hooks/useAuth";
 
-interface Props {
+interface NavLinkProps {
   children: React.ReactNode;
+  onClick?: () => void;
 }
 
-const Links = ["Register", "My orders"];
-
-const NavLink = (props: Props) => {
-  const { children } = props;
+const NavLink = ({ children, onClick }: NavLinkProps) => {
   return (
     <Box
       as="a"
@@ -48,15 +46,21 @@ const NavLink = (props: Props) => {
       _hover={{
         textDecoration: "none",
         bg: useColorModeValue("gray.200", "gray.700"),
+        Cursor: "pointer",
       }}
-      href={"#"}
+      href="#"
+      onClick={onClick}
     >
       {children}
     </Box>
   );
 };
 
-export default function WithAction() {
+interface NavBarProps {
+  accountType: "user" | "courier" | "admin";
+}
+
+export default function WithAction({ accountType }: NavBarProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
 
@@ -65,15 +69,47 @@ export default function WithAction() {
   }, []);
 
   const handleLogoutClick = () => {
-    console.log("handleLogoutClick");
-    console.log();
-    if (isLoggedIn()) {
-      localStorage.removeItem("token");
-      window.location.reload();
-      router.push("/auth/login");
-    } else {
-      router.push("/auth/login");
-    }
+    localStorage.removeItem("token");
+    redirect("/auth/login");
+  };
+
+  const leftLinks: {
+    [key in NavBarProps["accountType"]]: { label: string; redirectTo: string };
+  } = {
+    user: { label: "My orders", redirectTo: "orders" },
+    courier: { label: "My route", redirectTo: "route" },
+    admin: { label: "All couriers", redirectTo: "couriers" },
+  };
+
+  const rightLink =
+    accountType === "user" ? (
+      <Button
+        variant={"solid"}
+        colorScheme={"blue"}
+        size={"sm"}
+        mr={4}
+        leftIcon={<AddIcon />}
+        onClick={() => redirect("/user/new-order")}
+      >
+        New Order
+      </Button>
+    ) : accountType === "admin" ? (
+      <Button
+        variant={"solid"}
+        colorScheme={"blue"}
+        size={"sm"}
+        mr={4}
+        leftIcon={<AddIcon />}
+        onClick={() => redirect("/admin/new-courier")}
+      >
+        Add Courier
+      </Button>
+    ) : null;
+
+  const { label, redirectTo } = leftLinks[accountType];
+
+  const handleClick = () => {
+    redirect(`/${accountType}/${redirectTo}`);
   };
 
   return (
@@ -88,7 +124,7 @@ export default function WithAction() {
             onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems={"center"}>
-            <Box>
+            <Box className="hidden md:flex">
               <Image
                 src="/assets/logo.png"
                 alt="Logo"
@@ -101,21 +137,13 @@ export default function WithAction() {
               spacing={4}
               display={{ base: "none", md: "flex" }}
             >
-              {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
-              ))}
+              <NavLink key={label} onClick={handleClick}>
+                {label}
+              </NavLink>
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
-            <Button
-              variant={"solid"}
-              colorScheme={"blue"}
-              size={"sm"}
-              mr={4}
-              leftIcon={<AddIcon />}
-            >
-              Create Order
-            </Button>
+            {rightLink}
             <Menu>
               <MenuButton
                 as={Button}
@@ -138,7 +166,7 @@ export default function WithAction() {
                 </MenuItem>
                 <MenuDivider />
                 <MenuItem justifyContent="center" onClick={handleLogoutClick}>
-                  {isLoggedIn() ? "Log out" : "Log in"}{" "}
+                  Log out
                   <Icon as={RiLogoutBoxRLine} size="" />
                 </MenuItem>
               </MenuList>
@@ -149,7 +177,7 @@ export default function WithAction() {
         {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
-              {Links.map((link) => (
+              {leftLinks[accountType].label.map((link) => (
                 <NavLink key={link}>{link}</NavLink>
               ))}
             </Stack>

@@ -24,3 +24,12 @@ export type OrderRegisterFormData = {
     delivery_start_time: string;
     delivery_end_time: string;
 };
+
+export type CourierRegisterData = {
+    name: string;
+    surname: string;
+    phone_number: string;
+    home_address: AddressCreateData;
+    email_address: string;
+    password: string;
+};

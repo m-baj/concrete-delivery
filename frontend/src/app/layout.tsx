@@ -18,13 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ChakraProvider>
-          <NavBar />
-          {children}
-          <div className="pt-10">
-            <Footer />
-          </div>
-        </ChakraProvider>
+        <ChakraProvider>{children}</ChakraProvider>
       </body>
     </html>
   );

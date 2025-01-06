@@ -1,4 +1,4 @@
-export const emailPatter = {
+export const emailPattern = {
   value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
   message: "Invalid email",
 };
@@ -52,16 +52,19 @@ export const confirmPasswordRules = (
 };
 
 export const generateTimeOptions = () => {
-    const times = [];
-    for (let hour = 8; hour < 16; hour++) {
-        for (let minute = 0; minute < 60; minute += 30) {
-            const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-            times.push(time);
-        }
+  const times = [];
+  for (let hour = 8; hour < 16; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      const time = `${String(hour).padStart(2, "0")}:${String(minute).padStart(
+        2,
+        "0"
+      )}`;
+      times.push(time);
     }
-    const time = '16:00';
-    times.push(time);
-    return times;
+  }
+  const time = "16:00";
+  times.push(time);
+  return times;
 };
 
 export const validateTimeOrder = (
@@ -90,4 +93,8 @@ export const validateTimeOrder = (
     return "Pickup start time must be earlier than delivery end time";
   }
   return true;
+};
+
+export const formatAccountType = (accountType: string): string => {
+  return accountType.replace("AccountType.", "").toLowerCase();
 };
