@@ -12,8 +12,6 @@ origins = [
     "http://localhost:3000",
 ]
 
-init_db()
-init_neo4j()
 
 # Dodanie CORS middleware (wrzucasz tutaj)
 app.add_middleware(
