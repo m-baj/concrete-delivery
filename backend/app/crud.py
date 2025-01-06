@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 
 from app.models import *
 from app.core.security import get_password_hash, verify_password
+from app.utils.geocoding import get_coordinates
 
 
 def create_user(*, session: Session, user_to_create: UserCreate) -> User:
@@ -28,6 +29,19 @@ def get_user_by_id(*, session: Session, user_id: str) -> User | None:
     return user
 
 
+def change_password(
+    *, session: Session, phone_number: str, new_password: str
+) -> User | None:
+    user = get_user_by_phone_number(session=session, phone_number=phone_number)
+    if not user:
+        return None
+    user.hashed_password = get_password_hash(new_password)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
 def authenticate(*, session: Session, phone_number: str, password: str) -> User | None:
     user = get_user_by_phone_number(session=session, phone_number=phone_number)
     if not user:
@@ -38,7 +52,18 @@ def authenticate(*, session: Session, phone_number: str, password: str) -> User 
 
 
 def add_address(*, session: Session, address: AddressCreate) -> Address:
-    db_obj = Address.model_validate(address)
+    X, Y = get_coordinates(
+        f"{address.city}, {address.street} {address.house_number}"
+    )
+    db_obj = Address(
+        city=address.city,
+        postal_code=address.postal_code,
+        street=address.street,
+        house_number=address.house_number,
+        apartment_number=address.apartment_number,
+        X_coordinate=X,
+        Y_coordinate=Y,
+    )
     session.add(db_obj)
     session.commit()
     session.refresh(db_obj)
@@ -101,6 +126,10 @@ def get_status(*, session: Session, status_id: str) -> Status | None:
     status = session.exec(query).first()
     return status
 
+def get_status_by_name(*, session: Session, status_name: str) -> Status | None:
+    query = select(Status).where(Status.name == status_name)
+    status = session.exec(query).first()
+    return status
 
 def add_status(*, session: Session, status: StatusCreate) -> Status:
     db_obj = Status.model_validate(status)

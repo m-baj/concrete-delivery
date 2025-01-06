@@ -22,15 +22,11 @@ services:
       - ./neo4j-data/plugins:/plugins
       - ./init.cypher:/init.cypher
     environment:
-      - NEO4J_AUTH=neo4j/krecimybeton
+      - NEO4J_AUTH=${NEO4J_AUTH}
     ports:
       - "7474:7474"
       - "7687:7687"
     restart: always
-#    command: >
-#      sh -c "neo4j start && sleep 10 &&
-#      cypher-shell -u neo4j -p krecimybeton -f init.cypher &&
-#      neo4j stop && neo4j start"
 
   backend:
     build: ./backend
@@ -71,6 +67,17 @@ services:
       osrm-customize /data/mazowieckie-latest.osrm &&
       osrm-routed --algorithm mld /data/mazowieckie-latest.osrm
       "
+    restart: always
+
+  vroom:
+    image: vroomvrp/vroom-docker:v1.10.0
+    container_name: vroom
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./vroom/conf:/conf
+    environment:
+      - VROOM_ROUTER=osrm
     restart: always
 
   osrm-frontend:

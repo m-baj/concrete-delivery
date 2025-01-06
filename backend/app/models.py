@@ -74,12 +74,14 @@ class AddressCreate(AddressBase):
 
 class Address(AddressBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    X_coordinate: float | None = None
-    Y_coordinate: float | None = None
+    X_coordinate: float | None
+    Y_coordinate: float | None
 
 
 class AddressPublic(AddressBase):
     id: uuid.UUID
+    X_coordinate: float | None
+    Y_coordinate: float | None
 
 
 class StatusBase(SQLModel):
@@ -104,6 +106,7 @@ class OrderBase(SQLModel):
     pickup_address_id: uuid.UUID
     delivery_address_id: uuid.UUID
     status_id: uuid.UUID | None
+    recipient_phone_number: str
     pickup_start_time: str | None = None
     pickup_end_time: str | None = None
     delivery_start_time: str | None = None
@@ -113,6 +116,7 @@ class OrderBase(SQLModel):
 class OrderCreate(SQLModel):
     pickup_address: AddressCreate
     delivery_address: AddressCreate
+    recipient_phone_number: str
     pickup_start_time: str
     pickup_end_time: str
     delivery_start_time: str
@@ -152,3 +156,17 @@ class Courier(CourierBase, table=True):
 
 class CourierPublic(CourierBase):
     id: uuid.UUID
+
+
+class UserChangePassword(SQLModel):
+    phone_number: str
+    new_password: str = Field(min_length=8, max_length=40)
+
+
+class SendCodeRequest(SQLModel):
+    phone_number: str
+
+
+class VerifyCodeRequest(SQLModel):
+    phone_number: str
+    code: str

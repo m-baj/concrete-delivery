@@ -136,7 +136,7 @@ const LoginForm = () => {
           Submit
         </Button>
         <Text textAlign="center">
-          Already have an account?{" "}
+          Don't have an account yet?{" "}
           <Button variant="link" color="blue.500" textAlign="center">
             <Link href={"register"}>Sign up</Link>
           </Button>
