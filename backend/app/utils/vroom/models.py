@@ -47,7 +47,6 @@ class JobStep(Step):
     id: int
     job: int
 
-
 @dataclass
 class Route:
     vehicle: int
