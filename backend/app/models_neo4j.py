@@ -15,7 +15,7 @@ class Courier(StructuredNode):
     delivers_to = RelationshipTo('Location', 'DELIVERS_TO')
 
 class Location(StructuredNode):
-    locationID = IntegerProperty()
+    locationID = StringProperty()
     address = StringProperty()
     coordinates = ArrayProperty()
 
