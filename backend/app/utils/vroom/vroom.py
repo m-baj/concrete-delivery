@@ -3,7 +3,7 @@ from dataclasses import dataclass, asdict
 from typing import List, Optional
 
 from app.core.config import settings
-from app.utils.vroom.json_parser import read_from_json
+from app.utils.vroom.parser import read_from_json
 from app.utils.vroom.models import VroomVehicle, VroomJob, Input, OptimizationResult
 
 @dataclass

@@ -1,4 +1,3 @@
-# all database operations are done here
 from sqlmodel import Session, select
 from typing import Tuple, List, Dict
 
@@ -287,7 +286,7 @@ def get_all_unstarted_orders(
     orders_as_vroom_jobs = []
     orders = get_all_orders(session=session)
     vroomjobs_id_dict = {}
-    for index, order in enumerate(orders):
+    for index, order in enumerate(orders, start=2):
         order_status_name = get_status(session=session, status_id=order.status_id).name
         if order_status_name == "Order accepted":
             vroomjobs_id_dict[f"{index}{PICKUP_VROOMJOB_OFFSET}"] = order.id

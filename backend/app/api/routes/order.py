@@ -10,6 +10,7 @@ from app.api.routes.address import add_address
 from app.services.twilio_service import TwilioService
 from app.utils.vroom.vroom import Vroom
 from app.utils.neo4j_updater import update_routes
+from app.utils.vroom.parser import base_order_to_pickup_and_deliver_jobs
 
 router = APIRouter(prefix="/order", tags=["order"])
 twilio_service = TwilioService()
@@ -40,19 +41,22 @@ def create_order(
         delivery_end_time=order.delivery_end_time,
     )
 
-    couriers, vroom_id_dict = crud.get_all_working_couriers(session=session)
+    new_pickup, new_deliver = base_order_to_pickup_and_deliver_jobs(order_data, session=session)
 
-    vroom = Vroom(working_couriers=couriers, orders=crud.get_all_unstarted_orders(session=session))
+    couriers, vroom_id_dict = crud.get_all_working_couriers(session=session)
+    orders, _ = crud.get_all_unstarted_orders(session=session)
+
+    vroom = Vroom(working_couriers=couriers, orders=(orders + [new_pickup, new_deliver]))
     vroom.find_route()
 
     if not vroom.verify_result():
         raise HTTPException(status_code=400, detail="Unable to accept order")
     
     order_accepted = crud.get_status_by_name(
-        session=session, status_name="Order Accepted"
+        session=session, status_name="Order accepted"
     )
 
-    update_routes(optimization_result=vroom.optimization_result, vehicle_id_to_courier_id=vroom_id_dict)
+    # update_routes(optimization_result=vroom.optimization_result, vehicle_id_to_courier_id=vroom_id_dict)
     
     db_order = crud.create_order(session=session, order=order_data)
     crud.set_order_status(
