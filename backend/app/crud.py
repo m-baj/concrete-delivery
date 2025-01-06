@@ -125,6 +125,10 @@ def get_status(*, session: Session, status_id: str) -> Status | None:
     status = session.exec(query).first()
     return status
 
+def get_status_by_name(*, session: Session, status_name: str) -> Status | None:
+    query = select(Status).where(Status.name == status_name)
+    status = session.exec(query).first()
+    return status
 
 def add_status(*, session: Session, status: StatusCreate) -> Status:
     db_obj = Status.model_validate(status)

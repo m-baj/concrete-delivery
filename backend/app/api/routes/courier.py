@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import Any
 
+# PostgreSQL queries
 from app.models import (
     CourierPublic,
     CourierRegister,
@@ -12,16 +13,17 @@ from app.api.dependecies import SessionDep, CurrentAdmin
 from app import crud
 from app.api.routes.address import add_address
 
+# Neo4j queries
 from neomodel import DoesNotExist
-from neomodel.contrib.spatial_properties import NeomodelPoint
 from app.models_neo4j import Courier, Location
 from app.api_models_neo4j import (
     LocationAPI,
     LocationsAPI,
     CourierAPI,
     AddLocationsRequest,
-    CreateCourierRequest,
 )
+
+from app.crud_neo4j import get_courier_by_id, get_location_by_id, create_location, write_locations_to_courier
 
 router = APIRouter(prefix="/courier", tags=["courier"])
 
@@ -31,7 +33,7 @@ def register_courier(
     session: SessionDep, current_user: CurrentAdmin, courier_in: CourierRegister
 ) -> Any:
     """
-    create a courier only if currently logged in user is an admin
+    Create a courier only if currently logged in user is an admin
     """
     if current_user.account_type != AccountType.ADMIN:
         raise HTTPException(
@@ -76,6 +78,13 @@ def register_courier(
     )
 
     crud.create_user(session=session, user_to_create=courier_to_create_as_user)
+
+    # Automatically adding the courier to neo4j
+    neo4j_courier = Courier(
+        courierID=courier.id,
+        name=courier_in.name
+    ).save()
+
     return courier
 
 
@@ -96,13 +105,13 @@ def set_courier_status(session: SessionDep, courier_id: str, status_id: str) -> 
 @router.get(
     "/{courier_id}/current_location", tags=["courier"], response_model=LocationAPI
 )
-async def get_courier_current_location(courier_id: int):
+async def get_courier_current_location(courier_id: str):
     """
     Endpoint to get the current location of a courier based on the IS_AT relationship.
     """
     try:
         courier = Courier.nodes.get(courierID=courier_id)
-        current_location = courier.location.single()  # Get current location from IS_AT
+        current_location = courier.is_at.single()  # Get current location from IS_AT
 
         if not current_location:
             raise HTTPException(
@@ -112,7 +121,38 @@ async def get_courier_current_location(courier_id: int):
         return LocationAPI(
             locationID=current_location.locationID,
             address=current_location.address,
-            coordinates=current_location.coordinates.get("coordinates", []),
+            coordinates=current_location.coordinates,
+        )
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Courier not found")
+
+
+@router.post("/{courier_id}/set_current_location", tags=["courier"], response_model=LocationAPI)
+async def set_current_location(courier_id: str, request: LocationAPI):
+    """
+    Endpoint to set the current location of a courier based on the IS_AT relationship
+    """
+    try:
+        courier = Courier.nodes.get(courierID=courier_id)
+
+        current_location = courier.is_at.single()
+        if current_location:
+            courier.is_at.disconnect(current_location)
+
+        new_location = Location.nodes.get_or_none(locationID=request.locationID)
+        if not new_location:
+            new_location = Location(
+                locationID=request.locationID,
+                address=request.address,
+                coordinates=request.coordinates,
+            ).save()
+
+        courier.is_at.connect(new_location)
+
+        return LocationAPI(
+            locationID=new_location.locationID,
+            address=new_location.address,
+            coordinates=new_location.coordinates,
         )
     except DoesNotExist:
         raise HTTPException(status_code=404, detail="Courier not found")
@@ -121,9 +161,9 @@ async def get_courier_current_location(courier_id: int):
 @router.get(
     "/{courier_id}/locations_in_order", tags=["courier"], response_model=LocationsAPI
 )
-async def get_courier_deliveries_in_order(courier_id: int):
+async def get_courier_deliveries_in_order(courier_id: str):
     """
-    Endpoint to get the list of delivery locations for a courier, in the order defined by the NEXT relationship.
+    Endpoint to get the list of locations in order of delivery for a courier based on the DELIVERS_TO and NEXT relationships
     """
     try:
         courier = Courier.nodes.get(courierID=courier_id)
@@ -136,7 +176,8 @@ async def get_courier_deliveries_in_order(courier_id: int):
                     LocationAPI(
                         locationID=loc.locationID,
                         address=loc.address,
-                        coordinates=loc.coordinates.get("coordinates", []),
+                        coordinates=loc.coordinates,
+                        next_location=loc.next_location.single().locationID if loc.next_location.single() else None,
                     )
                 )
                 loc = loc.next_location.single()
@@ -147,32 +188,54 @@ async def get_courier_deliveries_in_order(courier_id: int):
         raise HTTPException(status_code=404, detail="Courier not found")
 
 
-@router.post(
-    "/{courier_id}/add_locations", tags=["courier"], response_model=AddLocationsRequest
-)
-async def add_deliveries_to_courier(courier_id: int, request: AddLocationsRequest):
+@router.post("/{courier_id}/add_locations", tags=["courier"], response_model=AddLocationsRequest)
+async def add_deliveries_to_courier(courier_id: str, request: AddLocationsRequest):
+    courier = get_courier_by_id(courier_id)
+    if not courier:
+        raise HTTPException(status_code=404, detail="Courier not found")
+
+    locations = []
+    for loc in request.locations:
+        location = get_location_by_id(loc.locationID)
+        if not location:
+            location = create_location(
+                location_id=loc.locationID,
+                address=loc.address,
+                coordinates=loc.coordinates,
+            )
+        locations.append(location)
+
+    write_locations_to_courier(courier_id, locations)
+
+    return LocationsAPI(locations=request.locations)
+
+
+@router.post("/{courier_id}/package_delivered", tags=["courier"])
+async def package_delivered(courier_id: str):
     """
-    Endpoint to add a list of locations to a courier and connect them via the NEXT relationship.
+    Endpoint to update the courier's location upon delivering previously assigned package
     """
     try:
         courier = Courier.nodes.get(courierID=courier_id)
-        previous_location = None
-        for loc in request.locations:
-            location, _ = Location.get_or_create(
-                (
-                    {
-                        "locationID": loc.locationID,
-                        "address": loc.address,
-                        "coordinates": NeomodelPoint(loc.coordinates),
-                    },
-                )
-            )
-            if previous_location:
-                previous_location.next_location.connect(location)
+        current_location = courier.is_at.single()
+        next_location = courier.delivers_to.single()
 
-            previous_location = location
+        if not next_location:
+            raise HTTPException(status_code=404, detail="No next delivery location found")
 
-        return LocationsAPI(locations=request.locations)
+        courier.is_at.disconnect(current_location)
+        courier.is_at.connect(next_location)
+
+        next_next_location = next_location.next_location.single()
+        courier.delivers_to.disconnect(next_location)
+        if next_next_location:
+            courier.delivers_to.connect(next_next_location)
+            next_location.next_location.disconnect(next_next_location)
+
+        if not next_location.is_visited_by and not next_location.delivered_by and not next_location.next_location:
+            next_location.delete()
+
+        return {"message": "Package delivered and courier location updated"}
 
     except DoesNotExist:
         raise HTTPException(status_code=404, detail="Courier not found")

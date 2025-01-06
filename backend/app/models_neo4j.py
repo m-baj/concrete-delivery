@@ -4,20 +4,20 @@ from neomodel import (
     RelationshipTo,
     RelationshipFrom,
     IntegerProperty,
+    ArrayProperty
 )
-from neomodel.contrib.spatial_properties import NeomodelPoint
 
 class Courier(StructuredNode):
-    courierID = IntegerProperty(unique_index=True)
+    courierID = StringProperty()
     name = StringProperty()
 
     is_at = RelationshipTo('Location', 'IS_AT')
     delivers_to = RelationshipTo('Location', 'DELIVERS_TO')
 
 class Location(StructuredNode):
-    locationID = IntegerProperty(unique_index=True)
+    locationID = IntegerProperty()
     address = StringProperty()
-    coordinates = NeomodelPoint(x=0.0, y=0.0, crs='cartesian')
+    coordinates = ArrayProperty()
 
     is_visited_by = RelationshipFrom('Courier', 'IS_AT')
     delivered_by = RelationshipFrom('Courier', 'DELIVERS_TO')
