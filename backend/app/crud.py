@@ -29,6 +29,19 @@ def get_user_by_id(*, session: Session, user_id: str) -> User | None:
     return user
 
 
+def change_password(
+    *, session: Session, phone_number: str, new_password: str
+) -> User | None:
+    user = get_user_by_phone_number(session=session, phone_number=phone_number)
+    if not user:
+        return None
+    user.hashed_password = get_password_hash(new_password)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
 def authenticate(*, session: Session, phone_number: str, password: str) -> User | None:
     user = get_user_by_phone_number(session=session, phone_number=phone_number)
     if not user:
