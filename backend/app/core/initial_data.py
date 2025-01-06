@@ -14,15 +14,15 @@ def load_initial_data(session: Session):
         # Dodanie statusów
         statuses = [
             # Statusy dla zamówień
-            Status(name="Order Accepted"),  # Zlecenie przyjęte
+            Status(name="Order accepted"),  # Zlecenie przyjęte
             Status(name="Picking up order"),  # Odbieranie zamówienia
-            Status(name="Package Picked Up"),  # Paczka odebrana od nadawcy
+            Status(name="Order picked up"),  # Paczka odebrana od nadawcy
             Status(name="Delivering order"),  # Dostarczanie zamówienia
-            Status(name="Package Delivered"),  # Paczka dostarczona
+            Status(name="Order delivered"),  # Paczka dostarczona
             # Statusy dla kurierów
             Status(name="Available"),  # Dostępny
             Status(name="Unavailable"),  # Niedostępny
-            Status(name="On Delivery"),  # W trakcie dostawy
+            Status(name="On delivery"),  # W trakcie dostawy
         ]
         session.add_all(statuses)
         session.commit()

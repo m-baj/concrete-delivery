@@ -136,3 +136,14 @@ def set_courier_id(
         session=session, order_id=order_id, courier_id=courier_id
     )
     return order
+
+
+@router.get("/get_all_unstarted_orders_as_vroomJobs")
+def get_all_unstarted_orders_as_vroomJobs(
+    session: SessionDep,
+) -> Any:
+    """
+    Get all unstarted orders as vroom jobs
+    """
+    orders = crud.get_all_unstarted_orders(session=session)
+    return orders

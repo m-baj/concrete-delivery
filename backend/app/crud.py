@@ -8,6 +8,7 @@ from app.core.security import get_password_hash, verify_password
 from app.utils.geocoding import get_coordinates
 from .crud_neo4j import get_courier_current_location
 from .utils.hour import hour_from_str_to_seconds
+from .utils.vroom.models import PICKUP_VROOMJOB_OFFSET, DELIVERY_VROOMJOB_OFFSET
 
 
 def create_user(*, session: Session, user_to_create: UserCreate) -> User:
@@ -170,6 +171,12 @@ def get_order_by_id(*, session: Session, order_id: str) -> Order | None:
     return order
 
 
+def get_all_orders(*, session: Session) -> list[Order]:
+    query = select(Order)
+    orders = session.exec(query).all()
+    return orders
+
+
 def set_order_status(
     *, session: Session, order_id: str, status_id: str
 ) -> Order | None:
@@ -254,9 +261,9 @@ def get_all_working_couriers(
 ) -> Tuple[List[VroomVehicle], Dict[int, str]]:
     couriers = get_all_couriers(session=session)
     couriers_as_vehicles = []
-    vroom_id_dict = {}
+    vroomvehicle_id_dict = {}
     for index, courier in enumerate(couriers):
-        vroom_id_dict[index] = courier.id
+        vroomvehicle_id_dict[index] = courier.id
         home_address = get_address_by_id(
             session=session, address_id=courier.home_address_id
         )
@@ -271,8 +278,81 @@ def get_all_working_couriers(
             ],  # TODO: get working hours from courier, by adding working_hours field to Courier model in database
         )
         couriers_as_vehicles.append(courier_as_vehicle)
-    return couriers_as_vehicles, vroom_id_dict
+    return couriers_as_vehicles, vroomvehicle_id_dict
 
 
-def get_all_unstarted_orders(*, session: Session) -> list[VroomJob]:
-    pass
+def get_all_unstarted_orders(
+    *, session: Session
+) -> Tuple[List[VroomJob], Dict[int, str]]:
+    orders_as_vroom_jobs = []
+    orders = get_all_orders(session=session)
+    vroomjobs_id_dict = {}
+    for index, order in enumerate(orders):
+        order_status_name = get_status(session=session, status_id=order.status_id).name
+        if order_status_name == "Order accepted":
+            vroomjobs_id_dict[f"{index}{PICKUP_VROOMJOB_OFFSET}"] = order.id
+            vroomjobs_id_dict[f"{index}{DELIVERY_VROOMJOB_OFFSET}"] = order.id
+            pickup_address = get_address_by_id(
+                session=session, address_id=order.pickup_address_id
+            )
+            delivery_address = get_address_by_id(
+                session=session, address_id=order.delivery_address_id
+            )
+
+            # Dodanie VroomJob dla lokalizacji odbioru
+            orders_as_vroom_jobs.append(
+                VroomJob(
+                    id=int(f"{index}{PICKUP_VROOMJOB_OFFSET}"),
+                    description=f"Order {order.id} - Pickup",
+                    location=[
+                        pickup_address.X_coordinate,
+                        pickup_address.Y_coordinate,
+                    ],
+                    time_window=[
+                        hour_from_str_to_seconds(order.pickup_start_time),
+                        hour_from_str_to_seconds(order.pickup_end_time),
+                    ],
+                )
+            )
+
+            # Dodanie VroomJob dla lokalizacji dostawy
+            orders_as_vroom_jobs.append(
+                VroomJob(
+                    id=int(f"{index}{DELIVERY_VROOMJOB_OFFSET}"),
+                    description=f"Order {order.id} - Delivery",
+                    location=[
+                        delivery_address.X_coordinate,
+                        delivery_address.Y_coordinate,
+                    ],
+                    time_window=[
+                        hour_from_str_to_seconds(order.delivery_start_time),
+                        hour_from_str_to_seconds(order.delivery_end_time),
+                    ],
+                )
+            )
+
+        if (
+            order_status_name == "Picking up order"
+            or order_status_name == "Order picked up"
+        ):
+            vroomjobs_id_dict[f"{index}{DELIVERY_VROOMJOB_OFFSET}"] = order.id
+            pickup_address = get_address_by_id(
+                session=session, address_id=order.delivery_address_id
+            )
+
+            # Dodanie VroomJob dla lokalizacji dostawy
+            orders_as_vroom_jobs.append(
+                VroomJob(
+                    id=int(f"{index}{DELIVERY_VROOMJOB_OFFSET}"),
+                    description=f"Order {order.id} - Delivery",
+                    location=[
+                        pickup_address.X_coordinate,
+                        pickup_address.Y_coordinate,
+                    ],
+                    time_window=[
+                        hour_from_str_to_seconds(order.delivery_start_time),
+                        hour_from_str_to_seconds(order.delivery_end_time),
+                    ],
+                )
+            )
+    return orders_as_vroom_jobs, vroomjobs_id_dict
