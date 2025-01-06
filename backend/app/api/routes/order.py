@@ -6,7 +6,7 @@ from app.models import OrderPublic, OrderCreate, Order, OrderBase
 from app.api.dependecies import SessionDep
 from app import crud
 from app.api.dependecies import CurrentUser
-from app.api.routes.address import add_address2
+from app.api.routes.address import add_address
 from app.utils.vroom.vroom import Vroom
 
 router = APIRouter(prefix="/order", tags=["order"])
@@ -37,10 +37,10 @@ def create_order(
         delivery_end_time=order.delivery_end_time,
     )
 
-    vroom = Vroom(working_couriers=crud.get_all_working_couriers(session=session), 
-                orders=crud.get_all_unstarted_orders(session=session)
-            ) 
-
+    vroom = Vroom(
+        working_couriers=crud.get_all_working_couriers(session=session),
+        orders=crud.get_all_unstarted_orders(session=session),
+    )
 
     db_order = crud.create_order(session=session, order=order_data)
     crud.set_order_status(

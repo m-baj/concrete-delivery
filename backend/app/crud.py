@@ -53,9 +53,7 @@ def authenticate(*, session: Session, phone_number: str, password: str) -> User 
 
 
 def add_address(*, session: Session, address: AddressCreate) -> Address:
-    X, Y = get_coordinates(
-        f"{address.city}, {address.street} {address.house_number}"
-    )
+    X, Y = get_coordinates(f"{address.city}, {address.street} {address.house_number}")
     db_obj = Address(
         city=address.city,
         postal_code=address.postal_code,
@@ -243,7 +241,26 @@ def get_all_couriers(*, session: Session) -> list[Courier]:
 
 
 def get_all_working_couriers(*, session: Session) -> list[VroomVehicle]:
-    pass
+    couriers = get_all_couriers(session=session)
+    couriers_as_vehicles = []
+    vroom_id_dict = {}
+    for index, courier in enumerate(couriers):
+        vroom_id_dict[courier.id] = index
+        courier_as_vehicle = VroomVehicle(
+            id=vroom_id_dict[courier.id],
+            description=f"{courier.name} {courier.surname}",
+            start=[
+                courier.home_address.X_coordinate,
+                courier.home_address.Y_coordinate,
+            ],
+            end=[courier.home_address.X_coordinate, courier.home_address.Y_coordinate],
+            time_window=[
+                28800,
+                57600,
+            ],  # TODO: get working hours from courier, by adding working_hours field to Courier model in database
+        )
+        couriers_as_vehicles.append(courier_as_vehicle)
+    return couriers_as_vehicles
 
 
 def get_all_unstarted_orders(*, session: Session) -> list[VroomJob]:
