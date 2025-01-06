@@ -1,17 +1,9 @@
 from dataclasses import asdict
 import json
-import os
+
 from app.utils.vroom.models import Input, Route, StartEndStep, JobStep, Violation, OptimizationResult
 
-def save_to_json(input: Input, file_name: str = "input.json"):
-    with open(file_name, "w") as f:
-        json.dump(asdict(input), f, indent=4)
-
-
-def read_from_json(file_name: str = "../vroom/output.json") -> OptimizationResult:
-    with open(file_name, "r") as f:
-        data = json.load(f)
-   
+def read_from_json(data) -> OptimizationResult:
     summary = data["summary"]
     code = data["code"]
     unassigned = data["unassigned"]

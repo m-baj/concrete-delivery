@@ -13,6 +13,7 @@ class VroomVehicle:
 @dataclass
 class VroomJob:
     id: int
+    description: str
     location: List[float]
     time_window: List[int]
 
