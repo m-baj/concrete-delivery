@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     NEO4J_URL: str
     NEO4J_NAME: str
 
+    VROOM_URL: str
+
     @computed_field
     @property
     def DATABASE_URL(self) -> PostgresDsn:

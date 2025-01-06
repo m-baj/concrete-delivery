@@ -38,8 +38,13 @@ def create_order(
 
     vroom = Vroom(working_couriers=crud.get_all_working_couriers(session=session), 
                 orders=crud.get_all_unstarted_orders(session=session)
-            ) 
+            )
+    vroom.find_route()
 
+    if not vroom.verify_result():
+        raise HTTPException(status_code=400, detail="Unable to accept order")
+    
+    
 
     db_order = crud.create_order(session=session, order=order_data)
     crud.set_order_status(
