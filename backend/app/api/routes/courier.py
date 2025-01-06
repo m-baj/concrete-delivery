@@ -80,7 +80,7 @@ def register_courier(
 
     # Automatically adding the courier to neo4j
     neo4j_courier = Courier(
-        courierID=courier.id,
+        courierID=str(courier.id),
         name=courier_in.name
     ).save()
 
@@ -104,7 +104,7 @@ def set_courier_status(session: SessionDep, courier_id: str, status_id: str) -> 
 @router.get(
     "/{courier_id}/current_location", tags=["courier"], response_model=LocationAPI
 )
-async def get_courier_current_location(courier_id: int):
+async def get_courier_current_location(courier_id: str):
     """
     Endpoint to get the current location of a courier based on the IS_AT relationship.
     """
@@ -129,7 +129,7 @@ async def get_courier_current_location(courier_id: int):
 @router.get(
     "/{courier_id}/locations_in_order", tags=["courier"], response_model=LocationsAPI
 )
-async def get_courier_deliveries_in_order(courier_id: int):
+async def get_courier_deliveries_in_order(courier_id: str):
     try:
         courier = Courier.nodes.get(courierID=courier_id)
         deliveries = courier.delivers_to.all()
@@ -156,7 +156,7 @@ async def get_courier_deliveries_in_order(courier_id: int):
 @router.post(
     "/{courier_id}/add_locations", tags=["courier"], response_model=AddLocationsRequest
 )
-async def add_deliveries_to_courier(courier_id: int, request: AddLocationsRequest):
+async def add_deliveries_to_courier(courier_id: str, request: AddLocationsRequest):
     try:
         courier = Courier.nodes.get(courierID=courier_id)
         previous_location = None
@@ -185,7 +185,7 @@ async def add_deliveries_to_courier(courier_id: int, request: AddLocationsReques
 
 
 @router.post("/{courier_id}/package_delivered", tags=["courier"])
-async def package_delivered(courier_id: int):
+async def package_delivered(courier_id: str):
     try:
         courier = Courier.nodes.get(courierID=courier_id)
         current_location = courier.is_at.single()
