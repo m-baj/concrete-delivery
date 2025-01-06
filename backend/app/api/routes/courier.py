@@ -31,7 +31,7 @@ def register_courier(
     session: SessionDep, current_user: CurrentAdmin, courier_in: CourierRegister
 ) -> Any:
     """
-    create a courier only if currently logged in user is an admin
+    Create a courier only if currently logged in user is an admin
     """
     if current_user.account_type != AccountType.ADMIN:
         raise HTTPException(
@@ -127,6 +127,9 @@ async def get_courier_current_location(courier_id: str):
 
 @router.post("/{courier_id}/set_current_location", tags=["courier"], response_model=LocationAPI)
 async def set_current_location(courier_id: str, request: LocationAPI):
+    """
+    Endpoint to set the current location of a courier based on the IS_AT relationship
+    """
     try:
         courier = Courier.nodes.get(courierID=courier_id)
 
@@ -157,6 +160,9 @@ async def set_current_location(courier_id: str, request: LocationAPI):
     "/{courier_id}/locations_in_order", tags=["courier"], response_model=LocationsAPI
 )
 async def get_courier_deliveries_in_order(courier_id: str):
+    """
+    Endpoint to get the list of locations in order of delivery for a courier based on the DELIVERS_TO and NEXT relationships
+    """
     try:
         courier = Courier.nodes.get(courierID=courier_id)
         deliveries = courier.delivers_to.all()
@@ -184,6 +190,9 @@ async def get_courier_deliveries_in_order(courier_id: str):
     "/{courier_id}/add_locations", tags=["courier"], response_model=AddLocationsRequest
 )
 async def add_deliveries_to_courier(courier_id: str, request: AddLocationsRequest):
+    """
+    Endpoint to add a list of locations to a courier in order
+    """
     try:
         courier = Courier.nodes.get(courierID=courier_id)
 
@@ -216,6 +225,9 @@ async def add_deliveries_to_courier(courier_id: str, request: AddLocationsReques
 
 @router.post("/{courier_id}/package_delivered", tags=["courier"])
 async def package_delivered(courier_id: str):
+    """
+    Endpoint to update the courier's location upon delivering previously assigned package
+    """
     try:
         courier = Courier.nodes.get(courierID=courier_id)
         current_location = courier.is_at.single()
