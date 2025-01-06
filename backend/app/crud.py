@@ -2,6 +2,7 @@
 from sqlmodel import Session, select
 
 from app.models import *
+from app.utils.vroom.models import VroomVehicle, VroomJob
 from app.core.security import get_password_hash, verify_password
 from app.utils.geocoding import get_coordinates
 
@@ -226,3 +227,11 @@ def get_all_couriers(*, session: Session) -> list[Courier]:
     query = select(Courier)
     couriers = session.exec(query).all()
     return couriers
+
+
+def get_all_working_couriers(*, session: Session) -> list[VroomVehicle]:
+    pass
+
+
+def get_all_unstarted_orders(*, session: Session) -> list[VroomJob]:
+    pass
