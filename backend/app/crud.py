@@ -94,7 +94,7 @@ def get_address_by_id(*, session: Session, address_id: str) -> Address | None:
     return address
 
 
-def get_address_by_coordinates(session: Session, x: float, y:float) -> Address | None:
+def get_address_by_coordinates(*, session: Session, x: float, y:float) -> Address | None:
     query = select(Address).where(Address.X_coordinate == x, Address.Y_coordinate == y)
     address = session.exec(query).first()
     return address

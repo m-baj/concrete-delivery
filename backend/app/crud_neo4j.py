@@ -1,4 +1,5 @@
 from neomodel import DoesNotExist
+from sqlmodel import Session
 from .models_neo4j import Courier, Location
 from crud import get_address_by_coordinates
 from typing import List
@@ -37,20 +38,33 @@ def disconnect_current_location(courier: Courier, current_location: Location):
 def connect_current_location(courier: Courier, new_location: Location):
     courier.is_at.connect(new_location)
 
-def write_locations_to_courier(courierID: str, locations: List[List[float]]):
+def write_locations_to_courier(session: Session, courierID: str, locations: List[List[float]]):
     courier = get_courier_by_id(courierID)
+    if not courier:
+        raise Exception(f"There is no courier with ID: {courierID}!")
     existing_delivers_to = courier.delivers_to.all()
     locations_objects = []
     for location in locations:
         address = get_address_by_coordinates(session, location[0], location[1])
+        if address:
+            location_object = get_location_by_id(address.id)
+            if not location_object:
+                location_object = create_location(
+                    location_id=str(address.id),
+                    address=f"{address.street} {address.house_number}, {address.city}",
+                    coordinates=[address.X_coordinate, address.Y_coordinate]
+                )
+        else:
+            raise Exception("There is no address with these coordinates in the database!")
+        locations_objects.append(location_object)
 
     if existing_delivers_to:
         last_existing_location = existing_delivers_to[-1]
-        connect_next_location(last_existing_location, locations[0])
+        connect_next_location(last_existing_location, locations_objects[0])
     else:
-        connect_delivers_to(courier, locations[0])
+        connect_delivers_to(courier, locations_objects[0])
 
-    previous_location = locations[0]
-    for location in locations[1:]:
+    previous_location = locations_objects[0]
+    for location in locations_objects[1:]:
         connect_next_location(previous_location, location)
         previous_location = location
