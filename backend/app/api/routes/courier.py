@@ -67,6 +67,7 @@ def register_courier(
         surname=courier_in.surname,
         phone_number=courier_in.phone_number,
         home_address_id=home_address.id,
+        status_id=crud.get_status_by_name(session=session, status_name="Available").id,
     )
 
     courier = crud.create_courier(
