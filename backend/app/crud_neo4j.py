@@ -1,8 +1,9 @@
 from neomodel import DoesNotExist
 from sqlmodel import Session
-from .models_neo4j import Courier, Location
-from crud import get_address_by_coordinates
+from app.models_neo4j import Courier, Location
+from app.crud import get_address_by_coordinates
 from typing import List
+
 
 def get_courier_by_id(courier_id: str) -> Courier:
     try:
@@ -50,8 +51,9 @@ def write_locations_to_courier(session: Session, courierID: str, locations: List
         raise Exception(f"There is no courier with ID: {courierID}!")
     existing_delivers_to = courier.delivers_to.all()
     locations_objects = []
+    print(locations)
     for location in locations:
-        address = get_address_by_coordinates(session, location[0], location[1])
+        address = get_address_by_coordinates(session=session, x=location[0], y=location[1])
         if address:
             location_object = get_location_by_id(address.id)
             if not location_object:

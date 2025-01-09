@@ -1,11 +1,20 @@
 from sqlmodel import Session, select
 from typing import Tuple, List, Dict
 
-from app.models import *
+from app.models import (
+    Courier as CourierPostgres,
+    User, UserCreate, UserRegister, UserBase, UserCourierCreate, UserPublic,
+    Address, AddressCreate, AddressBase, AddressPublic,
+    Status, StatusCreate, StatusBase,
+    Order, AccountType, OrderBase, OrderCreate, OrderPublic,
+    CourierBase, CourierRegister, Courier, CourierPublic,
+    UserChangePassword, SendCodeRequest, VerifyCodeRequest
+)
 from app.utils.vroom.models import VroomVehicle, VroomJob
 from app.core.security import get_password_hash, verify_password
 from app.utils.geocoding import get_coordinates
-from .crud_neo4j import get_courier_current_location
+# from .crud_neo4j import get_courier_current_location
+from app.models_neo4j import Courier, Location
 from .utils.hour import hour_from_str_to_seconds
 from .utils.vroom.models import PICKUP_VROOMJOB_OFFSET, DELIVERY_VROOMJOB_OFFSET
 
@@ -197,20 +206,20 @@ def set_order_status(
 
 def get_courier_by_phone_number(
     *, session: Session, phone_number: str
-) -> Courier | None:
-    query = select(Courier).where(Courier.phone_number == phone_number)
+) -> CourierPostgres | None:
+    query = select(CourierPostgres).where(CourierPostgres.phone_number == phone_number)
     courier = session.exec(query).first()
     return courier
 
 
-def get_courier_by_id(*, session, courier_id: str) -> Courier | None:
-    query = select(Courier).where(Courier.id == courier_id)
+def get_courier_by_id(*, session, courier_id: str) -> CourierPostgres | None:
+    query = select(CourierPostgres).where(CourierPostgres.id == courier_id)
     courier = session.exec(query).first()
     return courier
 
 
-def create_courier(*, session: Session, courier_to_create: CourierBase) -> Courier:
-    db_obj = Courier.model_validate(courier_to_create)
+def create_courier(*, session: Session, courier_to_create: CourierBase) -> CourierPostgres:
+    db_obj = CourierPostgres.model_validate(courier_to_create)
     session.add(db_obj)
     session.commit()
     session.refresh(db_obj)
@@ -219,8 +228,8 @@ def create_courier(*, session: Session, courier_to_create: CourierBase) -> Couri
 
 def set_courier_status(
     *, session: Session, courier_id: str, status_id: str
-) -> Courier | None:
-    query = select(Courier).where(Courier.id == courier_id)
+) -> CourierPostgres | None:
+    query = select(CourierPostgres).where(Courier.id == courier_id)
     courier = session.exec(query).first()
     if courier:
         courier.status_id = status_id
@@ -255,11 +264,25 @@ def set_order_courier_id(
     return order
 
 
-def get_all_couriers(*, session: Session) -> list[Courier]:
-    query = select(Courier)
+def get_all_couriers(*, session: Session) -> list[CourierPostgres]:
+    query = select(CourierPostgres)
     couriers = session.exec(query).all()
     return couriers
 
+# Neo4j
+def get_current_location(courier: Courier) -> Location:
+    return courier.is_at.single()
+
+def get_courier_by_id(courier_id: str) -> Courier:
+    try:
+        return Courier.nodes.get(courierID=courier_id)
+    except DoesNotExist:
+        return None
+
+def get_courier_current_location(courierID: str) -> List[float]:
+    courier = get_courier_by_id(courierID)
+    print(courier)
+    return get_current_location(courier).coordinates
 
 def get_all_working_couriers(
     *, session: Session
