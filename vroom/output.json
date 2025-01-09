@@ -1,0 +1,94 @@
+{
+  "code": 0,
+  "summary": {
+    "cost": 0,
+    "unassigned": 0,
+    "service": 0,
+    "duration": 0,
+    "waiting_time": 10100,
+    "priority": 0,
+    "violations": [],
+    "computing_times": { "loading": 68, "solving": 2 }
+  },
+  "unassigned": [],
+  "routes": [
+    {
+      "vehicle": 1,
+      "cost": 0,
+      "description": "Courier 1",
+      "service": 0,
+      "duration": 0,
+      "waiting_time": 10100,
+      "priority": 0,
+      "steps": [
+        {
+          "type": "start",
+          "location": [52.235915, 20.994911],
+          "service": 0,
+          "waiting_time": 0,
+          "arrival": 29500,
+          "duration": 0,
+          "violations": []
+        },
+        {
+          "type": "job",
+          "description": "Delivery to site 3",
+          "location": [52.232295, 21.025987],
+          "id": 3,
+          "service": 0,
+          "waiting_time": 0,
+          "job": 3,
+          "arrival": 29500,
+          "duration": 0,
+          "violations": []
+        },
+        {
+          "type": "job",
+          "description": "Delivery to site 2",
+          "location": [52.23837, 21.00856],
+          "id": 2,
+          "service": 0,
+          "waiting_time": 2900,
+          "job": 2,
+          "arrival": 29500,
+          "duration": 0,
+          "violations": []
+        },
+        {
+          "type": "job",
+          "description": "Delivery to site 1",
+          "location": [52.236026, 20.992223],
+          "id": 1,
+          "service": 0,
+          "waiting_time": 0,
+          "job": 1,
+          "arrival": 32400,
+          "duration": 0,
+          "violations": []
+        },
+        {
+          "type": "job",
+          "description": "Delivery to site 4",
+          "location": [52.219072, 20.991064],
+          "id": 4,
+          "service": 0,
+          "waiting_time": 7200,
+          "job": 4,
+          "arrival": 32400,
+          "duration": 0,
+          "violations": []
+        },
+        {
+          "type": "end",
+          "location": [52.235915, 20.994911],
+          "service": 0,
+          "waiting_time": 0,
+          "arrival": 39600,
+          "duration": 0,
+          "violations": []
+        }
+      ],
+      "violations": []
+    }
+  ]
+}

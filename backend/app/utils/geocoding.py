@@ -6,7 +6,6 @@ geolocator = Nominatim(user_agent="concrete_delivery")
 
 def get_coordinates(address: str) -> Tuple[float, float]:
     location = geolocator.geocode(address)
-    print(location)
     if location is None:
         raise ValueError(f"Could not find coordinates for {address}")
     return location.latitude, location.longitude

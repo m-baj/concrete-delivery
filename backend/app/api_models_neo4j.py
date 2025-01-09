@@ -4,10 +4,10 @@ from pydantic import BaseModel
 
 #Response model for location
 class LocationAPI(BaseModel):
-    locationID: int
+    locationID: str
     address: str
     coordinates: List[float]
-    next_location: Optional['LocationAPI'] = None
+    next_location: Optional[int] = None
 
 #Response model for list of locations
 class LocationsAPI(BaseModel):
@@ -15,7 +15,7 @@ class LocationsAPI(BaseModel):
 
 #Response model for courier
 class CourierAPI(BaseModel):
-    courierID: int
+    courierID: str
     name: str
     current_location: LocationAPI
     deliveries: List[LocationAPI]
@@ -25,8 +25,8 @@ class AddLocationsRequest(BaseModel):
     locations: List[LocationAPI]
     
 #Request model for creating a courier
-class CreateCourierRequest(BaseModel):
-    courierID: int
-    name: str
-    current_location: LocationAPI
-    deliveries: List[LocationAPI]
+# class CreateCourierRequest(BaseModel):
+#     courierID: str
+#     name: str
+#     current_location: LocationAPI
+#     deliveries: List[LocationAPI]

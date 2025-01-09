@@ -11,6 +11,8 @@ services:
       - "5432:5432"
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
   neo4j:
     image: neo4j:latest
@@ -20,13 +22,15 @@ services:
       - ./neo4j-data/config:/config
       - ./neo4j-data/data:/data
       - ./neo4j-data/plugins:/plugins
-    #      - ./init.cypher:/docker-entrypoint-initdb.d/init.cypher
+      - ./init.cypher:/init.cypher
     environment:
       - NEO4J_AUTH=${NEO4J_AUTH}
     ports:
       - "7474:7474"
       - "7687:7687"
     restart: always
+    networks:
+      - app-network
 
   backend:
     build: ./backend
@@ -37,9 +41,11 @@ services:
       - ./backend/app:/code/app
     depends_on:
       - postgres
-#      - neo4j
+      - neo4j
     env_file:
       - .env
+    networks:
+      - app-network
 
   frontend:
     build: ./frontend
@@ -68,6 +74,8 @@ services:
       osrm-routed --algorithm mld /data/mazowieckie-latest.osrm
       "
     restart: always
+    networks:
+      - app-network
 
   vroom:
     image: vroomvrp/vroom-docker:v1.10.0
@@ -78,4 +86,21 @@ services:
       - ./vroom/conf:/conf
     environment:
       - VROOM_ROUTER=osrm
+    depends_on:
+      - osrm-backend
     restart: always
+    networks:
+      - app-network
+
+  osrm-frontend:
+    image: osrm/osrm-frontend
+    container_name: osrm-frontend
+    ports:
+      - "9966:9966"
+    depends_on:
+      - osrm-backend
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge
