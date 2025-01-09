@@ -79,11 +79,3 @@ services:
     environment:
       - VROOM_ROUTER=osrm
     restart: always
-
-  osrm-frontend:
-    image: osrm/osrm-frontend
-    container_name: osrm-frontend
-    ports:
-      - "9966:9966"
-    depends_on:
-      - osrm-backend
