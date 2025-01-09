@@ -1,7 +1,7 @@
 from neomodel import DoesNotExist
 from sqlmodel import Session
 from .models_neo4j import Courier, Location
-from crud import get_address_by_coordinates
+from .crud import get_address_by_coordinates
 from typing import List
 
 def get_courier_by_id(courier_id: str) -> Courier:

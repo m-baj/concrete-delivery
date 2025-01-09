@@ -51,7 +51,7 @@ services:
       - ./frontend/public:/app/public
     depends_on:
       - backend
-    command: npm run dev
+    command: npm run build
 
   osrm-backend:
     image: ghcr.io/project-osrm/osrm-backend
@@ -79,11 +79,3 @@ services:
     environment:
       - VROOM_ROUTER=osrm
     restart: always
-
-  osrm-frontend:
-    image: osrm/osrm-frontend
-    container_name: osrm-frontend
-    ports:
-      - "9966:9966"
-    depends_on:
-      - osrm-backend
