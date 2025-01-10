@@ -8,13 +8,13 @@ from app.crud import get_admin
 
 def load_initial_data(session: Session):
 
-    if not get_admin(session):
+    if not get_admin(session=session):
         # Dodanie użytkownika admin
         user = User(
             name="Admin",
             surname="Admin",
             phone_number=settings.ADMIN_PHONE_NUMBER,
-            email_address=settings.ADMIN_EMAIL,
+            email_address=settings.ADMIN_EMAIL_ADDRESS,
             hashed_password=get_password_hash(settings.ADMIN_PASSWORD),
             account_type="ADMIN",
         )

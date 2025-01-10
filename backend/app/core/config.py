@@ -20,9 +20,9 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
 
-    SUPERUSER_PHONE_NUMBER: str = "000000000"
-    SUPERUSER_EMAIL_ADDRESS: str = "superuser@test.com"
-    SUPERUSER_PASSWORD: str
+    ADMIN_PHONE_NUMBER: str = "000000000"
+    ADMIN_EMAIL_ADDRESS: str = "superuser@test.com"
+    ADMIN_PASSWORD: str
 
     NEO4J_URL: str
     NEO4J_NAME: str

@@ -385,7 +385,7 @@ def get_all_unstarted_orders(
             )
     return orders_as_vroom_jobs, vroomjobs_id_dict
 
-    def get_admin(*, session: Session) -> User | None:
-        query = select(User).where(User.account_type==AccountType.ADMIN)
-        user = session.exec(query).first()
-        return user
+def get_admin(*, session: Session) -> User | None:
+    query = select(User).where(User.account_type==AccountType.ADMIN)
+    user = session.exec(query).first()
+    return user
