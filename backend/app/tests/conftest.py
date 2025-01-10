@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from collections.abc import Generator
 from app.main import app
-from app.core.database import engine, Session
+from core.database import engine, Session
 
 
 @pytest.fixture(scope="module")
