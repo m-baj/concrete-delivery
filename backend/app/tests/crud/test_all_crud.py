@@ -1,4 +1,5 @@
 import app.crud as crud
+import uuid
 
 import pytest
 from sqlmodel import Session
@@ -24,9 +25,16 @@ def test_get_user_by_phone_number(db: Session):
     assert user.phone_number == phone_number
 
 def test_get_user_by_id(db: Session):
-    user = crud.get_user_by_id(session=db, user_id="1")
+    user = crud.create_user(session=db, user_to_create=UserCreate(
+        phone_number="123456789",
+        password="password123",
+        name="Test",
+        surname="User"
+    ))
+    user = crud.get_user_by_phone_number(session=db, phone_number="123456789")
+    id_user = crud.get_user_by_id(session=db, user_id=user.id)
     assert user is not None
-    assert user.id == 1
+    assert user == id_user
 
 def test_authenticate(db: Session):
     phone_number = "123456789"
@@ -46,11 +54,11 @@ def change_user_password(db: Session):
 
 def test_add_address(db: Session):
     address_data = AddressCreate(
-        city="Test City",
-        postal_code="12345",
-        street="Test Street",
-        house_number="1",
-        apartment_number="1"
+        city="Warszawa",
+        postal_code="00-665",
+        street="Nowowiejska",
+        house_number="15",
+        apartment_number="19"
     )
     address = crud.add_address(session=db, address=address_data)
     assert address is not None
@@ -58,9 +66,12 @@ def test_add_address(db: Session):
     assert address.street == address_data.street
 
 def test_get_address(db: Session):
-    address = crud.get_address(session=db, address_id="1")
-    assert address is not None
-    assert address.id == 1
+    test_uuid = str(uuid.uuid4())
+    address = crud.add_address(session=db, address_id=test_uuid, other_data="Test Data")
+
+    retrieved_address = crud.get_address(session=db, address_id=test_uuid)
+    assert retrieved_address is not None
+    assert retrieved_address.id == test_uuid
 
 def test_delete_address(db: Session):
     address = crud.delete_address(session=db, address_id="2")
