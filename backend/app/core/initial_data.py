@@ -4,9 +4,24 @@ from datetime import date
 from app.core.config import settings
 from app.models import Address, Courier, Status
 from app.core.security import get_password_hash
-
+from app.crud import get_admin
 
 def load_initial_data(session: Session):
+
+    if not get_admin(session):
+        # Dodanie użytkownika admin
+        user = User(
+            name="Admin",
+            surname="Admin",
+            phone_number=settings.ADMIN_PHONE_NUMBER,
+            email_address=settings.ADMIN_EMAIL,
+            hashed_password=get_password_hash(settings.ADMIN_PASSWORD),
+            account_type="ADMIN",
+        )
+        session.add(user)
+        session.commit()
+        print("Użytkownik admin został załadowany.")
+
     # Sprawdzenie, czy dane już istnieją
     if not session.query(Status).first():
         print("Ładowanie początkowych danych statusów...")
