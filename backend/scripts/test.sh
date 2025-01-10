@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
+set -ex
 
-set -e
-set -x
-
-coverage run --source=../app/tests -m pytest
+coverage run --source=app -m pytest -o log_cli=true -o log_cli_level=INFO
 coverage report --show-missing
 coverage html --title "${@-coverage}"
+
