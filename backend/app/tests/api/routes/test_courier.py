@@ -2,7 +2,13 @@ from fastapi.testclient import TestClient
 from app.main import app  # Upewnij się, że importujesz swoją aplikację FastAPI
 from app.models import CourierRegister, AccountType
 from app.core.config import settings
-from app.tests.utils.utils import random_lower_string, random_phone_number, random_email
+from app.tests.utils.utils import (
+    random_lower_string,
+    random_phone_number,
+    random_email,
+    random_number_to_100,
+    random_uuid4,
+)
 
 
 client = TestClient(app)
@@ -20,8 +26,8 @@ def test_register_courier():
     headers = {"Authorization": f"Bearer {admin_token}"}
 
     courier_data = {
-        "name": "John",
-        "surname": "Doe",
+        "name": random_lower_string(),
+        "surname": random_lower_string(),
         "phone_number": random_phone_number(),
         "home_address": {
             "city": "Warszawa",
@@ -30,7 +36,7 @@ def test_register_courier():
             "house_number": "1",
             "apartment_number": "1",
         },
-        "email_address": "johndoe@example.com",
+        "email_address": random_email(),
         "password": "securepassword",
     }
     response = client.post("/courier/register", json=courier_data, headers=headers)
@@ -43,11 +49,33 @@ def test_register_courier():
 
 def test_set_courier_status():
     # Zakładając, że masz już zalogowanego admina
-    admin_token = "Bearer your_admin_token_here"
-    headers = {"Authorization": admin_token}
+    login_data = {
+        "username": settings.ADMIN_PHONE_NUMBER,
+        "password": settings.ADMIN_PASSWORD,
+    }
+    print(login_data)
+    response = client.post("/login", data=login_data)
+    admin_token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {admin_token}"}
 
-    courier_id = "some-courier-id"
-    status_id = "some-status-id"
+    courier_data = {
+        "name": random_lower_string(),
+        "surname": random_lower_string(),
+        "phone_number": random_phone_number(),
+        "home_address": {
+            "city": "Warszawa",
+            "postal_code": "12-346",
+            "street": "Street",
+            "house_number": "2",
+            "apartment_number": "2",
+        },
+        "email_address": random_email(),
+        "password": "securepassword",
+    }
+    response = client.post("/courier/register", json=courier_data, headers=headers)
+    courier_id = response.json()["id"]
+    original_status_id = response.json()["status_id"]
+    status_id = str(random_uuid4())
     response = client.put(
         f"/courier/status/{courier_id}", json={"status_id": status_id}, headers=headers
     )
@@ -55,12 +83,35 @@ def test_set_courier_status():
     courier = response.json()
     assert courier["id"] == courier_id
     assert courier["status_id"] == status_id
+    assert courier["status_id"] != original_status_id
 
 
 def test_get_all_couriers():
-    # Zakładając, że masz już zalogowanego admina
-    admin_token = "Bearer your_admin_token_here"
-    headers = {"Authorization": admin_token}
+    login_data = {
+        "username": settings.ADMIN_PHONE_NUMBER,
+        "password": settings.ADMIN_PASSWORD,
+    }
+    print(login_data)
+    response = client.post("/login", data=login_data)
+    admin_token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {admin_token}"}
+
+    courier_data = {
+        "name": random_lower_string(),
+        "surname": random_lower_string(),
+        "phone_number": random_phone_number(),
+        "home_address": {
+            "city": "Warszawa",
+            "postal_code": "12-346",
+            "street": "Street",
+            "house_number": "2",
+            "apartment_number": "2",
+        },
+        "email_address": random_email(),
+        "password": "securepassword",
+    }
+    response = client.post("/courier/register", json=courier_data, headers=headers)
+    headers = {"Authorization": f"Bearer {admin_token}"}
 
     response = client.get("/courier/all_couriers", headers=headers)
     assert response.status_code == 200
