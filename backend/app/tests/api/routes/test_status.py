@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from app.main import app  # Upewnij się, że importujesz swoją aplikację FastAPI
+from app.main import app 
 from app.models import StatusCreate
 from app.core.config import settings
 
