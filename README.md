@@ -13,7 +13,7 @@ Celem naszego projektu jest stworzenie aplikacji, która będzie zarządzała pr
 Projekt zostanie zrealizowany z podziałem na frontend i backend. Pierwszy z nich będzie implementowany jako aplikacja webowa przy użyciu frameworku React, a backend, stworzony przy użyciu biblioteki FastAPI oraz bazy danych PostgreSQL. Dodatkowo planujemy wykorzystać API OpenStreetMap oraz VROOM (Vehicle Routing Open-source Optimization Machine), aby zoptymalizować trasy dostaw kurierów.
 
 ### Uruchamianie aplikacji
-W projekcie została wykorzystana konteneryzacja, proces budowy systemu sprowadza się do:
+Ponieważ w projekcie została wykorzystana konteneryzacja, proces budowy systemu sprowadza się do:
 1. Pobrania kodu z repozytorium
 ```bash
 git clone https://gitlab-stud.elka.pw.edu.pl/kkrol1/pzsp2-betoniarze-kurierzy.git
@@ -39,16 +39,16 @@ docker-compose up --build
 3. Testy można uruchomić na dwa sposoby:
 
 3.1 bez raportu o pokryciu kodu:
-W nowym terminalu należy uruchomić kontener testy za pomocą komendy:
+W nowym terminalu należy wprowadzić komendę:
 ```bash
 docker exec -it backend pytest
 ```
 3.2 z raportem o pokryciu kodu:
-Alternatywnie można uruchomić testy i sprawdzić pokrycie kodu za pomocą komend:
+Wygenerowanie raportu
 ```bash
 docker exec -it backend coverage run --source=app --omit="/tests/,*/test_*.py" -m pytest
 ```
-Generowanie pliku html z pokryciem kodu:
+Wygenerowanie pliku html na podstawie raportu:
 ```bash
 docker exec -it backend coverage report
 ```
