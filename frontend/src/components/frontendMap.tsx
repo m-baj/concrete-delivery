@@ -14,7 +14,13 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-function calculateCenterAndZoom(markers: any) {
+interface MarkerType {
+  lat: number;
+  lon: number;
+  popup: string;
+}
+
+function calculateCenterAndZoom(markers: MarkerType[]) {
   let latSum = 0, lonSum = 0;
   let latMax = -Infinity, latMin = Infinity, lonMax = -Infinity, lonMin = Infinity;
 
@@ -36,13 +42,13 @@ function calculateCenterAndZoom(markers: any) {
 
 async function fetchRoute(markers: any) {
   const osrmUrl = "https://router.project-osrm.org/route/v1/driving/";
-  const waypoints = markers.map(({ lat, lon }) => `${lon},${lat}`).join(";");
+  const waypoints = markers.map(({ lat, lon }: { lat: number; lon: number }) => `${lon},${lat}`).join(";");
   const query = `${osrmUrl}${waypoints}?overview=full&geometries=geojson&alternatives=false`;
 
   const response = await fetch(query);
   if (response.ok) {
     const data = await response.json();
-    return data.routes[0].geometry.coordinates.map(([lon, lat]) => [lat, lon]);
+    return data.routes[0].geometry.coordinates.map(([lon, lat]: [number, number]) => [lat, lon]);
   }
   throw new Error("Nie udało się pobrać trasy z OSRM.");
 }
@@ -83,13 +89,13 @@ export default function Map({markers}: any) {
 
   return (
     <MapContainer
-      center={center}
+      center={center as [number, number]}
       zoom={zoom}
       style={{ height: "50vh", width: "100%" }}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-      {markers.map((marker, index) => (
+      {markers.map((marker: MarkerType, index: number) => (
         <Marker
           key={index}
           position={[marker.lat, marker.lon]}
