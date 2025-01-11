@@ -299,7 +299,7 @@ def get_current_location(courier: Courier) -> Location:
     return courier.is_at.single()
 
 
-def get_courier_by_id(courier_id: str) -> Courier:
+def get_courier_by_id_neo_4j(courier_id: str) -> Courier:
     try:
         return Courier.nodes.get(courierID=courier_id)
     except DoesNotExist:
@@ -307,7 +307,7 @@ def get_courier_by_id(courier_id: str) -> Courier:
 
 
 def get_courier_current_location(courierID: str) -> List[float]:
-    courier = get_courier_by_id(courierID)
+    courier = get_courier_by_id_neo_4j(courierID)
     print(courier)
     return get_current_location(courier).coordinates
 
