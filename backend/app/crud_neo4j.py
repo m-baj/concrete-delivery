@@ -15,11 +15,14 @@ def get_courier_by_id(courier_id: str) -> Courier:
 def create_courier(courier_id: str, name: str) -> Courier:
     return Courier(courierID=courier_id, name=name).save()
 
+
 def get_location_by_id(location_id: str) -> Location:
     return Location.nodes.get_or_none(locationID=location_id)
 
+
 def create_location(location_id: str, address: str, coordinates: List[float]) -> Location:
     return Location(locationID=location_id, address=address, coordinates=coordinates).save()
+
 
 def disconnect_all_delivers_to(courier: Courier):
     for location in courier.delivers_to.all():
@@ -44,6 +47,7 @@ def disconnect_current_location(courier: Courier, current_location: Location):
 
 def connect_current_location(courier: Courier, new_location: Location):
     courier.is_at.connect(new_location)
+
 
 def write_locations_to_courier(session: Session, courierID: str, locations: List[List[float]]):
     courier = get_courier_by_id(courierID)
@@ -82,3 +86,15 @@ def get_courier_current_location(courierID: str) -> List[float]:
     courier = get_courier_by_id(courierID)
     print(courier)
     return get_current_location(courier).coordinates
+
+
+def get_courier_all_locations(courierID: str) -> List[Location]:
+    courier = get_courier_by_id(courierID)
+    current_location = courier.delivers_to.single()
+    locations = [current_location]
+    next_location = current_location.next_location.single()
+    while next_location:
+        locations.append(next_location)
+        print(next_location.address)
+        next_location = next_location.next_location.single()
+    return locations
