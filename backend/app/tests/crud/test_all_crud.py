@@ -401,10 +401,8 @@ def test_get_all_orders(db: Session):
         delivery_end_time="11:00",
     )
 
-    my_uuid = uuid.uuid4()
-
     order_data = OrderBase(
-        user_id=my_uuid,
+        user_id=uuid.uuid4(),
         courier_id=None,
         pickup_address_id=pickup_address.id,
         delivery_address_id=delivery_address.id,
@@ -418,7 +416,7 @@ def test_get_all_orders(db: Session):
     order = crud.create_order(session=db, order=order_data)
 
     orders = crud.get_all_orders(session=db)
-    assert len(orders) >= 0
+    assert len(orders) is not None
 
 
 def test_set_order_status(db: Session):
@@ -602,28 +600,53 @@ def test_set_courier_status(db: Session):
 
 
 def test_get_orders_by_user_id(db: Session):
-    orders = crud.get_orders_by_user_id(session=db, user_id="1")
+    user_id = uuid.uuid4()
+    orders = crud.get_orders_by_user_id(session=db, user_id=user_id)
     assert orders is not None
 
 
 def test_get_orders_by_courier_id(db: Session):
-    orders = crud.get_orders_by_courier_id(session=db, courier_id="1")
+    courier_id = uuid.uuid4()
+    orders = crud.get_orders_by_courier_id(session=db, courier_id=courier_id)
     assert orders is not None
 
 
 def test_set_order_courier_id(db: Session):
+    pickup_address = AddressCreate(
+        city="Warszawa",
+        postal_code="00-665",
+        street="Nowowiejska",
+        house_number="15",
+        apartment_number="19",
+    )
+    pickup_address = crud.add_address(session=db, address=pickup_address)
+    delivery_address = AddressCreate(
+        city="Warszawa",
+        postal_code="00-665",
+        street="Polna",
+        house_number="13",
+        apartment_number="1",
+    )
+    delivery_address = crud.add_address(session=db, address=delivery_address)
     order_data = OrderBase(
-        user_id="1",
-        pickup_address_id="1",
-        delivery_address_id="2",
+        user_id=uuid.uuid4(),
+        pickup_address_id=pickup_address.id,
+        delivery_address_id=delivery_address.id,
+        recipient_phone_number="123456789",
         pickup_start_time="08:00",
         pickup_end_time="09:00",
         delivery_start_time="10:00",
         delivery_end_time="11:00",
     )
     order = crud.create_order(session=db, order=order_data)
-    courier_data = CourierBase(phone_number="123456789", name="Test", surname="Courier")
-    courier = crud.create_courier(session=db, courier=courier_data)
+    courier_data = CourierBase(
+        phone_number=random_phone_number(),
+        name=random_lower_string(),
+        surname=random_lower_string(),
+        home_address_id=pickup_address.id,
+        status_id=None,
+    )
+    courier = crud.create_courier(session=db, courier_to_create=courier_data)
     order = crud.set_order_courier_id(
         session=db, order_id=order.id, courier_id=courier.id
     )
