@@ -1,10 +1,22 @@
-# all database operations are done here
 from sqlmodel import Session, select
+from typing import Tuple, List, Dict
 
-from app.models import *
+from app.models import (
+    Courier as CourierPostgres,
+    User, UserCreate, UserRegister, UserBase, UserCourierCreate, UserPublic,
+    Address, AddressCreate, AddressBase, AddressPublic,
+    Status, StatusCreate, StatusBase,
+    Order, AccountType, OrderBase, OrderCreate, OrderPublic,
+    CourierBase, CourierRegister, Courier, CourierPublic,
+    UserChangePassword, SendCodeRequest, VerifyCodeRequest
+)
 from app.utils.vroom.models import VroomVehicle, VroomJob
 from app.core.security import get_password_hash, verify_password
 from app.utils.geocoding import get_coordinates
+# from .crud_neo4j import get_courier_current_location
+from app.models_neo4j import Courier, Location
+from .utils.hour import hour_from_str_to_seconds
+from .utils.vroom.models import PICKUP_VROOMJOB_OFFSET, DELIVERY_VROOMJOB_OFFSET
 
 
 def create_user(*, session: Session, user_to_create: UserCreate) -> User:
@@ -131,10 +143,12 @@ def get_status(*, session: Session, status_id: str) -> Status | None:
     status = session.exec(query).first()
     return status
 
+
 def get_status_by_name(*, session: Session, status_name: str) -> Status | None:
     query = select(Status).where(Status.name == status_name)
     status = session.exec(query).first()
     return status
+
 
 def add_status(*, session: Session, status: StatusCreate) -> Status:
     db_obj = Status.model_validate(status)
@@ -171,6 +185,12 @@ def get_order_by_id(*, session: Session, order_id: str) -> Order | None:
     return order
 
 
+def get_all_orders(*, session: Session) -> list[Order]:
+    query = select(Order)
+    orders = session.exec(query).all()
+    return orders
+
+
 def set_order_status(
     *, session: Session, order_id: str, status_id: str
 ) -> Order | None:
@@ -186,20 +206,20 @@ def set_order_status(
 
 def get_courier_by_phone_number(
     *, session: Session, phone_number: str
-) -> Courier | None:
-    query = select(Courier).where(Courier.phone_number == phone_number)
+) -> CourierPostgres | None:
+    query = select(CourierPostgres).where(CourierPostgres.phone_number == phone_number)
     courier = session.exec(query).first()
     return courier
 
 
-def get_courier_by_id(*, session, courier_id: str) -> Courier | None:
-    query = select(Courier).where(Courier.id == courier_id)
+def get_courier_by_id(*, session, courier_id: str) -> CourierPostgres | None:
+    query = select(CourierPostgres).where(CourierPostgres.id == courier_id)
     courier = session.exec(query).first()
     return courier
 
 
-def create_courier(*, session: Session, courier_to_create: CourierBase) -> Courier:
-    db_obj = Courier.model_validate(courier_to_create)
+def create_courier(*, session: Session, courier_to_create: CourierBase) -> CourierPostgres:
+    db_obj = CourierPostgres.model_validate(courier_to_create)
     session.add(db_obj)
     session.commit()
     session.refresh(db_obj)
@@ -208,8 +228,8 @@ def create_courier(*, session: Session, courier_to_create: CourierBase) -> Couri
 
 def set_courier_status(
     *, session: Session, courier_id: str, status_id: str
-) -> Courier | None:
-    query = select(Courier).where(Courier.id == courier_id)
+) -> CourierPostgres | None:
+    query = select(CourierPostgres).where(Courier.id == courier_id)
     courier = session.exec(query).first()
     if courier:
         courier.status_id = status_id
@@ -244,34 +264,128 @@ def set_order_courier_id(
     return order
 
 
-def get_all_couriers(*, session: Session) -> list[Courier]:
-    query = select(Courier)
+def get_all_couriers(*, session: Session) -> list[CourierPostgres]:
+    query = select(CourierPostgres)
     couriers = session.exec(query).all()
     return couriers
 
+# Neo4j
+def get_current_location(courier: Courier) -> Location:
+    return courier.is_at.single()
 
-def get_all_working_couriers(*, session: Session) -> list[VroomVehicle]:
+def get_courier_by_id(courier_id: str) -> Courier:
+    try:
+        return Courier.nodes.get(courierID=courier_id)
+    except DoesNotExist:
+        return None
+
+def get_courier_current_location(courierID: str) -> List[float]:
+    courier = get_courier_by_id(courierID)
+    print(courier)
+    return get_current_location(courier).coordinates
+
+def get_all_working_couriers(
+    *, session: Session
+) -> Tuple[List[VroomVehicle], Dict[int, str]]:
     couriers = get_all_couriers(session=session)
     couriers_as_vehicles = []
-    vroom_id_dict = {}
+    vroomvehicle_id_dict = {}
     for index, courier in enumerate(couriers):
-        vroom_id_dict[courier.id] = index
+        vroomvehicle_id_dict[index] = courier.id
+        home_address = get_address_by_id(
+            session=session, address_id=courier.home_address_id
+        )
         courier_as_vehicle = VroomVehicle(
-            id=vroom_id_dict[courier.id],
-            description=f"{courier.name} {courier.surname}",
-            start=[
-                courier.home_address.X_coordinate,
-                courier.home_address.Y_coordinate,
-            ],
-            end=[courier.home_address.X_coordinate, courier.home_address.Y_coordinate],
+            id=index,
+            description=f"{courier.name} {courier.surname}, {courier.phone_number}",
+            start=get_courier_current_location(courierID=courier.id),
+            end=[home_address.X_coordinate, home_address.Y_coordinate],
             time_window=[
-                28800,
-                57600,
+                hour_from_str_to_seconds("08:00"),
+                hour_from_str_to_seconds("16:00"),
             ],  # TODO: get working hours from courier, by adding working_hours field to Courier model in database
         )
         couriers_as_vehicles.append(courier_as_vehicle)
-    return couriers_as_vehicles
+    return couriers_as_vehicles, vroomvehicle_id_dict
 
 
-def get_all_unstarted_orders(*, session: Session) -> list[VroomJob]:
-    pass
+def get_all_unstarted_orders(
+    *, session: Session
+) -> Tuple[List[VroomJob], Dict[int, str]]:
+    orders_as_vroom_jobs = []
+    orders = get_all_orders(session=session)
+    vroomjobs_id_dict = {}
+    for index, order in enumerate(orders, start=2):
+        order_status_name = get_status(session=session, status_id=order.status_id).name
+        if order_status_name == "Order accepted":
+            vroomjobs_id_dict[f"{index}{PICKUP_VROOMJOB_OFFSET}"] = order.id
+            vroomjobs_id_dict[f"{index}{DELIVERY_VROOMJOB_OFFSET}"] = order.id
+            pickup_address = get_address_by_id(
+                session=session, address_id=order.pickup_address_id
+            )
+            delivery_address = get_address_by_id(
+                session=session, address_id=order.delivery_address_id
+            )
+
+            # Dodanie VroomJob dla lokalizacji odbioru
+            orders_as_vroom_jobs.append(
+                VroomJob(
+                    id=int(f"{index}{PICKUP_VROOMJOB_OFFSET}"),
+                    description=f"Order {order.id} - Pickup",
+                    location=[
+                        pickup_address.X_coordinate,
+                        pickup_address.Y_coordinate,
+                    ],
+                    time_window=[
+                        hour_from_str_to_seconds(order.pickup_start_time),
+                        hour_from_str_to_seconds(order.pickup_end_time),
+                    ],
+                )
+            )
+
+            # Dodanie VroomJob dla lokalizacji dostawy
+            orders_as_vroom_jobs.append(
+                VroomJob(
+                    id=int(f"{index}{DELIVERY_VROOMJOB_OFFSET}"),
+                    description=f"Order {order.id} - Delivery",
+                    location=[
+                        delivery_address.X_coordinate,
+                        delivery_address.Y_coordinate,
+                    ],
+                    time_window=[
+                        hour_from_str_to_seconds(order.delivery_start_time),
+                        hour_from_str_to_seconds(order.delivery_end_time),
+                    ],
+                )
+            )
+
+        if (
+            order_status_name == "Picking up order"
+            or order_status_name == "Order picked up"
+        ):
+            vroomjobs_id_dict[f"{index}{DELIVERY_VROOMJOB_OFFSET}"] = order.id
+            pickup_address = get_address_by_id(
+                session=session, address_id=order.delivery_address_id
+            )
+
+            # Dodanie VroomJob dla lokalizacji dostawy
+            orders_as_vroom_jobs.append(
+                VroomJob(
+                    id=int(f"{index}{DELIVERY_VROOMJOB_OFFSET}"),
+                    description=f"Order {order.id} - Delivery",
+                    location=[
+                        pickup_address.X_coordinate,
+                        pickup_address.Y_coordinate,
+                    ],
+                    time_window=[
+                        hour_from_str_to_seconds(order.delivery_start_time),
+                        hour_from_str_to_seconds(order.delivery_end_time),
+                    ],
+                )
+            )
+    return orders_as_vroom_jobs, vroomjobs_id_dict
+
+def get_admin(*, session: Session) -> User | None:
+    query = select(User).where(User.account_type==AccountType.ADMIN)
+    user = session.exec(query).first()
+    return user

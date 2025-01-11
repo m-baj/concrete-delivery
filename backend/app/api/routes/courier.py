@@ -134,7 +134,9 @@ async def get_courier_current_location(courier_id: str):
         raise HTTPException(status_code=404, detail="Courier not found")
 
 
-@router.post("/{courier_id}/set_current_location", tags=["courier"], response_model=LocationAPI)
+@router.post(
+    "/{courier_id}/set_current_location", tags=["courier"], response_model=LocationAPI
+)
 async def set_current_location(courier_id: str, request: LocationAPI):
     """
     Endpoint to set the current location of a courier based on the IS_AT relationship
@@ -184,7 +186,11 @@ async def get_courier_deliveries_in_order(courier_id: str):
                         locationID=loc.locationID,
                         address=loc.address,
                         coordinates=loc.coordinates,
-                        next_location=loc.next_location.single().locationID if loc.next_location.single() else None,
+                        next_location=(
+                            loc.next_location.single().locationID
+                            if loc.next_location.single()
+                            else None
+                        ),
                     )
                 )
                 loc = loc.next_location.single()
@@ -195,7 +201,9 @@ async def get_courier_deliveries_in_order(courier_id: str):
         raise HTTPException(status_code=404, detail="Courier not found")
 
 
-@router.post("/{courier_id}/add_locations", tags=["courier"], response_model=AddLocationsRequest)
+@router.post(
+    "/{courier_id}/add_locations", tags=["courier"], response_model=AddLocationsRequest
+)
 async def add_deliveries_to_courier(courier_id: str, request: AddLocationsRequest):
     courier = get_courier_by_id(courier_id)
     if not courier:
@@ -228,7 +236,9 @@ async def package_delivered(courier_id: str):
         next_location = courier.delivers_to.single()
 
         if not next_location:
-            raise HTTPException(status_code=404, detail="No next delivery location found")
+            raise HTTPException(
+                status_code=404, detail="No next delivery location found"
+            )
 
         courier.is_at.disconnect(current_location)
         courier.is_at.connect(next_location)
@@ -239,7 +249,11 @@ async def package_delivered(courier_id: str):
             courier.delivers_to.connect(next_next_location)
             next_location.next_location.disconnect(next_next_location)
 
-        if not next_location.is_visited_by and not next_location.delivered_by and not next_location.next_location:
+        if (
+            not next_location.is_visited_by
+            and not next_location.delivered_by
+            and not next_location.next_location
+        ):
             next_location.delete()
 
         return {"message": "Package delivered and courier location updated"}
@@ -333,3 +347,12 @@ def get_all_couriers_complex(session: SessionDep) -> Any:
             }
         )
     return return_data
+
+
+@router.get("/working")
+def get_all_working_couriers(session: SessionDep) -> Any:
+    """
+    Get all working couriers
+    """
+    couriers = crud.get_all_working_couriers(session=session)
+    return couriers

@@ -4,11 +4,51 @@ from datetime import date
 from app.core.config import settings
 from app.models import Address, Courier, Status
 from app.core.security import get_password_hash
-
+from app.crud import get_admin
 
 def load_initial_data(session: Session):
+
+    if not get_admin(session=session):
+        # Dodanie użytkownika admin
+        user = User(
+            name="Admin",
+            surname="Admin",
+            phone_number=settings.ADMIN_PHONE_NUMBER,
+            email_address=settings.ADMIN_EMAIL_ADDRESS,
+            hashed_password=get_password_hash(settings.ADMIN_PASSWORD),
+            account_type="ADMIN",
+        )
+        session.add(user)
+        session.commit()
+        print("Użytkownik admin został załadowany.")
+
     # Sprawdzenie, czy dane już istnieją
-    if session.query(Address).first() or session.query(Status).first() or session.query(Courier).first() or session.query(User).first():
+    if not session.query(Status).first():
+        print("Ładowanie początkowych danych statusów...")
+
+        # Dodanie statusów
+        statuses = [
+            # Statusy dla zamówień
+            Status(name="Order accepted"),  # Zlecenie przyjęte
+            Status(name="Picking up order"),  # Odbieranie zamówienia
+            Status(name="Order picked up"),  # Paczka odebrana od nadawcy
+            Status(name="Delivering order"),  # Dostarczanie zamówienia
+            Status(name="Order delivered"),  # Paczka dostarczona
+            # Statusy dla kurierów
+            Status(name="Available"),  # Dostępny
+            Status(name="Unavailable"),  # Niedostępny
+            Status(name="On delivery"),  # W trakcie dostawy
+        ]
+        session.add_all(statuses)
+        session.commit()
+        print("Statusy zostały załadowane.")
+
+    # Sprawdzenie, czy dane już istnieją
+    if (
+        session.query(Address).first()
+        or session.query(Courier).first()
+        or session.query(User).first()
+    ):
         print("Dane początkowe są już załadowane.")
         return
 
@@ -23,7 +63,7 @@ def load_initial_data(session: Session):
             house_number="10",
             apartment_number="5",
             X_coordinate=52.2297,
-            Y_coordinate=21.0122
+            Y_coordinate=21.0122,
         ),
         Address(
             city="Warszawa",
@@ -32,7 +72,7 @@ def load_initial_data(session: Session):
             house_number="20",
             apartment_number="8",
             X_coordinate=52.2291,
-            Y_coordinate=21.0125
+            Y_coordinate=21.0125,
         ),
     ]
     session.add_all(addresses)
@@ -43,19 +83,6 @@ def load_initial_data(session: Session):
     marszalkowska = session.query(Address).filter_by(street="Marszałkowska").first()
     krucza = session.query(Address).filter_by(street="Krucza").first()
 
-    # Dodanie statusów
-    statuses = [
-        Status(name="Order Accepted"),        # Zlecenie przyjęte
-        Status(name="Package Picked Up"),     # Paczka odebrana od nadawcy
-        Status(name="Package Delivered"),     # Paczka dostarczona
-        Status(name="Available"),             # Dostępny
-        Status(name="Unavailable"),           # Niedostępny
-        Status(name="On Delivery"),           # W trakcie dostawy
-    ]
-    session.add_all(statuses)
-    session.commit()
-    print("Statusy zostały załadowane.")
-
     # Dodanie użytkowników dla kurierów
     couriers_users = [
         User(
@@ -64,7 +91,7 @@ def load_initial_data(session: Session):
             phone_number="500600700",
             email_address="jan.kowalski@example.com",
             hashed_password=get_password_hash("kurier"),
-            account_type="COURIER"
+            account_type="COURIER",
         ),
         User(
             name="Anna",
@@ -72,7 +99,7 @@ def load_initial_data(session: Session):
             phone_number="600700800",
             email_address="anna.nowak@example.com",
             hashed_password=get_password_hash("kurier"),
-            account_type="COURIER"
+            account_type="COURIER",
         ),
     ]
     session.add_all(couriers_users)
@@ -91,14 +118,14 @@ def load_initial_data(session: Session):
             surname=jan_user.surname,
             phone_number=jan_user.phone_number,
             home_address_id=marszalkowska.id,
-            status_id=available_status.id
+            status_id=available_status.id,
         ),
         Courier(
             name=anna_user.name,
             surname=anna_user.surname,
             phone_number=anna_user.phone_number,
             home_address_id=krucza.id,
-            status_id=available_status.id
+            status_id=available_status.id,
         ),
     ]
     session.add_all(couriers)

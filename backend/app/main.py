@@ -12,11 +12,13 @@ origins = [
     "http://localhost:3000",
 ]
 
+init_db()
+# init_neo4j()
 
 # Dodanie CORS middleware (wrzucasz tutaj)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Zezwala na dowolne źródła (używaj tylko na testach)
+    allow_origins=origins,  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
