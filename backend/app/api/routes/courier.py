@@ -29,6 +29,7 @@ from app.crud_neo4j import (
     create_location,
     write_locations_to_courier,
     create_courier,
+    get_courier_all_locations
 )
 
 router = APIRouter(prefix="/courier", tags=["courier"])
@@ -116,7 +117,7 @@ def set_courier_status(session: SessionDep, courier_id: str, status_id: str) -> 
 
 
 @router.get(
-    "/{courier_id}/current_location", tags=["courier"], response_model=LocationAPI
+    "/current_location/{courier_id}", tags=["courier"], response_model=LocationAPI
 )
 async def get_courier_current_location(courier_id: str):
     """
@@ -141,7 +142,7 @@ async def get_courier_current_location(courier_id: str):
 
 
 @router.post(
-    "/{courier_id}/set_current_location", tags=["courier"], response_model=LocationAPI
+    "/set_current_location/{courier_id}", tags=["courier"], response_model=LocationAPI
 )
 async def set_current_location(courier_id: str, request: LocationAPI):
     """
@@ -174,7 +175,7 @@ async def set_current_location(courier_id: str, request: LocationAPI):
 
 
 @router.get(
-    "/{courier_id}/locations_in_order", tags=["courier"], response_model=LocationsAPI
+    "/locations_in_order/{courier_id}", tags=["courier"], response_model=LocationsAPI
 )
 async def get_courier_deliveries_in_order(courier_id: str):
     """
@@ -208,14 +209,15 @@ async def get_courier_deliveries_in_order(courier_id: str):
 
 
 @router.post(
-    "/{courier_id}/add_locations", tags=["courier"], response_model=AddLocationsRequest
+    "/add_locations/{courier_id}", tags=["courier"], response_model=AddLocationsRequest
 )
-async def add_deliveries_to_courier(courier_id: str, request: AddLocationsRequest):
+async def add_deliveries_to_courier(courier_id: str, request: AddLocationsRequest, session: SessionDep):
     courier = get_courier_by_id(courier_id)
     if not courier:
         raise HTTPException(status_code=404, detail="Courier not found")
 
     locations = []
+    coordinates_list = []
     for loc in request.locations:
         location = get_location_by_id(loc.locationID)
         if not location:
@@ -225,13 +227,14 @@ async def add_deliveries_to_courier(courier_id: str, request: AddLocationsReques
                 coordinates=loc.coordinates,
             )
         locations.append(location)
+        coordinates_list.append(loc.coordinates)
 
-    write_locations_to_courier(courier_id, locations)
+    write_locations_to_courier(session, courier_id, coordinates_list)
 
     return LocationsAPI(locations=request.locations)
 
 
-@router.post("/{courier_id}/package_delivered", tags=["courier"])
+@router.post("/package_delivered/{courier_id}", tags=["courier"])
 async def package_delivered(courier_id: str):
     """
     Endpoint to update the courier's location upon delivering previously assigned package
@@ -362,3 +365,24 @@ def get_all_working_couriers(session: SessionDep) -> Any:
     """
     couriers = crud.get_all_working_couriers(session=session)
     return couriers
+
+@router.get("/markers/{courier_id}")
+def get_couriers_locations_list(courier_id: str):
+    """
+    Endpoint to get the list of ALL locations of a courier in order
+    """
+    try:
+        locations = get_courier_all_locations(courier_id)
+        markers = []
+
+        for loc in locations:
+            markers.append({
+                    "lat": loc.coordinates[0],
+                    "lon": loc.coordinates[1],
+                    "popup": loc.address
+            })
+
+        return markers
+
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Courier not found")
