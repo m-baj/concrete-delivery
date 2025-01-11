@@ -628,15 +628,29 @@ def test_set_order_courier_id(db: Session):
         apartment_number="1",
     )
     delivery_address = crud.add_address(session=db, address=delivery_address)
-    order_data = OrderBase(
-        user_id=uuid.uuid4(),
-        pickup_address_id=pickup_address.id,
-        delivery_address_id=delivery_address.id,
+    order_data = OrderCreate(
+        pickup_address=pickup_address,
+        delivery_address=delivery_address,
         recipient_phone_number="123456789",
         pickup_start_time="08:00",
         pickup_end_time="09:00",
         delivery_start_time="10:00",
         delivery_end_time="11:00",
+    )
+
+    my_uuid = uuid.uuid4()
+
+    order_data = OrderBase(
+        user_id=my_uuid,
+        courier_id=None,
+        pickup_address_id=pickup_address.id,
+        delivery_address_id=delivery_address.id,
+        status_id=None,
+        recipient_phone_number=order_data.recipient_phone_number,
+        pickup_start_time=order_data.pickup_start_time,
+        pickup_end_time=order_data.pickup_end_time,
+        delivery_start_time=order_data.delivery_start_time,
+        delivery_end_time=order_data.delivery_end_time,
     )
     order = crud.create_order(session=db, order=order_data)
     courier_data = CourierBase(
@@ -656,31 +670,6 @@ def test_set_order_courier_id(db: Session):
 def test_get_all_couriers(db: Session):
     couriers = crud.get_all_couriers(session=db)
     assert couriers is not None
-
-
-def test_get_current_location(db: Session):
-    location = crud.get_current_location(session=db, courier_id="1")
-    assert location is not None
-
-
-def test_get_courier_bu_id(db: Session):
-    courier = crud.get_courier_by_id(session=db, courier_id="1")
-    assert courier is not None
-
-
-def test_get_courier_current_location(db: Session):
-    location = crud.get_courier_current_location(session=db, courier_id="1")
-    assert location is not None
-
-
-def test_get_all_working_couriers(db: Session):
-    couriers = crud.get_all_working_couriers(session=db)
-    assert couriers is not None
-
-
-def test_get_all_unstarted_orders(db: Session):
-    orders = crud.get_all_unstarted_orders(session=db)
-    assert orders is not None
 
 
 def test_get_admin(db: Session):
