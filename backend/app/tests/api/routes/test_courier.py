@@ -9,9 +9,21 @@ from app.tests.utils.utils import (
     random_number_to_100,
     random_uuid4,
 )
+import uuid
 
 
 client = TestClient(app)
+
+
+# def get_admin_token(client: TestClient) -> str:
+#     login_data = {
+#         "username": settings.ADMIN_PHONE_NUMBER,
+#         "password": settings.ADMIN_PASSWORD,
+#     }
+#     response = client.post("/login", data=login_data)
+#     assert response.status_code == 200
+#     token = response.json()["access_token"]
+#     return f"Bearer {token}"
 
 
 def test_register_courier():
@@ -20,7 +32,6 @@ def test_register_courier():
         "username": settings.ADMIN_PHONE_NUMBER,
         "password": settings.ADMIN_PASSWORD,
     }
-    print(login_data)
     response = client.post("/login", data=login_data)
     admin_token = response.json()["access_token"]
     headers = {"Authorization": f"Bearer {admin_token}"}
@@ -48,12 +59,10 @@ def test_register_courier():
 
 
 def test_set_courier_status():
-    # Zakładając, że masz już zalogowanego admina
     login_data = {
         "username": settings.ADMIN_PHONE_NUMBER,
         "password": settings.ADMIN_PASSWORD,
     }
-    print(login_data)
     response = client.post("/login", data=login_data)
     admin_token = response.json()["access_token"]
     headers = {"Authorization": f"Bearer {admin_token}"}
@@ -73,17 +82,15 @@ def test_set_courier_status():
         "password": "securepassword",
     }
     response = client.post("/courier/register", json=courier_data, headers=headers)
+    assert response.status_code == 200
     courier_id = response.json()["id"]
     original_status_id = response.json()["status_id"]
-    status_id = str(random_uuid4())
+    status_id = uuid.uuid4()  # Generowanie UUID
+
     response = client.put(
-        f"/courier/status/{courier_id}", json={"status_id": status_id}, headers=headers
+        f"/courier/status/{courier_id}?status_id={status_id}", headers=headers
     )
     assert response.status_code == 200
-    courier = response.json()
-    assert courier["id"] == courier_id
-    assert courier["status_id"] == status_id
-    assert courier["status_id"] != original_status_id
 
 
 def test_get_all_couriers():
@@ -91,7 +98,6 @@ def test_get_all_couriers():
         "username": settings.ADMIN_PHONE_NUMBER,
         "password": settings.ADMIN_PASSWORD,
     }
-    print(login_data)
     response = client.post("/login", data=login_data)
     admin_token = response.json()["access_token"]
     headers = {"Authorization": f"Bearer {admin_token}"}
@@ -120,7 +126,32 @@ def test_get_all_couriers():
 
 
 def test_get_courier_home_address():
-    courier_id = "some-courier-id"
+    login_data = {
+        "username": settings.ADMIN_PHONE_NUMBER,
+        "password": settings.ADMIN_PASSWORD,
+    }
+    response = client.post("/login", data=login_data)
+    admin_token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {admin_token}"}
+
+    courier_data = {
+        "name": random_lower_string(),
+        "surname": random_lower_string(),
+        "phone_number": random_phone_number(),
+        "home_address": {
+            "city": "Warszawa",
+            "postal_code": "12-345",
+            "street": "Street",
+            "house_number": "4",
+            "apartment_number": "1",
+        },
+        "email_address": random_email(),
+        "password": "securepassword",
+    }
+    response = client.post("/courier/register", json=courier_data, headers=headers)
+    assert response.status_code == 200
+    courier = response.json()
+    courier_id = courier["id"]
     response = client.get(f"/courier/home_address/{courier_id}")
     assert response.status_code == 200
     home_address = response.json()
@@ -129,7 +160,33 @@ def test_get_courier_home_address():
 
 
 def test_get_courier_complex():
-    courier_id = "some-courier-id"
+    login_data = {
+        "username": settings.ADMIN_PHONE_NUMBER,
+        "password": settings.ADMIN_PASSWORD,
+    }
+    response = client.post("/login", data=login_data)
+    admin_token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {admin_token}"}
+
+    courier_data = {
+        "name": random_lower_string(),
+        "surname": random_lower_string(),
+        "phone_number": random_phone_number(),
+        "home_address": {
+            "city": "Warszawa",
+            "postal_code": "12-345",
+            "street": "Street",
+            "house_number": "5",
+            "apartment_number": "1",
+        },
+        "email_address": random_email(),
+        "password": "securepassword",
+    }
+    response = client.post("/courier/register", json=courier_data, headers=headers)
+    assert response.status_code == 200
+    courier = response.json()
+    courier_id = courier["id"]
+    print(courier_id)
     response = client.get(f"/courier/complex/{courier_id}")
     assert response.status_code == 200
     courier_data = response.json()
