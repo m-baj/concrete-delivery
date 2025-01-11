@@ -294,13 +294,31 @@ def test_assign_courier_to_order(db: Session):
         delivery_end_time=order_data.delivery_end_time,
     )
     order = crud.create_order(session=db, order=order_data)
-    courier_data = CourierBase(
-        phone_number=random_phone_number,
-        name=random_lower_string,
-        surname=random_lower_string,
-        home_address_id=pickup_address.id,
+    # Najpierw utwórz adres, który będzie używany jako home_address_id
+    address_data = AddressCreate(
+        city="Warszawa",
+        postal_code="00-665",
+        street="Nowowiejska",
+        house_number="15",
+        apartment_number="19",
     )
-    courier = crud.create_courier(session=db, courier=courier_data)
+    address = crud.add_address(session=db, address=address_data)
+
+    # Utwórz status, który będzie używany jako status_id
+    status_data = StatusCreate(name="Test Status")
+    status = crud.add_status(session=db, status=status_data)
+
+    # Utwórz dane kuriera
+    courier_data = CourierBase(
+        phone_number=random_phone_number(),
+        name=random_lower_string(),
+        surname=random_lower_string(),
+        home_address_id=address.id,
+        status_id=status.id,
+    )
+
+    # Utwórz kuriera w bazie danych
+    courier = crud.create_courier(session=db, courier_to_create=courier_data)
     order = crud.assign_courier_to_order(
         session=db, order_id=order.id, courier_id=courier.id
     )
@@ -452,20 +470,64 @@ def test_set_order_status(db: Session):
 
 
 def test_get_courier_by_phone_number(db: Session):
-    courier_data = CourierCreate(
-        phone_number="123456789", name="Test", surname="Courier"
+    # Najpierw utwórz adres, który będzie używany jako home_address_id
+    address_data = AddressCreate(
+        city="Warszawa",
+        postal_code="00-665",
+        street="Nowowiejska",
+        house_number="15",
+        apartment_number="19",
     )
-    courier = crud.create_courier(session=db, courier=courier_data)
-    phone_number = "123456789"
-    courier = crud.get_courier_by_phone_number(session=db, phone_number=phone_number)
-    assert courier.phone_number == phone_number
+    address = crud.add_address(session=db, address=address_data)
+
+    # Utwórz status, który będzie używany jako status_id
+    status_data = StatusCreate(name="Test Status")
+    status = crud.add_status(session=db, status=status_data)
+
+    courier_phone_number = random_phone_number()
+    # Utwórz dane kuriera
+    courier_data = CourierBase(
+        phone_number=courier_phone_number,
+        name=random_lower_string(),
+        surname=random_lower_string(),
+        home_address_id=address.id,
+        status_id=status.id,
+    )
+
+    # Utwórz kuriera w bazie danych
+    courier = crud.create_courier(session=db, courier_to_create=courier_data)
+    courier = crud.get_courier_by_phone_number(
+        session=db, phone_number=courier_phone_number
+    )
+    assert courier.phone_number == courier_phone_number
 
 
 def test_get_courier_by_id(db: Session):
-    courier_data = CourierCreate(
-        phone_number="123456789", name="Test", surname="Courier"
+    # Najpierw utwórz adres, który będzie używany jako home_address_id
+    address_data = AddressCreate(
+        city="Warszawa",
+        postal_code="00-665",
+        street="Nowowiejska",
+        house_number="15",
+        apartment_number="19",
     )
-    courier = crud.create_courier(session=db, courier=courier_data)
+    address = crud.add_address(session=db, address=address_data)
+
+    # Utwórz status, który będzie używany jako status_id
+    status_data = StatusCreate(name="Test Status")
+    status = crud.add_status(session=db, status=status_data)
+
+    # Utwórz dane kuriera
+    courier_data = CourierBase(
+        phone_number=random_phone_number(),
+        name=random_lower_string(),
+        surname=random_lower_string(),
+        home_address_id=address.id,
+        status_id=status.id,
+    )
+
+    # Utwórz kuriera w bazie danych
+    courier = crud.create_courier(session=db, courier_to_create=courier_data)
     courier_by_id = crud.get_courier_by_id(session=db, courier_id=courier.id)
     assert courier is not None
     assert courier.id == courier_by_id.id
@@ -507,13 +569,35 @@ def test_create_courier(db: Session):
 
 
 def test_set_courier_status(db: Session):
-    courier_data = CourierBase(phone_number="123456789", name="Test", surname="Courier")
-    courier = crud.create_courier(session=db, courier=courier_data)
+    # Najpierw utwórz adres, który będzie używany jako home_address_id
+    address_data = AddressCreate(
+        city="Warszawa",
+        postal_code="00-665",
+        street="Nowowiejska",
+        house_number="15",
+        apartment_number="19",
+    )
+    address = crud.add_address(session=db, address=address_data)
+
+    # Utwórz status, który będzie używany jako status_id
     status_data = StatusCreate(name="Test Status")
     status = crud.add_status(session=db, status=status_data)
-    courier = crud.set_courier_status(
-        session=db, courier_id=courier.id, status_id=status.id
+
+    # Utwórz dane kuriera
+    courier_data = CourierBase(
+        phone_number=random_phone_number(),
+        name=random_lower_string(),
+        surname=random_lower_string(),
+        home_address_id=address.id,
+        status_id=status.id,
     )
+
+    # Utwórz kuriera w bazie danych
+    courier = crud.create_courier(session=db, courier_to_create=courier_data)
+    status_data = StatusCreate(name=random_lower_string())
+    status = crud.add_status(session=db, status=status_data)
+    crud.set_courier_status(session=db, courier_id=courier.id, status_id=status.id)
+    courier = crud.get_courier_by_id(session=db, courier_id=courier.id)
     assert courier.status_id == status.id
 
 
