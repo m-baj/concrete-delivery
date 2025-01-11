@@ -1,6 +1,6 @@
-FROM python:3.13-slim
+FROM python:3.13
 
-WORKDIR /app
+WORKDIR /app/
 
 ENV PYTHONUNBUFFERED=1
 

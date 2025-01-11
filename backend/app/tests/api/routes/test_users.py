@@ -5,6 +5,7 @@ from app.core.security import verify_password
 from app.models import User
 from app.tests.utils.utils import random_lower_string, random_phone_number, random_email
 
+
 def test_register_user(client: TestClient, db: Session):
     name = random_lower_string()
     surname = random_lower_string()
@@ -12,7 +13,11 @@ def test_register_user(client: TestClient, db: Session):
     email = random_email()
     password = random_lower_string()
     data = {
-        "name": name, "surname": surname, "phone_number": phone_number, "email_address": email, "password": password
+        "name": name,
+        "surname": surname,
+        "phone_number": phone_number,
+        "email_address": email,
+        "password": password,
     }
     response = client.post("/users/register", json=data)
     assert response.status_code == 200
@@ -28,6 +33,7 @@ def test_register_user(client: TestClient, db: Session):
     assert db_user.phone_number == phone_number
     assert verify_password(password, db_user.hashed_password)
 
+
 def test_register_user_already_exists(client: TestClient, db: Session):
     name = random_lower_string()
     surname = random_email()
@@ -35,8 +41,14 @@ def test_register_user_already_exists(client: TestClient, db: Session):
     email = random_email()
     password = random_lower_string()
     data = {
-        "name": name, "surname": surname, "phone_number": phone_number, "email_address": email, "password": password
+        "name": name,
+        "surname": surname,
+        "phone_number": phone_number,
+        "email_address": email,
+        "password": password,
     }
     response = client.post("/users/register", json=data)
     assert response.status_code == 400
-    assert response.json() == {"detail": "User with given phone number already exists in the system"}
+    assert response.json() == {
+        "detail": "User with given phone number already exists in the system"
+    }
