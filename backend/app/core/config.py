@@ -6,6 +6,7 @@ from neomodel import config
 
 config.DATABASE_URL = "bolt://neo4j:krecimybeton@neo4j:7687"
 
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file="../env",
@@ -22,7 +23,7 @@ class Settings(BaseSettings):
 
     ADMIN_PHONE_NUMBER: str = "000000000"
     ADMIN_EMAIL_ADDRESS: str = "superuser@test.com"
-    ADMIN_PASSWORD: str
+    ADMIN_PASSWORD: str = "admin123"
 
     NEO4J_URL: str
     NEO4J_NAME: str

@@ -3,16 +3,36 @@ from typing import Tuple, List, Dict
 
 from app.models import (
     Courier as CourierPostgres,
-    User, UserCreate, UserRegister, UserBase, UserCourierCreate, UserPublic,
-    Address, AddressCreate, AddressBase, AddressPublic,
-    Status, StatusCreate, StatusBase,
-    Order, AccountType, OrderBase, OrderCreate, OrderPublic,
-    CourierBase, CourierRegister, Courier, CourierPublic,
-    UserChangePassword, SendCodeRequest, VerifyCodeRequest
+    User,
+    UserCreate,
+    UserRegister,
+    UserBase,
+    UserCourierCreate,
+    UserPublic,
+    Address,
+    AddressCreate,
+    AddressBase,
+    AddressPublic,
+    Status,
+    StatusCreate,
+    StatusBase,
+    Order,
+    AccountType,
+    OrderBase,
+    OrderCreate,
+    OrderPublic,
+    CourierBase,
+    CourierRegister,
+    Courier,
+    CourierPublic,
+    UserChangePassword,
+    SendCodeRequest,
+    VerifyCodeRequest,
 )
 from app.utils.vroom.models import VroomVehicle, VroomJob
 from app.core.security import get_password_hash, verify_password
 from app.utils.geocoding import get_coordinates
+
 # from .crud_neo4j import get_courier_current_location
 from app.models_neo4j import Courier, Location
 from .utils.hour import hour_from_str_to_seconds
@@ -106,7 +126,9 @@ def get_address_by_id(*, session: Session, address_id: str) -> Address | None:
     return address
 
 
-def get_address_by_coordinates(*, session: Session, x: float, y:float) -> Address | None:
+def get_address_by_coordinates(
+    *, session: Session, x: float, y: float
+) -> Address | None:
     query = select(Address).where(Address.X_coordinate == x, Address.Y_coordinate == y)
     address = session.exec(query).first()
     return address
@@ -212,13 +234,15 @@ def get_courier_by_phone_number(
     return courier
 
 
-def get_courier_by_id(*, session, courier_id: str) -> CourierPostgres | None:
+def get_courier_by_id(*, session: Session, courier_id: str) -> CourierPostgres | None:
     query = select(CourierPostgres).where(CourierPostgres.id == courier_id)
     courier = session.exec(query).first()
     return courier
 
 
-def create_courier(*, session: Session, courier_to_create: CourierBase) -> CourierPostgres:
+def create_courier(
+    *, session: Session, courier_to_create: CourierBase
+) -> CourierPostgres:
     db_obj = CourierPostgres.model_validate(courier_to_create)
     session.add(db_obj)
     session.commit()
@@ -269,20 +293,24 @@ def get_all_couriers(*, session: Session) -> list[CourierPostgres]:
     couriers = session.exec(query).all()
     return couriers
 
+
 # Neo4j
 def get_current_location(courier: Courier) -> Location:
     return courier.is_at.single()
 
-def get_courier_by_id(courier_id: str) -> Courier:
+
+def get_courier_by_id_neo_4j(courier_id: str) -> Courier:
     try:
         return Courier.nodes.get(courierID=courier_id)
     except DoesNotExist:
         return None
 
+
 def get_courier_current_location(courierID: str) -> List[float]:
-    courier = get_courier_by_id(courierID)
+    courier = get_courier_by_id_neo_4j(courierID)
     print(courier)
     return get_current_location(courier).coordinates
+
 
 def get_all_working_couriers(
     *, session: Session
@@ -385,7 +413,8 @@ def get_all_unstarted_orders(
             )
     return orders_as_vroom_jobs, vroomjobs_id_dict
 
+
 def get_admin(*, session: Session) -> User | None:
-    query = select(User).where(User.account_type==AccountType.ADMIN)
+    query = select(User).where(User.account_type == AccountType.ADMIN)
     user = session.exec(query).first()
     return user

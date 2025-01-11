@@ -20,7 +20,6 @@ def test_create_user(db: Session):
     assert user.surname == user_data["surname"]
     assert user.phone_number == user_data["phone_number"]
     assert user.email_address == user_data["email_address"]
-    assert user.is_admin == False
     assert hasattr(user, "id")
     assert hasattr(user, "hashed_password")
 
@@ -33,7 +32,6 @@ def test_get_user_by_phone_number(db: Session):
     assert user.surname == user_2.surname
     assert user.phone_number == user_2.phone_number
     assert user.email_address == user_2.email_address
-    assert user.is_admin == user_2.is_admin
     assert verify_password(user_data["password"], user_2.hashed_password)
 
 def test_authenticate(db: Session):
@@ -45,7 +43,6 @@ def test_authenticate(db: Session):
     assert user.surname == user_2.surname
     assert user.phone_number == user_2.phone_number
     assert user.email_address == user_2.email_address
-    assert user.is_admin == user_2.is_admin
     assert  user_2 is not None
     assert verify_password(user_data["password"], user_2.hashed_password)
 

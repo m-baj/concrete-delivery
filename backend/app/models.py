@@ -1,4 +1,3 @@
-# This file contains the model classes for the database tables.
 import uuid
 from sqlmodel import SQLModel, Field
 from pydantic import EmailStr
