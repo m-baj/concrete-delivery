@@ -578,22 +578,20 @@ def test_set_courier_status(db: Session):
     address = crud.add_address(session=db, address=address_data)
 
     # Utwórz status, który będzie używany jako status_id
-    status_data = StatusCreate(name="Test Status")
+    status_data = StatusCreate(name="Setting test")
     status = crud.add_status(session=db, status=status_data)
 
     # Utwórz dane kuriera
     courier_data = CourierBase(
         phone_number=random_phone_number(),
-        name=random_lower_string(),
-        surname=random_lower_string(),
+        name="Set",
+        surname="Setowski",
         home_address_id=address.id,
         status_id=status.id,
     )
 
     # Utwórz kuriera w bazie danych
     courier = crud.create_courier(session=db, courier_to_create=courier_data)
-    status_data = StatusCreate(name=random_lower_string())
-    status = crud.add_status(session=db, status=status_data)
     crud.set_courier_status(session=db, courier_id=courier.id, status_id=status.id)
     courier = crud.get_courier_by_id(session=db, courier_id=courier.id)
     assert courier.status_id == status.id
