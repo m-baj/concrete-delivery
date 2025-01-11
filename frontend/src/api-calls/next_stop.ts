@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-    const fetchNextStop = async () => {
+const fetchNextStop = async () => {
       try {
         const response = await axios.get(
             "http://localhost:8000/next_stop"

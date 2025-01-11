@@ -7,6 +7,7 @@ import L from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import {fetchMarkers} from "@/api-calls/get_markers";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -21,6 +22,8 @@ interface MarkerType {
 }
 
 function calculateCenterAndZoom(markers: MarkerType[]) {
+  if (markers.length === 0) return { center: [0, 0], zoom: 2 };
+
   let latSum = 0, lonSum = 0;
   let latMax = -Infinity, latMin = Infinity, lonMax = -Infinity, lonMin = Infinity;
 
@@ -36,8 +39,10 @@ function calculateCenterAndZoom(markers: MarkerType[]) {
   const latCenter = latSum / markers.length;
   const lonCenter = lonSum / markers.length;
   const zoom = -23 * (latMax - latMin + lonMax - lonMin) / 2 + 17 - (latMax - latMin) / (lonMax - lonMin) - 1;
+  // const isLatValid = latCenter >= -90 && latCenter <= 90;
+  // const isLonValid = lonCenter >= -180 && lonCenter <= 180;
 
-  return { center: [latCenter, lonCenter], zoom: Math.round(zoom) };
+  return { center: [latCenter, lonCenter], zoom: zoom };
 }
 
 async function fetchRoute(markers: any) {
@@ -53,33 +58,25 @@ async function fetchRoute(markers: any) {
   throw new Error("Nie udało się pobrać trasy z OSRM.");
 }
 
-export default function Map({markers}: any) {
+export default function Map() {
   const [route, setRoute] = useState([]);
-  const { center, zoom } = calculateCenterAndZoom(markers);
-  const [mapmarkers, setMapMarkers] = useState([]);
+  const [markers, setMarkers] = useState<MarkerType[]>([]);
+  const [center, setCenter] = useState<[number, number] | null>(null);
+  const [zoom, setZoom] = useState<number | null>(null);
+  // const { center, zoom } = calculateCenterAndZoom(markers);
 
-    // useEffect(() => {
-    //     const fetchMarkers = async () => {
-    //     try {
-    //         const response = await fetch("http://localhost:8000/courier/markers/{courier_id}");
-    //         if (!response.ok) {
-    //         throw new Error(`Błąd: ${response.status} - ${response.statusText}`);
-    //         }
-    //         const data = await response.json();
-    //         setMarkers(data);
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    //     };
-    //     fetchOrders();
-    //     const interval = setInterval(fetchOrders, 60000); // Fetch orders every 60 seconds
-    //
-    //     return () => clearInterval(interval);
-    // }, []);
-    useEffect(() => {
-    setMapMarkers(markers);
-  }, []);
+  useEffect(() => {
+      const loadMarkers = async () => {
+        const data = await fetchMarkers();
+        setMarkers(data);
+      };
+      loadMarkers();
+      setCenter(center);
+      setZoom(zoom);
+      const interval = setInterval(loadMarkers, 60000);
 
+      return () => clearInterval(interval);
+  }, [markers]);
 
   useEffect(() => {
     fetchRoute(markers)

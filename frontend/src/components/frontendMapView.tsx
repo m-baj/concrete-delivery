@@ -1,9 +1,26 @@
 "use client";
 import Map from "@/components/frontendMap";
-import { Box, Text, Button, Stack, VStack } from '@chakra-ui/react';
+import {Box, Text, Button, Stack, VStack, Spinner} from '@chakra-ui/react';
+import {useEffect, useState} from "react";
+import {fetchMarkers} from "@/api-calls/get_markers";
 
 
 const CourierMapView = () => {
+    const [mapmarkers, setMapMarkers] = useState<{ lat: number; lon: number; popup: string }[]>([]);
+    const [loading, setLoading] = useState(true); // Dodano stan dla ładowania
+
+    useEffect(() => {
+        const loadMarkers = async () => {
+          setLoading(true); // Ustawienie stanu ładowania
+          const data = await fetchMarkers();
+          setMapMarkers(data);
+          setLoading(false); // Wyłączenie stanu ładowani
+        };
+        loadMarkers();
+        const interval = setInterval(loadMarkers, 60000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     const handleNavigate = (address: any) => {
       const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
@@ -17,7 +34,8 @@ const CourierMapView = () => {
       { lat: 52.2385, lon: 21.0144, popup: "ul. Tadeusza Czackiego 21" },
     ];
 
-    const nextStop = markers[0];
+
+    const nextStop = mapmarkers[0];
 
     const handleDeliveryCompleted = () => {
       // Implement the logic to mark the delivery as completed
@@ -29,10 +47,9 @@ const CourierMapView = () => {
       alert('Package reported as lost.');
     };
 
-
     return (
       <VStack spacing={2} mt={3} align="center">
-        <Map markers={markers}/>
+        <Map/>
         <Box
           border="1px solid #ccc"
           borderRadius="md"
@@ -48,7 +65,13 @@ const CourierMapView = () => {
           textAlign="center"
         >
             <Text fontSize="md" color="gray.800">
-                Next Stop: <Text as="b" display="inline">{nextStop.popup}</Text>
+                {nextStop ? (
+                    <>
+                        Next stop: <Text as="b" display="inline">{nextStop.popup}</Text>
+                    </>
+                ) : (
+                  "No stops available"
+                )}
             </Text>
         </Box>
           <Button
