@@ -8,6 +8,7 @@ from app.models import (
     OrderBase,
     CourierBase,
     CourierRegister,
+    Courier,
     OrderCreate,
 )
 import app.crud as crud
@@ -471,11 +472,38 @@ def test_get_courier_by_id(db: Session):
 
 
 def test_create_courier(db: Session):
-    courier_data = CourierBase(phone_number="123456789", name="Test", surname="Courier")
-    courier = crud.create_courier(session=db, courier=courier_data)
+    # Najpierw utwórz adres, który będzie używany jako home_address_id
+    address_data = AddressCreate(
+        city="Warszawa",
+        postal_code="00-665",
+        street="Nowowiejska",
+        house_number="15",
+        apartment_number="19",
+    )
+    address = crud.add_address(session=db, address=address_data)
+
+    # Utwórz status, który będzie używany jako status_id
+    status_data = StatusCreate(name="Test Status")
+    status = crud.add_status(session=db, status=status_data)
+
+    # Utwórz dane kuriera
+    courier_data = CourierBase(
+        phone_number=random_phone_number(),
+        name=random_lower_string(),
+        surname=random_lower_string(),
+        home_address_id=address.id,
+        status_id=status.id,
+    )
+
+    # Utwórz kuriera w bazie danych
+    courier = crud.create_courier(session=db, courier_to_create=courier_data)
+
+    # Sprawdź, czy dane kuriera są poprawne
     assert courier.phone_number == courier_data.phone_number
     assert courier.name == courier_data.name
     assert courier.surname == courier_data.surname
+    assert courier.home_address_id == courier_data.home_address_id
+    assert courier.status_id == courier_data.status_id
 
 
 def test_set_courier_status(db: Session):
