@@ -32,6 +32,8 @@ from app.crud_neo4j import (
     get_courier_all_locations
 )
 
+from app.crud import get_courier_id_by_user_id
+
 router = APIRouter(prefix="/courier", tags=["courier"])
 
 
@@ -386,3 +388,10 @@ def get_couriers_locations_list(courier_id: str):
 
     except DoesNotExist:
         raise HTTPException(status_code=404, detail="Courier not found")
+
+@router.get("/{user_id}")
+def get_courier(user_id: str, session: SessionDep):
+    courier_id = get_courier_id_by_user_id(session=session, user_id=user_id)
+    if not courier_id:
+        raise HTTPException(status_code=404, detail="Courier not found")
+    return courier_id

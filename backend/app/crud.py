@@ -240,6 +240,12 @@ def get_courier_by_id(*, session: Session, courier_id: str) -> CourierPostgres |
     return courier
 
 
+def get_courier_id_by_user_id(session: Session, user_id: str) -> str | None:
+    query = select(User).where(User.id == user_id)
+    user = session.exec(query).first()
+    return user.courier_id
+
+
 def create_courier(
     *, session: Session, courier_to_create: CourierBase
 ) -> CourierPostgres:

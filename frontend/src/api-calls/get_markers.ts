@@ -1,8 +1,8 @@
 import axios from "axios";
 
-export const fetchMarkers = async () => {
+export const fetchMarkers = async (courier_id: string) => {
     try {
-        const response = await axios.get("http://localhost:8000/courier/markers/b295436e-8fa3-4518-8119-cb046585dc7e");
+        const response = await axios.get(`http://localhost:8000/courier/markers/${courier_id}`);
         console.log(response);
         return response.data;
     } catch (error) {
