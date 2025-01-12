@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const sendVerificationCode = async (phone_number) => {
+export const sendVerificationCode = async (phone_number: any) => {
   try {
     console.log("Sending data to backend:", { phone_number });
     const response = await axios.post(
@@ -19,7 +19,7 @@ export const sendVerificationCode = async (phone_number) => {
   }
 };
 
-export const verifyCode = async (phone_number, code) => {
+export const verifyCode = async (phone_number: any, code: any) => {
   try {
     const response = await axios.post(
         "http://localhost:8000/verification/verify-code", {

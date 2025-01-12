@@ -88,11 +88,11 @@ def assign_courier_to_order(
     return order
 
 
-@router.put("/status/{order_id}")
+@router.put("/status/{order_id}/{status_name}")
 def set_order_status(
     session: SessionDep,
     order_id: str,
-    status_id: str,
+    status_name: str,
 ) -> Any:
     """
     Set status of an order
@@ -100,11 +100,12 @@ def set_order_status(
     order = crud.get_order_by_id(session=session, order_id=order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    status = crud.get_status_by_name(session=session, status_name=status_name)
     order = crud.set_order_status(
-        session=session, order_id=order_id, status_id=status_id
+        session=session, order_id=order_id, status_id=status.id
     )
     user = crud.get_user_by_id(session=session, user_id=order.user_id)
-    status = crud.get_status(session=session, status_id=status_id)
+    status = crud.get_status(session=session, status_id=status.id)
     message = f"Order {order_id} change the status to {status.name}"
     twilio_service.send_sms(phone_number=user.phone_number, message=message)
     twilio_service.send_sms(phone_number=order.recipient_phone_number, message=message)
