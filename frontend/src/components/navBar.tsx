@@ -80,7 +80,14 @@ export default function WithAction({ accountType }: NavBarProps) {
     courier: { label: "My route", redirectTo: "route" },
     admin: { label: "All couriers", redirectTo: "couriers" },
   };
+  const leftLink = leftLinks[accountType];
 
+  // if (!leftLink) {
+  //   console.error("Invalid accountType:", accountType);
+  //   return null; // Prevent component from rendering
+  // }
+
+  const { label, redirectTo } = leftLink;
   const rightLink =
     accountType === "user" ? (
       <Button
@@ -105,8 +112,6 @@ export default function WithAction({ accountType }: NavBarProps) {
         Add Courier
       </Button>
     ) : null;
-
-  const { label, redirectTo } = leftLinks[accountType];
 
   const handleClick = () => {
     redirect(`/${accountType}/${redirectTo}`);
@@ -161,13 +166,13 @@ export default function WithAction({ accountType }: NavBarProps) {
               <MenuList>
                 <MenuItem justifyContent="center">
                   <Flex align="center">
-                    Settings <SettingsIcon />
+                    Settings <SettingsIcon ml={2} />
                   </Flex>
                 </MenuItem>
                 <MenuDivider />
                 <MenuItem justifyContent="center" onClick={handleLogoutClick}>
                   Log out
-                  <Icon as={RiLogoutBoxRLine} size="" />
+                  <Icon as={RiLogoutBoxRLine} size="" ml={2} />
                 </MenuItem>
               </MenuList>
             </Menu>
@@ -177,9 +182,9 @@ export default function WithAction({ accountType }: NavBarProps) {
         {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
-              {leftLinks[accountType].label.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
-              ))}
+              <NavLink key={label} onClick={handleClick}>
+                {label}
+              </NavLink>
             </Stack>
           </Box>
         ) : null}

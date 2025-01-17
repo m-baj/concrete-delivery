@@ -61,11 +61,18 @@ const LoginForm = () => {
   const onSubmit: SubmitHandler<LoginData> = async (data) => {
     const response = await login(data);
 
+    const mainPage: { [key in "user" | "courier" | "admin"]: string } = {
+      user: "orders",
+      courier: "route",
+      admin: "couriers",
+    };
+
     if (response.status) {
       showToast("Success", response.message, "success");
       localStorage.setItem("token", response.token);
       const { account_type } = jwtDecode<JwtPayload>(response.token);
-      redirect(`/${formatAccountType(account_type)}`);
+      const formatted = formatAccountType(account_type);
+      redirect(`/${formatted}/${mainPage[formatted]}`);
     } else {
       showToast("Error", response.message, "error");
     }
