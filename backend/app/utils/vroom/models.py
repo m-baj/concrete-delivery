@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 
@@ -10,6 +10,24 @@ class VroomVehicle:
     end: List[float]
     time_window: List[int]  # working hours
 
+@dataclass
+class Pickup:
+    id: int
+    description: str
+    location: List[float]
+    time_window: List[int]
+
+@dataclass
+class Delivery:
+    id: int
+    description: str
+    location: List[float]
+    time_window: List[int]
+
+@dataclass
+class Shipment:
+    pickup: Pickup
+    delivery: Delivery
 
 @dataclass
 class VroomJob:
@@ -17,6 +35,14 @@ class VroomJob:
     description: str
     location: List[float]
     time_window: List[int]
+
+@dataclass
+class PickUpJob(VroomJob):
+     pickup: List[int] = field(default_factory=lambda: [1])
+
+@dataclass
+class DeliveryJob(VroomJob):
+     pickup: List[int] = field(default_factory=lambda: [1])
 
 
 @dataclass
@@ -28,6 +54,7 @@ class Violation:
 class Input:
     vehicles: List[VroomVehicle]
     jobs: List[VroomJob]
+    shipments: List[Shipment]
     options: dict
 
 

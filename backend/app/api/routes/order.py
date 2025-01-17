@@ -10,7 +10,7 @@ from app.api.routes.address import add_address
 from app.services.twilio_service import TwilioService
 from app.utils.vroom.vroom import Vroom
 from app.utils.neo4j_updater import update_routes
-from app.utils.vroom.parser import base_order_to_pickup_and_deliver_jobs
+from app.utils.vroom.parser import base_order_to_shipment
 from app.crud_neo4j import write_locations_to_courier
 
 router = APIRouter(prefix="/order", tags=["order"])
@@ -42,12 +42,12 @@ def create_order(
         delivery_end_time=order.delivery_end_time,
     )
 
-    new_pickup, new_deliver = base_order_to_pickup_and_deliver_jobs(order_data, session=session)
+    shipment = base_order_to_shipment(order_data, session=session)
 
     couriers, vroom_id_dict = crud.get_all_working_couriers(session=session)
-    orders, _ = crud.get_all_unstarted_orders(session=session)
+    shipments, jobs, _ = crud.get_all_unstarted_orders(session=session)
 
-    vroom = Vroom(working_couriers=couriers, orders=(orders + [new_pickup, new_deliver]))
+    vroom = Vroom(working_couriers=couriers, shipments=(shipments + [shipment]), jobs=jobs)
     vroom.find_route()
 
     if not vroom.verify_result():
