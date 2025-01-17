@@ -103,3 +103,8 @@ class OptimizationResult:
 
 PICKUP_VROOMJOB_OFFSET = 1
 DELIVERY_VROOMJOB_OFFSET = 2
+
+@dataclass
+class Location:
+    location: List[List[float]]
+    order_id: str
