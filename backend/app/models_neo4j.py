@@ -18,6 +18,8 @@ class Location(StructuredNode):
     locationID = StringProperty()
     address = StringProperty()
     coordinates = ArrayProperty()
+    order_type = StringProperty(default=None, required=False)
+    orderID = StringProperty(default=None, required=False)
 
     is_visited_by = RelationshipFrom('Courier', 'IS_AT')
     delivered_by = RelationshipFrom('Courier', 'DELIVERS_TO')
