@@ -65,12 +65,14 @@ def register_courier(
             detail="Courier with given phone number already exists in the system",
         )
 
+    default_status = crud.get_status_by_name(session=session, status_name="Available")
     home_address = add_address(session=session, address=courier_in.home_address)
     courier_to_create_as_courier = CourierBase(
         name=courier_in.name,
         surname=courier_in.surname,
         phone_number=courier_in.phone_number,
         home_address_id=home_address.id,
+        status_id=default_status.id,
     )
 
     courier = crud.create_courier(
