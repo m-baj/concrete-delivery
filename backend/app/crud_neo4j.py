@@ -100,4 +100,5 @@ def get_courier_all_locations(courierID: str) -> List[Location]:
         locations.append(next_location)
         print(next_location.address)
         next_location = next_location.next_location.single()
+    locations.append(current_location)
     return locations
