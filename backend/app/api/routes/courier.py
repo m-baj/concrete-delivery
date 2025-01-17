@@ -29,7 +29,7 @@ from app.crud_neo4j import (
     create_location,
     write_locations_to_courier,
     create_courier,
-    get_courier_all_locations
+    get_courier_all_locations,
 )
 
 from app.crud import get_courier_id_by_user_id
@@ -213,7 +213,9 @@ async def get_courier_deliveries_in_order(courier_id: str):
 @router.post(
     "/add_locations/{courier_id}", tags=["courier"], response_model=AddLocationsRequest
 )
-async def add_deliveries_to_courier(courier_id: str, request: AddLocationsRequest, session: SessionDep):
+async def add_deliveries_to_courier(
+    courier_id: str, request: AddLocationsRequest, session: SessionDep
+):
     courier = get_courier_by_id(courier_id)
     if not courier:
         raise HTTPException(status_code=404, detail="Courier not found")
@@ -368,6 +370,7 @@ def get_all_working_couriers(session: SessionDep) -> Any:
     couriers = crud.get_all_working_couriers(session=session)
     return couriers
 
+
 @router.get("/markers/{courier_id}")
 def get_couriers_locations_list(courier_id: str):
     """
@@ -378,16 +381,19 @@ def get_couriers_locations_list(courier_id: str):
         markers = []
 
         for loc in locations:
-            markers.append({
+            markers.append(
+                {
                     "lat": loc.coordinates[0],
                     "lon": loc.coordinates[1],
-                    "popup": loc.address
-            })
+                    "popup": loc.address,
+                }
+            )
 
         return markers
 
     except DoesNotExist:
         raise HTTPException(status_code=404, detail="Courier not found")
+
 
 @router.get("/{user_id}")
 def get_courier(user_id: str, session: SessionDep):
@@ -395,3 +401,12 @@ def get_courier(user_id: str, session: SessionDep):
     if not courier_id:
         raise HTTPException(status_code=404, detail="Courier not found")
     return courier_id
+
+
+@router.delete("/delete/{courier_id}")
+def delete_courier(courier_id: str, session: SessionDep):
+    courier = crud.get_courier_by_id(session=session, courier_id=courier_id)
+    if not courier:
+        raise HTTPException(status_code=404, detail="Courier not found")
+    courier = crud.delete_courier_by_id(session=session, courier_id=courier_id)
+    return courier

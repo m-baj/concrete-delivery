@@ -71,7 +71,8 @@ const AllCouriers = () => {
       {couriers.map((courier, index) => (
         <UserCard
           key={index}
-          id={courier.id.slice(0, 16).replace(/-/g, "")}
+          id={courier.id}
+          show_id={courier.id.slice(0, 16).replace(/-/g, "")}
           name={courier.name}
           surname={courier.surname}
           phoneNumber={courier.phoneNumber}

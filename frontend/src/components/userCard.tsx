@@ -22,6 +22,7 @@ import {
 
 interface UserCardProps {
   id: string;
+  show_id: string;
   name: string;
   surname: string;
   phoneNumber: string;
@@ -40,7 +41,7 @@ const UserCard = (props: UserCardProps) => {
   return (
     <Card>
       <CardHeader>
-        <Heading>Courier nr: {props.id}</Heading>
+        <Heading>Courier nr: {props.show_id}</Heading>
       </CardHeader>
 
       <CardBody>

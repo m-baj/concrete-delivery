@@ -240,6 +240,17 @@ def get_courier_by_id(*, session: Session, courier_id: str) -> CourierPostgres |
     return courier
 
 
+def delete_courier_by_id(
+    *, session: Session, courier_id: str
+) -> CourierPostgres | None:
+    query = select(CourierPostgres).where(CourierPostgres.id == courier_id)
+    courier = session.exec(query).first()
+    if courier:
+        session.delete(courier)
+        session.commit()
+    return courier
+
+
 def get_courier_id_by_user_id(session: Session, user_id: str) -> str | None:
     query = select(User).where(User.id == user_id)
     user = session.exec(query).first()
