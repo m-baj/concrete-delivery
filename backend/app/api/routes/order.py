@@ -9,7 +9,7 @@ from app.api.dependecies import CurrentUser
 from app.api.routes.address import add_address
 from app.services.twilio_service import TwilioService
 from app.utils.vroom.vroom import Vroom
-from app.utils.neo4j_updater import update_routes
+from app.utils.neo4j_updater import update_routes, update_order_id
 from app.utils.vroom.parser import base_order_to_shipment
 from app.crud_neo4j import write_locations_to_courier
 
@@ -56,17 +56,20 @@ def create_order(
     order_accepted = crud.get_status_by_name(
         session=session, status_name="Order accepted"
     )
-
-    update_routes(
-        optimization_result=vroom.optimization_result, vehicle_id_to_courier_id=vroom_id_dict, session=session
-    )
-    
+ 
     db_order = crud.create_order(session=session, order=order_data)
     crud.set_order_status(
         session=session,
         order_id=db_order.id,
         status_id=order_accepted.id,
     )
+
+    updated_result = update_order_id(optimization_result=vroom.optimization_result, order_id=db_order.id)
+    print(updated_result)
+    update_routes(
+        optimization_result=updated_result, vehicle_id_to_courier_id=vroom_id_dict, session=session
+    )
+
     return db_order
 
 
