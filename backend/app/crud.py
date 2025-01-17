@@ -374,7 +374,7 @@ def get_all_unstarted_orders(
             )
 
             delivery = Delivery(
-                id=int(f"{index}{DELIVERY_DeliveryJob_OFFSET}"),
+                id=int(f"{index}{DELIVERY_VROOMJOB_OFFSET}"),
                 description=f"{order.id}",
                 location=[delivery_address.X_coordinate, delivery_address.Y_coordinate],
                 time_window=[
@@ -382,7 +382,7 @@ def get_all_unstarted_orders(
                     hour_from_str_to_timestamp(order.delivery_end_time),
                 ],
             )
-            shipments.append(Shipment(pickup=pickup, deliver=delivery))
+            shipments.append(Shipment(pickup=pickup, delivery=delivery))
 
         if (
             order_status_name == "Picking up order"
