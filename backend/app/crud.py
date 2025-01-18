@@ -28,6 +28,7 @@ from app.models import (
     UserChangePassword,
     SendCodeRequest,
     VerifyCodeRequest,
+    CourierUpdate,
 )
 from app.utils.vroom.models import VroomVehicle, VroomJob
 from app.core.security import get_password_hash, verify_password
@@ -251,6 +252,22 @@ def delete_courier_by_id(
     return courier
 
 
+def update_courier_by_id(
+    *, session: Session, courier_id: str, courier_update: CourierUpdate
+) -> CourierPostgres | None:
+    query = select(CourierPostgres).where(CourierPostgres.id == courier_id)
+    courier = session.exec(query).first()
+    if courier:
+        courier.name = courier_update.name
+        courier.surname = courier_update.surname
+        courier.phone_number = courier_update.phone_number
+        courier.home_address_id = courier_update.home_address_id
+        session.add(courier)
+        session.commit()
+        session.refresh(courier)
+    return courier
+
+
 def get_courier_id_by_user_id(session: Session, user_id: str) -> str | None:
     query = select(User).where(User.id == user_id)
     user = session.exec(query).first()
@@ -274,6 +291,20 @@ def set_courier_status(
     courier = session.exec(query).first()
     if courier:
         courier.status_id = status_id
+        session.add(courier)
+        session.commit()
+        session.refresh(courier)
+    return courier
+
+
+def set_courier_status_by_name(
+    *, session: Session, courier_id: str, status_name: str
+) -> CourierPostgres | None:
+    query = select(CourierPostgres).where(Courier.id == courier_id)
+    courier = session.exec(query).first()
+    if courier:
+        status = get_status_by_name(session=session, status_name=status_name)
+        courier.status_id = status.id
         session.add(courier)
         session.commit()
         session.refresh(courier)

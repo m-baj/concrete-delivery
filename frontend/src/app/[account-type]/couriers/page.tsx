@@ -1,7 +1,8 @@
+// src/components/AllCouriers.tsx
 "use client";
-import React, { useEffect, useState } from "react";
-import UserCard from "@/components/userCard";
-import { jwtDecode } from "jwt-decode";
+import React, { useEffect, useState, useCallback } from "react";
+import UserCard from "@/components/userCard"; // Upewnij się, że ścieżka jest poprawna
+import { jwtDecode } from "jwt-decode"; // Poprawny import jwtDecode
 import { Heading, Stack, Spinner, Text, VStack } from "@chakra-ui/react";
 
 interface Courier {
@@ -28,48 +29,61 @@ interface JwtPayload {
 const AllCouriers = () => {
   const [couriers, setCouriers] = useState<Courier[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Dodany stan ładowania
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Stan ładowania
 
-  useEffect(() => {
-    const fetchCouriers = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          throw new Error("Brak tokena uwierzytelniającego.");
-        }
-
-        const decoded = jwtDecode<JwtPayload>(token);
-        const { sub } = decoded;
-
-        const response = await fetch(`http://localhost:8000/courier/complex_all`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Błąd: ${response.status} - ${response.statusText}`);
-        }
-
-        const data: Courier[] = await response.json();
-        console.log(data);
-
-        setCouriers(data);
-      } catch (error: any) {
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
+  // Definicja fetchCouriers za pomocą useCallback
+  const fetchCouriers = useCallback(async () => {
+    try {
+      setIsLoading(true); // Rozpoczęcie ładowania
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Brak tokena uwierzytelniającego.");
       }
-    };
 
-    fetchCouriers();
+      const decoded = jwtDecode<JwtPayload>(token);
+      const { sub } = decoded;
+
+      const response = await fetch(`http://localhost:8000/courier/complex_all`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Błąd: ${response.status} - ${response.statusText}`);
+      }
+
+      const data: Courier[] = await response.json();
+      console.log(data);
+
+      setCouriers(data);
+      setError(null); // Resetowanie błędu po udanym pobraniu
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setIsLoading(false); // Zakończenie ładowania
+    }
   }, []);
+
+  // Wywołanie fetchCouriers przy montowaniu komponentu
+  useEffect(() => {
+    fetchCouriers();
+  }, [fetchCouriers]);
 
   // Funkcja obsługująca sukces usunięcia kuriera
   const handleDeleteSuccess = (id: string) => {
     setCouriers((prevCouriers) => prevCouriers.filter((courier) => courier.id !== id));
+  };
+
+  // Funkcja obsługująca sukces aktualizacji kuriera
+  const handleUpdateSuccess = (updatedCourier: Courier) => {
+    // Opcjonalnie możesz pokazać krótką notyfikację o sukcesie aktualizacji
+    // np. toast.success("Kurier zaktualizowany pomyślnie!");
+
+    // Ponowne pobranie całej listy kurierów po aktualizacji
+    fetchCouriers();
   };
 
   if (isLoading) {
@@ -105,7 +119,8 @@ const AllCouriers = () => {
             phoneNumber={courier.phoneNumber}
             status={courier.status}
             homeAddress={courier.homeAddress}
-            onDeleteSuccess={handleDeleteSuccess} // Przekazanie callbacku
+            onDeleteSuccess={handleDeleteSuccess} // Przekazanie callbacku do usuwania
+            onUpdateSuccess={handleUpdateSuccess} // Przekazanie callbacku do aktualizacji
           />
         ))
       )}

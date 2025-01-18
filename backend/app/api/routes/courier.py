@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from typing import Any
+import logging
 
 # PostgreSQL queries
 from app.models import (
@@ -8,6 +9,8 @@ from app.models import (
     CourierBase,
     UserCourierCreate,
     AccountType,
+    CourierUpdate,
+    StatusCreate,
 )
 from app.api.dependecies import SessionDep, CurrentAdmin
 from app import crud
@@ -114,6 +117,22 @@ def set_courier_status(session: SessionDep, courier_id: str, status_id: str) -> 
         raise HTTPException(status_code=404, detail="Courier not found")
     courier = crud.set_courier_status(
         session=session, courier_id=courier_id, status_id=status_id
+    )
+    return courier
+
+
+@router.put("/status_by_name/{courier_id}")
+def set_courier_status_by_name(
+    session: SessionDep, courier_id: str, status_name: str
+) -> Any:
+    """
+    Set status of a courier by name
+    """
+    courier = crud.get_courier_by_id(session=session, courier_id=courier_id)
+    if not courier:
+        raise HTTPException(status_code=404, detail="Courier not found")
+    courier = crud.set_courier_status_by_name(
+        session=session, courier_id=courier_id, status_name=status_name
     )
     return courier
 
@@ -410,3 +429,42 @@ def delete_courier(courier_id: str, session: SessionDep):
         raise HTTPException(status_code=404, detail="Courier not found")
     courier = crud.delete_courier_by_id(session=session, courier_id=courier_id)
     return courier
+
+
+@router.put("/update")
+def update_courier(session: SessionDep, courier_in: CourierUpdate):
+    logger = logging.getLogger(__name__)
+    logger.info(f"Received update request: {courier_in}")
+
+    courier = crud.get_courier_by_id(session=session, courier_id=str(courier_in.id))
+    if not courier:
+        raise HTTPException(status_code=404, detail="Courier not found")
+
+    if not crud.get_status_by_name(session=session, status_name=courier_in.status):
+        new_status_create = StatusCreate(name=courier_in.status)
+        new_status = crud.add_status(session=session, status=new_status_create)
+    else:
+        new_status = crud.get_status_by_name(
+            session=session, status_name=courier_in.status
+        )
+
+    home_address = crud.add_address(session=session, address=courier_in.home_address)
+    courier_update = CourierBase(
+        name=courier_in.name,
+        surname=courier_in.surname,
+        phone_number=courier_in.phone_number,
+        home_address_id=home_address.id,
+        status_id=new_status.id,
+    )
+    updated_courier = crud.update_courier_by_id(
+        session=session, courier_id=str(courier_in.id), courier_update=courier_update
+    )
+
+    if not updated_courier:
+        raise HTTPException(status_code=500, detail="Failed to update courier")
+
+    return {
+        "message": "Courier updated successfully",
+        "status": True,
+        "updatedCourier": updated_courier,
+    }

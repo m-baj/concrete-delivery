@@ -9,6 +9,8 @@ router = APIRouter(prefix="/status", tags=["status"])
 
 @router.post("/", response_model=StatusPublic)
 def add_status(status: StatusCreate, session: SessionDep) -> StatusPublic:
+    if crud.get_status_by_name(session=session, status_name=status.name):
+        raise ValueError("Status with this name already exists")
     return crud.add_status(session=session, status=status)
 
 
