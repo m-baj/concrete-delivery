@@ -58,6 +58,8 @@ services:
     depends_on:
       - backend
     command: npm run dev
+#    command: npm run start
+
 
   osrm-backend:
     image: ghcr.io/project-osrm/osrm-backend

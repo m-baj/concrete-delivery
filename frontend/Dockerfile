@@ -14,6 +14,8 @@ RUN npm install
 # Skopiuj resztę plików aplikacji do katalogu roboczego
 COPY . .
 
+#RUN npm run build
+
 # Ustaw zmienną środowiskową dla Next.js
 ENV NEXT_TELEMETRY_DISABLED 1
 
