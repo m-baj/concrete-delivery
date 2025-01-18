@@ -94,7 +94,7 @@ def get_courier_current_location(courierID: str) -> List[float]:
 def get_courier_all_locations(courierID: str) -> List[Location]:
     courier = get_courier_by_id(courierID)
     current_location = courier.delivers_to.single()
-    locations = [current_location]
+    locations = []
     next_location = current_location.next_location.single()
     while next_location != current_location:
         locations.append(next_location)
