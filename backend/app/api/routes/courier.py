@@ -436,6 +436,26 @@ def update_courier(session: SessionDep, courier_in: CourierUpdate):
     logger = logging.getLogger(__name__)
     logger.info(f"Received update request: {courier_in}")
 
+    if (
+        crud.get_courier_by_id(
+            session=session, courier_id=str(courier_in.id)
+        ).phone_number
+        != courier_in.phone_number
+    ):
+        if crud.get_user_by_phone_number(
+            session=session, phone_number=courier_in.phone_number
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="User with given phone number already exists in the system",
+            )
+        user = crud.get_user_by_courier_id(
+            session=session, courier_id=str(courier_in.id)
+        )
+        crud.change_user_phone_number(
+            session=session, user_id=user.id, new_phone_number=courier_in.phone_number
+        )
+
     courier = crud.get_courier_by_id(session=session, courier_id=str(courier_in.id))
     if not courier:
         raise HTTPException(status_code=404, detail="Courier not found")

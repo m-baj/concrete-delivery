@@ -302,14 +302,14 @@ const UserCard = React.memo((props: UserCardProps) => {
       <Modal isOpen={isConfirmOpen} onClose={onConfirmClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Potwierdzenie usunięcia</ModalHeader>
+          <ModalHeader>Confirm deleting</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            Czy na pewno chcesz usunąć kuriera o ID: {props.id}?
+            Are you sure you want to remove the courier with ID: {props.id}?
           </ModalBody>
           <ModalFooter>
             <Button variant="ghost" onClick={onConfirmClose}>
-              Anuluj
+              Cancel
             </Button>
             <Button
               colorScheme="red"
@@ -317,7 +317,7 @@ const UserCard = React.memo((props: UserCardProps) => {
               isLoading={isDeleting}
               ml={3}
             >
-              Usuń
+              Delete
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -327,37 +327,37 @@ const UserCard = React.memo((props: UserCardProps) => {
       <Modal isOpen={isEditOpen} onClose={onEditClose} size="xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Edycja Kuriera</ModalHeader>
+          <ModalHeader>Edit Courier</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Stack spacing={4}>
               <FormControl id="name" isRequired>
-                <FormLabel>Imię</FormLabel>
+                <FormLabel>Name</FormLabel>
                 <Input
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Imię"
+                  placeholder="Name"
                 />
               </FormControl>
 
               <FormControl id="surname" isRequired>
-                <FormLabel>Nazwisko</FormLabel>
+                <FormLabel>Surname</FormLabel>
                 <Input
                   name="surname"
                   value={formData.surname}
                   onChange={handleChange}
-                  placeholder="Nazwisko"
+                  placeholder="Surname"
                 />
               </FormControl>
 
               <FormControl id="phoneNumber" isRequired>
-                <FormLabel>Numer Telefonu</FormLabel>
+                <FormLabel>Phone Number</FormLabel>
                 <Input
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  placeholder="Numer Telefonu"
+                  placeholder="Phone Number"
                   type="tel"
                 />
               </FormControl>
@@ -368,69 +368,68 @@ const UserCard = React.memo((props: UserCardProps) => {
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  placeholder="Wybierz status"
+                  placeholder="Select status"
                 >
-                  <option value="active">Aktywny</option>
-                  <option value="inactive">Nieaktywny</option>
-                  <option value="pending">Oczekujący</option>
+                  <option value="Available">Available</option>
+                  <option value="Unavailable">Unavailable</option>
                 </Select>
               </FormControl>
 
               {/* Adres */}
               <FormControl id="street" isRequired>
-                <FormLabel>Ulica</FormLabel>
+                <FormLabel>Street</FormLabel>
                 <Input
                   name="homeAddress.street"
                   value={formData.homeAddress.street}
                   onChange={handleChange}
-                  placeholder="Ulica"
+                  placeholder="Street"
                 />
               </FormControl>
 
               <FormControl id="houseNumber" isRequired>
-                <FormLabel>Numer Domu</FormLabel>
+                <FormLabel>House Number</FormLabel>
                 <Input
                   name="homeAddress.houseNumber"
                   value={formData.homeAddress.houseNumber}
                   onChange={handleChange}
-                  placeholder="Numer Domu"
+                  placeholder="House Number"
                 />
               </FormControl>
 
               <FormControl id="apartmentNumber">
-                <FormLabel>Numer Mieszkania</FormLabel>
+                <FormLabel>Apartment Number</FormLabel>
                 <Input
                   name="homeAddress.apartmentNumber"
                   value={formData.homeAddress.apartmentNumber || ""}
                   onChange={handleChange}
-                  placeholder="Numer Mieszkania"
+                  placeholder="Apartment Number"
                 />
               </FormControl>
 
               <FormControl id="city" isRequired>
-                <FormLabel>Miasto</FormLabel>
+                <FormLabel>City</FormLabel>
                 <Input
                   name="homeAddress.city"
                   value={formData.homeAddress.city}
                   onChange={handleChange}
-                  placeholder="Miasto"
+                  placeholder="City"
                 />
               </FormControl>
 
               <FormControl id="postalCode" isRequired>
-                <FormLabel>Kod Pocztowy</FormLabel>
+                <FormLabel>Postal Code</FormLabel>
                 <Input
                   name="homeAddress.postalCode"
                   value={formData.homeAddress.postalCode}
                   onChange={handleChange}
-                  placeholder="Kod Pocztowy"
+                  placeholder="Postal Code"
                 />
               </FormControl>
             </Stack>
           </ModalBody>
           <ModalFooter>
             <Button variant="ghost" onClick={onEditClose}>
-              Anuluj
+              Cancel
             </Button>
             <Button
               colorScheme="green"
@@ -438,7 +437,7 @@ const UserCard = React.memo((props: UserCardProps) => {
               isLoading={isUpdating}
               ml={3}
             >
-              Zapisz
+              Save
             </Button>
           </ModalFooter>
         </ModalContent>

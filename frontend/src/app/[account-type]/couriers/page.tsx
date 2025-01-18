@@ -1,4 +1,3 @@
-// src/components/AllCouriers.tsx
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
 import UserCard from "@/components/userCard"; // Upewnij się, że ścieżka jest poprawna
@@ -29,9 +28,8 @@ interface JwtPayload {
 const AllCouriers = () => {
   const [couriers, setCouriers] = useState<Courier[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Stan ładowania
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Definicja fetchCouriers za pomocą useCallback
   const fetchCouriers = useCallback(async () => {
     try {
       setIsLoading(true); // Rozpoczęcie ładowania
@@ -59,30 +57,23 @@ const AllCouriers = () => {
       console.log(data);
 
       setCouriers(data);
-      setError(null); // Resetowanie błędu po udanym pobraniu
+      setError(null);
     } catch (error: any) {
       setError(error.message);
     } finally {
-      setIsLoading(false); // Zakończenie ładowania
+      setIsLoading(false);
     }
   }, []);
 
-  // Wywołanie fetchCouriers przy montowaniu komponentu
   useEffect(() => {
     fetchCouriers();
   }, [fetchCouriers]);
 
-  // Funkcja obsługująca sukces usunięcia kuriera
   const handleDeleteSuccess = (id: string) => {
     setCouriers((prevCouriers) => prevCouriers.filter((courier) => courier.id !== id));
   };
 
-  // Funkcja obsługująca sukces aktualizacji kuriera
   const handleUpdateSuccess = (updatedCourier: Courier) => {
-    // Opcjonalnie możesz pokazać krótką notyfikację o sukcesie aktualizacji
-    // np. toast.success("Kurier zaktualizowany pomyślnie!");
-
-    // Ponowne pobranie całej listy kurierów po aktualizacji
     fetchCouriers();
   };
 

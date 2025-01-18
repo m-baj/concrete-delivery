@@ -57,6 +57,12 @@ def get_user_by_phone_number(*, session: Session, phone_number: str) -> User | N
     return user
 
 
+def get_user_by_courier_id(*, session: Session, courier_id: str) -> User | None:
+    query = select(User).where(User.courier_id == courier_id)
+    user = session.exec(query).first()
+    return user
+
+
 def get_user_by_id(*, session: Session, user_id: str) -> User | None:
     query = select(User).where(User.id == user_id)
     user = session.exec(query).first()
@@ -70,6 +76,21 @@ def change_password(
     if not user:
         return None
     user.hashed_password = get_password_hash(new_password)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
+def change_user_phone_number(
+    *, session: Session, user_id: str, new_phone_number: str
+) -> User | None:
+    user = get_user_by_id(session=session, user_id=user_id)
+    if not user:
+        return None
+    if get_user_by_phone_number(session=session, phone_number=new_phone_number):
+        raise ValueError("User with this phone number already exists")
+    user.phone_number = new_phone_number
     session.add(user)
     session.commit()
     session.refresh(user)
@@ -262,6 +283,7 @@ def update_courier_by_id(
         courier.surname = courier_update.surname
         courier.phone_number = courier_update.phone_number
         courier.home_address_id = courier_update.home_address_id
+        courier.status_id = courier_update.status_id
         session.add(courier)
         session.commit()
         session.refresh(courier)
