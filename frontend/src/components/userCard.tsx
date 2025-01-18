@@ -32,7 +32,7 @@ interface UserCardProps {
   homeAddress: {
     city: string;
     street: string;
-    zipCode: string;
+    postalCode: string;
     houseNumber: string;
     apartmentNumber?: string;
   };
@@ -86,8 +86,8 @@ const UserCard = (props: UserCardProps) => {
   };
 
   const formatAddress = (): string => {
-    const { street, houseNumber, apartmentNumber, city, zipCode } = props.homeAddress;
-    return `${street} ${houseNumber}${apartmentNumber ? `/${apartmentNumber}` : ""}, ${city} ${zipCode}`;
+    const { street, houseNumber, apartmentNumber, city, postalCode } = props.homeAddress;
+    return `${street} ${houseNumber}${apartmentNumber ? `/${apartmentNumber}` : ""}, ${city} ${postalCode}`;
   };
 
   return (

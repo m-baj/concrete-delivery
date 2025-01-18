@@ -13,7 +13,7 @@ interface Courier {
   homeAddress: {
     city: string;
     street: string;
-    zipCode: string;
+    postalCode: string;
     houseNumber: string;
     apartmentNumber?: string;
   };
