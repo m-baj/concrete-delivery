@@ -1,9 +1,9 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import VerifyPhoneNumberForm from "@/components/verifyPhoneNumberForm";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
-const VerifyPhoneNumberPage = () => {
+const VerifyPhoneNumberPageContent = () => {
   const searchParams = useSearchParams();
   const context = searchParams.get("context");
   const phoneNumber = searchParams.get("phoneNumber");
@@ -13,6 +13,14 @@ const VerifyPhoneNumberPage = () => {
       context={context === "register" ? "register" : "resetPassword"}
       phoneNumber={phoneNumber}
     />
+  );
+};
+
+const VerifyPhoneNumberPage = () => {
+  return (
+    <Suspense fallback={<div>Ładowanie...</div>}>
+      <VerifyPhoneNumberPageContent />
+    </Suspense>
   );
 };
 

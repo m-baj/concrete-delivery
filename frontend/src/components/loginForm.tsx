@@ -72,7 +72,12 @@ const LoginForm = () => {
       localStorage.setItem("token", response.token);
       const { account_type } = jwtDecode<JwtPayload>(response.token);
       const formatted = formatAccountType(account_type);
-      redirect(`/${formatted}/${mainPage[formatted]}`);
+      if (formatted in mainPage) {
+        redirect(`/${formatted}/${mainPage[formatted as keyof typeof mainPage]}`);
+      } else {
+        console.error("Invalid account type:", formatted);
+        redirect("/not-found");
+      }
     } else {
       showToast("Error", response.message, "error");
     }

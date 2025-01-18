@@ -82,10 +82,16 @@ export default function WithAction({ accountType }: NavBarProps) {
   };
   const leftLink = leftLinks[accountType];
 
-  // if (!leftLink) {
-  //   console.error("Invalid accountType:", accountType);
-  //   return null; // Prevent component from rendering
-  // }
+  if (!leftLink) {
+    console.error("Invalid accountType:", accountType);
+    return (
+      <Box>
+        <Text color="red.500" textAlign="center">
+          Error: Invalid account type. Please contact support.
+        </Text>
+      </Box>
+    );
+  }
 
   const { label, redirectTo } = leftLink;
   const rightLink =
