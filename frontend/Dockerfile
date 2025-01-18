@@ -19,5 +19,5 @@ COPY . .
 # Ustaw zmienną środowiskową dla Next.js
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Uruchom aplikację w trybie deweloperskim
+# Uruchom aplikację w trybie deweloperskim (to sie wykona tylko bez docker compose NIE ZMIENIAĆ)
 CMD ["npm", "run", "dev"]

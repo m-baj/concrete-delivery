@@ -8,6 +8,7 @@ from app.models import (
     CourierBase,
     UserCourierCreate,
     AccountType,
+    User
 )
 from app.api.dependecies import SessionDep, CurrentAdmin
 from app import crud
@@ -405,7 +406,9 @@ def get_couriers_locations_list(courier_id: str):
 
 @router.get("/{user_id}")
 def get_courier(user_id: str, session: SessionDep):
-    courier_id = get_courier_id_by_user_id(session=session, user_id=user_id)
-    if not courier_id:
-        raise HTTPException(status_code=404, detail="Courier not found")
-    return courier_id
+    user = session.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User with id {user_id} not found")
+    if not user.courier_id:
+        raise HTTPException(status_code=404, detail=f"User with id {user_id} does not have a courier assigned")
+    return user.courier_id

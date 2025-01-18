@@ -66,6 +66,7 @@ const CourierMapView = () => {
 
         const data = await fetchMarkers(courier_id);
         setMapMarkers(data || []);
+        console.log(data);
       } catch (error) {
         console.error("Błąd przy pobieraniu markerów:", error);
       } finally {
@@ -110,8 +111,55 @@ const CourierMapView = () => {
     alert("Delivery marked as completed.");
   };
 
-  const handleReportLost = () => {
+  const handleReportLost = async () => {
     alert("Package reported as lost.");
+    console.log(nextStop);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("Brak tokena uwierzytelniającego.");
+    }
+
+    const response = await fetch(`http://localhost:8000/courier/package_delivered/${courierId}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      }
+    });
+
+      if (nextStop.orderID) {
+        const order_id = nextStop.orderID; // Pobierz `orderID`
+        console.log("Order ID:", order_id); // Sprawdź wartość `orderID` w konsoli
+
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            throw new Error("Brak tokena uwierzytelniającego.");
+          }
+
+          // Wyślij `orderID` w ciele żądania
+          const response = await fetch("http://localhost:8000/report-lost", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ order_id }), // Przekaż `orderID` zamiast `phone_number`
+          });
+
+          if (!response.ok) {
+            throw new Error(`Błąd: ${response.status} - ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          alert(data.message);
+        } catch (error) {
+          console.error("Błąd przy zgłaszaniu przesyłki jako zagubionej:", error);
+          alert("Nie udało się zgłosić przesyłki jako zagubionej.");
+        }
+      } else {
+        alert("Brak dostępnego przystanku.");
+    }
   };
 
   const validRoute: [number, number][] = route

@@ -6,23 +6,30 @@ from app.models import Address, Courier, Status
 from app.core.security import get_password_hash
 from app.crud import get_admin
 
-def load_initial_data(session: Session):
+from app.models import UserCreate
+from app.models import AddressCreate
+from app.models import CourierRegister
+from app.models import AccountType
+from app.models import OrderCreate
+from app.crud import add_address
 
+
+def load_initial_data(session: Session):
+    from app.api.routes.courier import register_courier
+    from app.api.routes.order import create_order
     if not get_admin(session=session):
-        # Dodanie użytkownika admin
-        user = User(
+        admin = User(
             name="Admin",
             surname="Admin",
             phone_number=settings.ADMIN_PHONE_NUMBER,
             email_address=settings.ADMIN_EMAIL_ADDRESS,
             hashed_password=get_password_hash(settings.ADMIN_PASSWORD),
-            account_type="ADMIN",
+            account_type=AccountType.ADMIN
         )
-        session.add(user)
+        session.add(admin)
         session.commit()
         print("Użytkownik admin został załadowany.")
 
-    # Sprawdzenie, czy dane już istnieją
     if not session.query(Status).first():
         print("Ładowanie początkowych danych statusów...")
 
@@ -47,112 +54,101 @@ def load_initial_data(session: Session):
     if (
         session.query(Address).first()
         or session.query(Courier).first()
-        or session.query(User).first()
     ):
         print("Dane początkowe są już załadowane.")
         return
 
     print("Ładowanie danych początkowych...")
 
-    # Dodanie adresów
-    addresses = [
-        Address(
-            city="Warszawa",
-            postal_code="00-001",
-            street="Marszałkowska",
-            house_number="10",
-            apartment_number="5",
-            X_coordinate=52.2297,
-            Y_coordinate=21.0122,
-        ),
-        Address(
-            city="Warszawa",
-            postal_code="00-002",
-            street="Krucza",
-            house_number="20",
-            apartment_number="8",
-            X_coordinate=52.2291,
-            Y_coordinate=21.0125,
-        ),
-    ]
-    session.add_all(addresses)
-    session.commit()
-    print("Adresy zostały załadowane.")
-
-    # Pobranie adresów
-    marszalkowska = session.query(Address).filter_by(street="Marszałkowska").first()
-    krucza = session.query(Address).filter_by(street="Krucza").first()
-
-    # Dodanie użytkowników dla kurierów
-    couriers_users = [
-        User(
-            name="Jan",
-            surname="Kowalski",
-            phone_number="500600700",
-            email_address="jan.kowalski@example.com",
-            hashed_password=get_password_hash("kurier"),
-            account_type="COURIER",
-        ),
-        User(
-            name="Anna",
-            surname="Nowak",
-            phone_number="600700800",
-            email_address="anna.nowak@example.com",
-            hashed_password=get_password_hash("kurier"),
-            account_type="COURIER",
-        ),
-    ]
-    session.add_all(couriers_users)
-    session.commit()
-    print("Użytkownicy dla kurierów zostali załadowani.")
-
-    # Pobranie użytkowników kurierów
-    jan_user = session.query(User).filter_by(phone_number="500600700").first()
-    anna_user = session.query(User).filter_by(phone_number="600700800").first()
-    available_status = session.query(Status).filter_by(name="Available").first()
-
-    # Dodanie kurierów do tabeli `Courier`
-    couriers = [
-        Courier(
-            name=jan_user.name,
-            surname=jan_user.surname,
-            phone_number=jan_user.phone_number,
-            home_address_id=marszalkowska.id,
-            status_id=available_status.id,
-        ),
-        Courier(
-            name=anna_user.name,
-            surname=anna_user.surname,
-            phone_number=anna_user.phone_number,
-            home_address_id=krucza.id,
-            status_id=available_status.id,
-        ),
-    ]
-    session.add_all(couriers)
-    session.commit()
-    print("Kurierzy zostali załadowani.")
-
-    # Dodanie użytkownika końcowego
     user = User(
-        name="Piotr",
+        name="Piotrek",
         surname="Zieliński",
-        phone_number="700800900",
-        email_address="piotr.zielinski@example.com",
-        hashed_password=get_password_hash("user"),
-        account_type="USER",
+        phone_number="111111112",
+        email_address="piotr@example.com",
+        account_type=AccountType.USER,
+        hashed_password=get_password_hash("password"),
     )
-
-    # Pobranie kurierów z tabeli Courier
-    jan_courier = session.query(Courier).filter_by(phone_number="500600700").first()
-    anna_courier = session.query(Courier).filter_by(phone_number="600700800").first()
-
-    # Aktualizacja kolumny courier_id w tabeli User
-    jan_user.courier_id = jan_courier.id
-    anna_user.courier_id = anna_courier.id
-
-    # Zapisanie zmian w sesji
-    session.add(jan_user)
-    session.add(anna_user)
     session.add(user)
     session.commit()
-    print("Użytkownik końcowy został załadowany.")
+
+    home_address = AddressCreate(
+        city="Warszawa",
+        postal_code="12-345",
+        street="Piękna",
+        house_number="1",
+        apartment_number="10"
+    )
+
+    courier_data = CourierRegister(
+        name="Jacek",
+        surname="Krzynówek",
+        phone_number="111111111",
+        home_address=home_address,
+        email_address="jacek@example.com",
+        password="password"
+    )
+
+    admin = get_admin(session=session)
+    register_courier(session=session, current_user=admin, courier_in=courier_data)
+
+    # # Dodanie adresów
+    # address_1 = AddressCreate(
+    #         city="Warszawa",
+    #         postal_code="00-001",
+    #         street="Marszałkowska",
+    #         house_number="10",
+    #         apartment_number="5"
+    #     )
+    # address_2 = AddressCreate(
+    #         city="Warszawa",
+    #         postal_code="00-002",
+    #         street="Krucza",
+    #         house_number="20",
+    #         apartment_number="8"
+    #     )
+    # address_3 = AddressCreate(
+    #         city="Warszawa",
+    #         postal_code="00-003",
+    #         street="Nowogrodzka",
+    #         house_number="30",
+    #         apartment_number="12"
+    #     )
+    # address_4 = AddressCreate(
+    #         city="Warszawa",
+    #         postal_code="00-004",
+    #         street="Chmielna",
+    #         house_number="40",
+    #         apartment_number="15"
+    #     )
+    # pickup_address_1 = add_address(session=session, address=address_1)
+    # delivery_address_1 = add_address(session=session, address=address_2)
+    # pickup_address_2 = add_address(session=session, address=address_3)
+    # delivery_address_2 = add_address(session=session, address=address_4)
+    #
+    # # Dane do pierwszego zamówienia
+    # order_1 = OrderCreate(
+    #     pickup_address=pickup_address_1,
+    #     delivery_address=delivery_address_1,
+    #     recipient_phone_number="123456789",
+    #     pickup_start_time="10:00",
+    #     pickup_end_time="11:30",
+    #     delivery_start_time="14:00",
+    #     delivery_end_time="15:30"
+    # )
+    #
+    # # Dane do drugiego zamówienia
+    # order_2 = OrderCreate(
+    #     pickup_address=pickup_address_2,
+    #     delivery_address=delivery_address_2,
+    #     recipient_phone_number="987654321",
+    #     pickup_start_time="9:30",
+    #     pickup_end_time="11:30",
+    #     delivery_start_time="15:00",
+    #     delivery_end_time="16:00"
+    # )
+    #
+    # # Tworzenie zamówień
+    # db_order_1 = create_order(session=session, current_user=user, order=order_1)
+    # db_order_2 = create_order(session=session, current_user=user, order=order_2)
+
+    print(f"Utworzono dwa zamówienia:\n{db_order_1}\n{db_order_2}")
