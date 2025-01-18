@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import UserCard from "@/components/userCard"; // Upewnij się, że ścieżka jest poprawna
 import { jwtDecode } from "jwt-decode"; // Poprawny import jwtDecode
-import { Heading, Stack, Spinner, Text, VStack } from "@chakra-ui/react";
+import { Heading, Spinner, Text, VStack, SimpleGrid } from "@chakra-ui/react";
 
 interface Courier {
   id: string;
@@ -95,27 +95,33 @@ const AllCouriers = () => {
   }
 
   return (
-    <Stack direction="column" align="center" spacing={4} p={10}>
+    <VStack spacing={4} align="center" p={10} width="100%" maxW="5xl" mx="auto">
       <Heading size="lg">All Couriers</Heading>
       {couriers.length === 0 ? (
-        <Text>Brak kurierów do wyświetlenia.</Text>
+        <Text>No couriers to display.</Text>
       ) : (
-        couriers.map((courier) => (
-          <UserCard
-            key={courier.id} // Użycie unikalnego klucza
-            id={courier.id}
-            show_id={courier.id.slice(0, 16).replace(/-/g, "")}
-            name={courier.name}
-            surname={courier.surname}
-            phoneNumber={courier.phoneNumber}
-            status={courier.status}
-            homeAddress={courier.homeAddress}
-            onDeleteSuccess={handleDeleteSuccess} // Przekazanie callbacku do usuwania
-            onUpdateSuccess={handleUpdateSuccess} // Przekazanie callbacku do aktualizacji
-          />
-        ))
+        <SimpleGrid
+          columns={{ base: 1, md: 2 }} // 1 column on small screens, 2 on medium and larger
+          spacing={6}
+          width="100%"
+        >
+          {couriers.map((courier) => (
+            <UserCard
+              key={courier.id} // Use unique key
+              id={courier.id}
+              show_id={courier.id.slice(0, 16).replace(/-/g, "")}
+              name={courier.name}
+              surname={courier.surname}
+              phoneNumber={courier.phoneNumber}
+              status={courier.status}
+              homeAddress={courier.homeAddress}
+              onDeleteSuccess={handleDeleteSuccess} // Pass delete callback
+              onUpdateSuccess={handleUpdateSuccess} // Pass update callback
+            />
+          ))}
+        </SimpleGrid>
       )}
-    </Stack>
+    </VStack>
   );
 };
 
