@@ -41,6 +41,7 @@ def load_initial_data(session: Session):
             Status(name="Order picked up"),  # Paczka odebrana od nadawcy
             Status(name="Delivering order"),  # Dostarczanie zamówienia
             Status(name="Order delivered"),  # Paczka dostarczona
+            Status(name="Order lost"),  # Zamówienie zgubione
             # Statusy dla kurierów
             Status(name="Available"),  # Dostępny
             Status(name="Unavailable"),  # Niedostępny
@@ -151,4 +152,4 @@ def load_initial_data(session: Session):
     # db_order_1 = create_order(session=session, current_user=user, order=order_1)
     # db_order_2 = create_order(session=session, current_user=user, order=order_2)
 
-    print(f"Utworzono dwa zamówienia:\n{db_order_1}\n{db_order_2}")
+    # print(f"Utworzono dwa zamówienia:\n{db_order_1}\n{db_order_2}")

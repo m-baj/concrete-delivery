@@ -52,6 +52,7 @@ services:
     depends_on:
       - postgres
       - neo4j
+      - vroom
     env_file:
       - .env
     networks:

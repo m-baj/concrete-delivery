@@ -24,9 +24,11 @@ interface LeafletMapProps {
 }
 
 function calculateCenterAndZoom(markers: MarkerType[]) {
-  if (markers.length === 0) {
-    return { center: [0, 0] as [number, number], zoom: 2 };
+  if (markers.length === 0 || markers.length === 1 || markers.length === 2) {
+    return { center: [52.224, 21.027] as [number, number], zoom: 12 };
   }
+  console.log("Markers:");
+  console.log(markers);
 
   let latSum = 0, lonSum = 0;
   let latMax = -Infinity, latMin = Infinity, lonMax = -Infinity, lonMin = Infinity;
@@ -78,6 +80,8 @@ export default function MyLeafletMap({ markers, route }: LeafletMapProps) {
 
   useEffect(() => {
     if (!mapRef.current || leafletMapRef.current) return;
+
+    const { center, zoom } = calculateCenterAndZoom(markers);
 
     leafletMapRef.current = L.map(mapRef.current).setView([52.2297, 21.0122], 13);
 

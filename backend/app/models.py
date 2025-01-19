@@ -169,3 +169,8 @@ class SendCodeRequest(SQLModel):
 class VerifyCodeRequest(SQLModel):
     phone_number: str
     code: str
+
+
+class ReportRequest(SQLModel):
+    OrderID: str
+    OrderType: str
