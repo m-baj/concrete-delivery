@@ -1,7 +1,20 @@
-import type { NextConfig } from "next";
+const nextConfig = {
+  reactStrictMode: true,
 
-const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      {
+        source: '/favicon.ico',
+        destination: '/public/favicon.ico',
+        permanent: true,
+      },
+    ];
+  },
+
+  images: {
+    domains: ['example.com'],
+  },
+
 };
 
 export default nextConfig;

@@ -11,6 +11,7 @@ from app.models import (
     AccountType,
     CourierUpdate,
     StatusCreate,
+    User
 )
 from app.api.dependecies import SessionDep, CurrentAdmin
 from app import crud
@@ -502,3 +503,21 @@ def update_courier(session: SessionDep, courier_in: CourierUpdate):
         "status": True,
         "updatedCourier": updated_courier,
     }
+
+    user = session.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User with id {user_id} not found")
+    if not user.courier_id:
+        raise HTTPException(status_code=404, detail=f"User with id {user_id} does not have a courier assigned")
+    return user.courier_id
+
+@router.get("/home_address/{courier_id}")
+def get_courier_home_address(courier_id: str, session: SessionDep):
+    courier = session.query(Courier).filter(Courier.id == courier_id).first()
+    print(courier)
+    print(courier_id)
+    if not courier:
+        raise HTTPException(status_code=404, detail=f"Courier with id {courier_id} not found")
+    address = session.query(Address).filter(Address.id == courier.home_address_id).first()
+    formatted_address = f"{address.street} {address.house_number}, {address.city}"
+    return formatted_address

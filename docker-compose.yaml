@@ -13,6 +13,11 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_DB}" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   neo4j:
     image: neo4j:latest
@@ -31,6 +36,11 @@ services:
     restart: always
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:7474" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   backend:
     build: ./backend
@@ -42,6 +52,7 @@ services:
     depends_on:
       - postgres
       - neo4j
+      - vroom
     env_file:
       - .env
     networks:
@@ -58,6 +69,8 @@ services:
     depends_on:
       - backend
     command: npm run dev
+#    command: npm run start
+
 
   osrm-backend:
     image: ghcr.io/project-osrm/osrm-backend
