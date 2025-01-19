@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
-import UserCard from "@/components/userCard"; // Upewnij się, że ścieżka jest poprawna
-import { jwtDecode } from "jwt-decode"; // Poprawny import jwtDecode
+import UserCard from "@/components/userCard";
+import { jwtDecode } from "jwt-decode";
 import { Heading, Spinner, Text, VStack, SimpleGrid } from "@chakra-ui/react";
 
 interface Courier {
@@ -107,7 +107,7 @@ const AllCouriers = () => {
         >
           {couriers.map((courier) => (
             <UserCard
-              key={courier.id} // Use unique key
+              key={courier.id}
               id={courier.id}
               show_id={courier.id.slice(0, 16).replace(/-/g, "")}
               name={courier.name}
@@ -115,8 +115,8 @@ const AllCouriers = () => {
               phoneNumber={courier.phoneNumber}
               status={courier.status}
               homeAddress={courier.homeAddress}
-              onDeleteSuccess={handleDeleteSuccess} // Pass delete callback
-              onUpdateSuccess={handleUpdateSuccess} // Pass update callback
+              onDeleteSuccess={handleDeleteSuccess}
+              onUpdateSuccess={handleUpdateSuccess}
             />
           ))}
         </SimpleGrid>
