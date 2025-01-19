@@ -4,7 +4,7 @@ import OrderCard from "@/components/orderCard";
 import { jwtDecode } from "jwt-decode";
 import { cp } from "fs";
 import { sub } from "framer-motion/client";
-import { Flex, Heading, Stack, Text } from "@chakra-ui/react";
+import {Box, Flex, Heading, Input, Stack, Text} from "@chakra-ui/react";
 
 interface Order {
   orderNumber: string;
@@ -44,6 +44,7 @@ interface JwtPayload {
 const page = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -156,10 +157,38 @@ const page = () => {
     fetchOrders();
   }, []);
 
+  const filteredOrders = orders.filter((order) =>
+  {
+    return (
+      order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderStatus.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderDetails.pickUpLocation.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderDetails.pickUpLocation.street.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderDetails.deliveryLocation.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderDetails.deliveryLocation.street.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderDetails.pickUpTime.start.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderDetails.pickUpTime.end.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderDetails.deliveryTime.start.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderDetails.deliveryTime.end.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
   return (
     <Stack direction="column" align="center" spacing={4} p={10}>
       <Heading size="lg">Your Orders</Heading>
-      {orders.map((order, index) => (
+      <Box width="100%" maxWidth="400px" margin="0 auto">
+        <Input
+            type="text"
+            placeholder="Search orders..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            variant="outline"
+            size="md"
+            focusBorderColor="blue.500"
+        />
+      </Box>
+      {filteredOrders.map((order, index) => (
         <OrderCard
           key={index}
           orderNumber={order.orderNumber.slice(0, 16).replace(/-/g, "")}

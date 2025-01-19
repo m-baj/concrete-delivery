@@ -120,7 +120,7 @@ const CourierMapView = () => {
   }
 
   if (mapmarkers.length === 0) {
-    return <Text>Brak markerów do wyświetlenia</Text>;
+    return <Text>There is no more orders for today</Text>;
   }
 
   const handleNavigate = (address: string) => {
@@ -167,8 +167,10 @@ const CourierMapView = () => {
         } else if (mapmarkers[1].order_type === "delivery") {
           next_order_status = "Delivering order";
         }
-        // @ts-ignore
-        await changeOrderStatus(mapmarkers[1].orderID, next_order_status, token);
+        if (next_order_status) {
+          // @ts-ignore
+          await changeOrderStatus(mapmarkers[1].orderID, next_order_status, token);
+        }
         await loadMarkers();
         setNextStop(mapmarkers[0]);
       } catch (error : any) {
@@ -222,7 +224,13 @@ const CourierMapView = () => {
 
   const startWork = async () => {
     if (!mapmarkers[1].orderID) {
-      throw new Error("Brak kolejnego przystanku.");
+        toast({
+          title: "Brak kolejnego przystanku",
+          description: "Nie ma juz więcej zleceń na dziś",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
     }
     console.log(nextStop);
     const token = localStorage.getItem("token");

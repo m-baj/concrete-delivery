@@ -59,6 +59,8 @@ def write_locations_to_courier(session: Session, courierID: str, locations: List
     print(locations)
     for location in locations:
         address = get_address_by_coordinates(session=session, x=location.location[0], y=location.location[1])
+        print(location)
+        print(address)
         if address:
             location_object = get_location_by_id(address.id)
             if not location_object:

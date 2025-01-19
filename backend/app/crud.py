@@ -114,8 +114,8 @@ def add_address(*, session: Session, address: AddressCreate) -> Address:
         street=address.street,
         house_number=address.house_number,
         apartment_number=address.apartment_number,
-        X_coordinate=X,
-        Y_coordinate=Y,
+        X_coordinate=round(X, 5),
+        Y_coordinate=round(Y, 5)
     )
     session.add(db_obj)
     session.commit()

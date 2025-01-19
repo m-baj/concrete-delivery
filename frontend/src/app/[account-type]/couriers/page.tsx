@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import UserCard from "@/components/userCard"; // Upewnij się, że ścieżka jest poprawna
 import { jwtDecode } from "jwt-decode"; // Poprawny import jwtDecode
-import { Heading, Spinner, Text, VStack, SimpleGrid } from "@chakra-ui/react";
+import {Heading, Spinner, Text, VStack, SimpleGrid, Box, Input} from "@chakra-ui/react";
 
 interface Courier {
   id: string;
@@ -29,6 +29,7 @@ const AllCouriers = () => {
   const [couriers, setCouriers] = useState<Courier[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   const fetchCouriers = useCallback(async () => {
     try {
@@ -77,6 +78,16 @@ const AllCouriers = () => {
     fetchCouriers();
   };
 
+  const filteredCouriers = couriers.filter((courier) =>
+  {
+    return (
+      courier.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      courier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      courier.surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      courier.phoneNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
   if (isLoading) {
     return (
       <VStack spacing={4} align="center" justify="center" height="100vh">
@@ -96,14 +107,25 @@ const AllCouriers = () => {
 
   return (
     <VStack spacing={4} align="center" p={10} width="100%" maxW="5xl" mx="auto">
-      <Heading size="lg">All Couriers</Heading>
-      {couriers.length === 0 ? (
-        <Text>No couriers to display.</Text>
+      <Heading size="lg">Couriers</Heading>
+      <Box width="100%" maxWidth="400px" margin="0 auto">
+        <Input
+            type="text"
+            placeholder="Search couriers..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            variant="outline"
+            size="md"
+            focusBorderColor="blue.500"
+        />
+      </Box>
+      {filteredCouriers.length === 0 ? (
+          <Text>No couriers to display.</Text>
       ) : (
-        <SimpleGrid
-          columns={{ base: 1, md: 2 }} // 1 column on small screens, 2 on medium and larger
-          spacing={6}
-          width="100%"
+          <SimpleGrid
+              columns={{base: 1, md: 2}} // 1 column on small screens, 2 on medium and larger
+              spacing={6}
+              width="100%"
         >
           {couriers.map((courier) => (
             <UserCard

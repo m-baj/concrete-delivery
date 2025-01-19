@@ -55,6 +55,7 @@ def load_initial_data(session: Session):
     if (
         session.query(Address).first()
         or session.query(Courier).first()
+        or session.query(User).first()
     ):
         print("Dane początkowe są już załadowane.")
         return
