@@ -68,12 +68,14 @@ def register_courier(
             detail="Courier with given phone number already exists in the system",
         )
 
+    default_status = crud.get_status_by_name(session=session, status_name="Available")
     home_address = add_address(session=session, address=courier_in.home_address)
     courier_to_create_as_courier = CourierBase(
         name=courier_in.name,
         surname=courier_in.surname,
         phone_number=courier_in.phone_number,
         home_address_id=home_address.id,
+        status_id=default_status.id,
     )
 
     courier = crud.create_courier(
@@ -157,6 +159,8 @@ async def get_courier_current_location(courier_id: str):
             locationID=current_location.locationID,
             address=current_location.address,
             coordinates=current_location.coordinates,
+            order_type=current_location.order_type,
+            orderID=current_location.orderID,
         )
     except DoesNotExist:
         raise HTTPException(status_code=404, detail="Courier not found")
@@ -182,6 +186,8 @@ async def set_current_location(courier_id: str, request: LocationAPI):
                 locationID=request.locationID,
                 address=request.address,
                 coordinates=request.coordinates,
+                order_type=request.order_type,
+                orderID=request.orderID,
             ).save()
 
         courier.is_at.connect(new_location)
@@ -190,6 +196,8 @@ async def set_current_location(courier_id: str, request: LocationAPI):
             locationID=new_location.locationID,
             address=new_location.address,
             coordinates=new_location.coordinates,
+            order_type=new_location.order_type,
+            orderID=new_location.orderID,
         )
     except DoesNotExist:
         raise HTTPException(status_code=404, detail="Courier not found")
@@ -219,6 +227,8 @@ async def get_courier_deliveries_in_order(courier_id: str):
                             if loc.next_location.single()
                             else None
                         ),
+                        order_type=loc.order_type,
+                        orderID=loc.orderID,
                     )
                 )
                 loc = loc.next_location.single()
@@ -248,6 +258,8 @@ async def add_deliveries_to_courier(
                 location_id=loc.locationID,
                 address=loc.address,
                 coordinates=loc.coordinates,
+                order_type=loc.order_type,
+                orderID=loc.orderID,
             )
         locations.append(location)
         coordinates_list.append(loc.coordinates)
@@ -405,6 +417,8 @@ def get_couriers_locations_list(courier_id: str):
                     "lat": loc.coordinates[0],
                     "lon": loc.coordinates[1],
                     "popup": loc.address,
+                    "order_type": loc.order_type,
+                    "orderID": loc.orderID,
                 }
             )
 

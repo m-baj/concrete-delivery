@@ -7,6 +7,8 @@ class LocationAPI(BaseModel):
     locationID: str
     address: str
     coordinates: List[float]
+    order_type: str
+    orderID: str
     next_location: Optional[int] = None
 
 #Response model for list of locations

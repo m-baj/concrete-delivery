@@ -30,13 +30,13 @@ from app.models import (
     VerifyCodeRequest,
     CourierUpdate,
 )
-from app.utils.vroom.models import VroomVehicle, VroomJob
+from app.utils.vroom.models import VroomVehicle, VroomJob, Shipment, Pickup, Delivery
 from app.core.security import get_password_hash, verify_password
 from app.utils.geocoding import get_coordinates
 
 # from .crud_neo4j import get_courier_current_location
 from app.models_neo4j import Courier, Location
-from .utils.hour import hour_from_str_to_seconds
+from .utils.hour import hour_from_str_to_timestamp
 from .utils.vroom.models import PICKUP_VROOMJOB_OFFSET, DELIVERY_VROOMJOB_OFFSET
 
 
@@ -399,8 +399,8 @@ def get_all_working_couriers(
             start=get_courier_current_location(courierID=courier.id),
             end=[home_address.X_coordinate, home_address.Y_coordinate],
             time_window=[
-                hour_from_str_to_seconds("08:00"),
-                hour_from_str_to_seconds("16:00"),
+                hour_from_str_to_timestamp("08:00"),
+                hour_from_str_to_timestamp("16:00"),
             ],  # TODO: get working hours from courier, by adding working_hours field to Courier model in database
         )
         couriers_as_vehicles.append(courier_as_vehicle)
@@ -409,8 +409,9 @@ def get_all_working_couriers(
 
 def get_all_unstarted_orders(
     *, session: Session
-) -> Tuple[List[VroomJob], Dict[int, str]]:
-    orders_as_vroom_jobs = []
+) -> Tuple[List[Shipment], VroomJob, Dict[int, str]]:
+    shipments = []
+    jobs = []
     orders = get_all_orders(session=session)
     vroomjobs_id_dict = {}
     for index, order in enumerate(orders, start=2):
@@ -426,36 +427,26 @@ def get_all_unstarted_orders(
             )
 
             # Dodanie VroomJob dla lokalizacji odbioru
-            orders_as_vroom_jobs.append(
-                VroomJob(
-                    id=int(f"{index}{PICKUP_VROOMJOB_OFFSET}"),
-                    description=f"Order {order.id} - Pickup",
-                    location=[
-                        pickup_address.X_coordinate,
-                        pickup_address.Y_coordinate,
-                    ],
-                    time_window=[
-                        hour_from_str_to_seconds(order.pickup_start_time),
-                        hour_from_str_to_seconds(order.pickup_end_time),
-                    ],
-                )
+            pickup = Pickup(
+                id=int(f"{index}{PICKUP_VROOMJOB_OFFSET}"),
+                description=f"{order.id}",
+                location=[pickup_address.X_coordinate, pickup_address.Y_coordinate],
+                time_window=[
+                    hour_from_str_to_timestamp(order.pickup_start_time),
+                    hour_from_str_to_timestamp(order.pickup_end_time),
+                ],
             )
 
-            # Dodanie VroomJob dla lokalizacji dostawy
-            orders_as_vroom_jobs.append(
-                VroomJob(
-                    id=int(f"{index}{DELIVERY_VROOMJOB_OFFSET}"),
-                    description=f"Order {order.id} - Delivery",
-                    location=[
-                        delivery_address.X_coordinate,
-                        delivery_address.Y_coordinate,
-                    ],
-                    time_window=[
-                        hour_from_str_to_seconds(order.delivery_start_time),
-                        hour_from_str_to_seconds(order.delivery_end_time),
-                    ],
-                )
+            delivery = Delivery(
+                id=int(f"{index}{DELIVERY_VROOMJOB_OFFSET}"),
+                description=f"{order.id}",
+                location=[delivery_address.X_coordinate, delivery_address.Y_coordinate],
+                time_window=[
+                    hour_from_str_to_timestamp(order.delivery_start_time),
+                    hour_from_str_to_timestamp(order.delivery_end_time),
+                ],
             )
+            shipments.append(Shipment(pickup=pickup, delivery=delivery))
 
         if (
             order_status_name == "Picking up order"
@@ -467,21 +458,22 @@ def get_all_unstarted_orders(
             )
 
             # Dodanie VroomJob dla lokalizacji dostawy
-            orders_as_vroom_jobs.append(
-                VroomJob(
+            
+            job = DeliveryJob(
                     id=int(f"{index}{DELIVERY_VROOMJOB_OFFSET}"),
-                    description=f"Order {order.id} - Delivery",
+                    description=f"{order.id}",
                     location=[
                         pickup_address.X_coordinate,
                         pickup_address.Y_coordinate,
                     ],
                     time_window=[
-                        hour_from_str_to_seconds(order.delivery_start_time),
-                        hour_from_str_to_seconds(order.delivery_end_time),
+                        hour_from_str_to_timestamp(order.delivery_start_time),
+                        hour_from_str_to_timestamp(order.delivery_end_time),
                     ],
                 )
-            )
-    return orders_as_vroom_jobs, vroomjobs_id_dict
+            jobs.append(job)
+            
+    return shipments, jobs, vroomjobs_id_dict
 
 
 def get_admin(*, session: Session) -> User | None:

@@ -2,6 +2,7 @@ from neomodel import DoesNotExist
 from sqlmodel import Session
 from app.models_neo4j import Courier, Location
 from app.crud import get_address_by_coordinates
+from app.utils.vroom.models import LocationVroom
 from typing import List
 
 
@@ -20,8 +21,8 @@ def get_location_by_id(location_id: str) -> Location:
     return Location.nodes.get_or_none(locationID=location_id)
 
 
-def create_location(location_id: str, address: str, coordinates: List[float]) -> Location:
-    return Location(locationID=location_id, address=address, coordinates=coordinates).save()
+def create_location(location_id: str, address: str, coordinates: List[float], order_type: str=None, orderID: str=None) -> Location:
+    return Location(locationID=location_id, address=address, coordinates=coordinates, order_type=order_type, orderID=orderID).save()
 
 
 def disconnect_all_delivers_to(courier: Courier):
@@ -49,7 +50,7 @@ def connect_current_location(courier: Courier, new_location: Location):
     courier.is_at.connect(new_location)
 
 
-def write_locations_to_courier(session: Session, courierID: str, locations: List[List[float]]):
+def write_locations_to_courier(session: Session, courierID: str, locations: List[LocationVroom]):
     courier = get_courier_by_id(courierID)
     if not courier:
         raise Exception(f"There is no courier with ID: {courierID}!")
@@ -57,14 +58,16 @@ def write_locations_to_courier(session: Session, courierID: str, locations: List
     locations_objects = []
     print(locations)
     for location in locations:
-        address = get_address_by_coordinates(session=session, x=location[0], y=location[1])
+        address = get_address_by_coordinates(session=session, x=location.location[0], y=location.location[1])
         if address:
             location_object = get_location_by_id(address.id)
             if not location_object:
                 location_object = create_location(
                     location_id=str(address.id),
                     address=f"{address.street} {address.house_number}, {address.city}",
-                    coordinates=[address.X_coordinate, address.Y_coordinate]
+                    coordinates=[address.X_coordinate, address.Y_coordinate],
+                    order_type=location.type,
+                    orderID=location.order_id
                 )
         else:
             raise Exception("There is no address with these coordinates in the database!")
@@ -91,10 +94,11 @@ def get_courier_current_location(courierID: str) -> List[float]:
 def get_courier_all_locations(courierID: str) -> List[Location]:
     courier = get_courier_by_id(courierID)
     current_location = courier.delivers_to.single()
-    locations = [current_location]
+    locations = []
     next_location = current_location.next_location.single()
-    while next_location:
+    while next_location != current_location:
         locations.append(next_location)
         print(next_location.address)
         next_location = next_location.next_location.single()
+    locations.append(current_location)
     return locations

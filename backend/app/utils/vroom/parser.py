@@ -2,8 +2,8 @@ from dataclasses import asdict
 from typing import Tuple
 from sqlmodel import Session
 
-from app.utils.vroom.models import Input, Route, StartEndStep, JobStep, Violation, OptimizationResult, VroomJob
-from app.utils.hour import hour_from_str_to_seconds
+from app.utils.vroom.models import Input, Route, StartEndStep, JobStep, Violation, OptimizationResult, Shipment, Pickup, Delivery
+from app.utils.hour import hour_from_str_to_timestamp
 from app.models import OrderBase
 from app.crud import get_address_by_id
 
@@ -28,25 +28,25 @@ def read_from_json(data) -> OptimizationResult:
         routes.append(route)
     return OptimizationResult(code=code, summary=summary, unassigned=unassigned, routes=routes)
 
-def base_order_to_pickup_and_deliver_jobs(order: OrderBase, session: Session) -> Tuple[JobStep, JobStep]:
+def base_order_to_shipment(order: OrderBase, session: Session) -> Shipment:
     pickup_address = get_address_by_id(session=session, address_id=order.pickup_address_id)
     delivery_address = get_address_by_id(session=session, address_id=order.delivery_address_id)
-    pickup = VroomJob(
+    pickup = Pickup(
         id=0, 
         description="Pickup", 
         location=[pickup_address.X_coordinate, pickup_address.Y_coordinate],
         time_window=[
-            hour_from_str_to_seconds(order.pickup_start_time), 
-            hour_from_str_to_seconds(order.pickup_end_time)
+            hour_from_str_to_timestamp(order.pickup_start_time), 
+            hour_from_str_to_timestamp(order.pickup_end_time)
         ]
     )
-    deliver = VroomJob(
+    deliver = Delivery(
         id=1, 
         description="Deliver", 
         location=[delivery_address.X_coordinate, delivery_address.Y_coordinate],
         time_window=[
-            hour_from_str_to_seconds(order.delivery_start_time), 
-            hour_from_str_to_seconds(order.delivery_end_time)
+            hour_from_str_to_timestamp(order.delivery_start_time), 
+            hour_from_str_to_timestamp(order.delivery_end_time)
         ]
     )
-    return pickup, deliver
+    return Shipment(pickup=pickup, delivery=deliver)
