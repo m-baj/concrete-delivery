@@ -27,6 +27,7 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
+import { Router } from "next/router";
 
 interface Courier {
   id: string;
@@ -67,14 +68,14 @@ const UserCard = React.memo((props: UserCardProps) => {
     isOpen: isConfirmOpen,
     onOpen: onConfirmOpen,
     onClose: onConfirmClose,
-  } = useDisclosure(); // Modal potwierdzenia usunięcia
+  } = useDisclosure();
   const {
     isOpen: isEditOpen,
     onOpen: onEditOpen,
     onClose: onEditClose,
   } = useDisclosure(); // Modal edycji
-  const [isDeleting, setIsDeleting] = useState(false); // Stan usuwania
-  const [isUpdating, setIsUpdating] = useState(false); // Stan aktualizacji
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [formData, setFormData] = useState<Courier>({
     id: props.id,
     name: props.name,
@@ -82,10 +83,9 @@ const UserCard = React.memo((props: UserCardProps) => {
     phoneNumber: props.phoneNumber,
     status: props.status,
     homeAddress: { ...props.homeAddress },
-  }); // Dane formularza
-  const toast = useToast(); // Hook do wyświetlania powiadomień
+  });
+  const toast = useToast();
 
-  // Funkcja obsługująca usuwanie kuriera
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
@@ -104,7 +104,7 @@ const UserCard = React.memo((props: UserCardProps) => {
       });
 
       if (props.onDeleteSuccess) {
-        props.onDeleteSuccess(props.id); // Aktualizacja rodzica
+        props.onDeleteSuccess(props.id);
       }
     } catch (error: any) {
       console.error(error);
@@ -119,12 +119,11 @@ const UserCard = React.memo((props: UserCardProps) => {
       });
     } finally {
       setIsDeleting(false);
-      onConfirmClose(); // Zamknięcie modala potwierdzenia
-      onClose(); // Zamknięcie modala z detalami
+      onConfirmClose();
+      onClose();
     }
   };
 
-  // Funkcja obsługująca aktualizację kuriera
   const handleUpdate = async () => {
     setIsUpdating(true);
     try {
@@ -143,10 +142,9 @@ const UserCard = React.memo((props: UserCardProps) => {
       });
 
       if (props.onUpdateSuccess) {
-        props.onUpdateSuccess(result.updatedCourier); // Aktualizacja rodzica
+        props.onUpdateSuccess(result.updatedCourier);
       }
 
-      // Aktualizacja lokalnego stanu formularza
       setFormData(result.updatedCourier);
     } catch (error: any) {
       console.error(error);
@@ -161,12 +159,11 @@ const UserCard = React.memo((props: UserCardProps) => {
       });
     } finally {
       setIsUpdating(false);
-      onEditClose(); // Zamknięcie modala edycji
-      onClose(); // Zamknięcie modala z detalami
+      onEditClose();
+      onClose();
     }
   };
 
-  // Funkcja obsługująca zmianę w formularzu
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
@@ -232,7 +229,7 @@ const UserCard = React.memo((props: UserCardProps) => {
         Details
       </Button>
 
-      {/* Modal z detalami */}
+      {/* Modal with details */}
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
         <ModalContent>
@@ -285,8 +282,7 @@ const UserCard = React.memo((props: UserCardProps) => {
             <Button
               variant="ghost"
               onClick={() => {
-                // Funkcja edycji
-                onEditOpen(); // Otworzenie modala edycji
+                onEditOpen();
               }}
             >
               Edit
@@ -298,7 +294,7 @@ const UserCard = React.memo((props: UserCardProps) => {
         </ModalContent>
       </Modal>
 
-      {/* Modal potwierdzenia usunięcia */}
+      {/* Modal confirm delete */}
       <Modal isOpen={isConfirmOpen} onClose={onConfirmClose}>
         <ModalOverlay />
         <ModalContent>
@@ -323,7 +319,7 @@ const UserCard = React.memo((props: UserCardProps) => {
         </ModalContent>
       </Modal>
 
-      {/* Modal edycji */}
+      {/* Edit modal */}
       <Modal isOpen={isEditOpen} onClose={onEditClose} size="xl">
         <ModalOverlay />
         <ModalContent>
@@ -375,7 +371,7 @@ const UserCard = React.memo((props: UserCardProps) => {
                 </Select>
               </FormControl>
 
-              {/* Adres */}
+              {/* Adress */}
               <FormControl id="street" isRequired>
                 <FormLabel>Street</FormLabel>
                 <Input
