@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import UserCard from "@/components/userCard"; // Upewnij się, że ścieżka jest poprawna
 import { jwtDecode } from "jwt-decode"; // Poprawny import jwtDecode
-import { Heading, Spinner, Text, VStack, SimpleGrid } from "@chakra-ui/react";
+import {Heading, Spinner, Text, VStack, SimpleGrid, Box, Input} from "@chakra-ui/react";
 
 interface Courier {
   id: string;
