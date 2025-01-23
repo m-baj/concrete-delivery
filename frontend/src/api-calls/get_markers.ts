@@ -6,6 +6,6 @@ export const fetchMarkers = async (courier_id: string) => {
         console.log(response);
         return response.data;
     } catch (error) {
-        console.error(error);
+        console.log("no markers");
     }
 };

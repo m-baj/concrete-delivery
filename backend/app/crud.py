@@ -459,7 +459,7 @@ def get_all_unstarted_orders(
 
             # Dodanie VroomJob dla lokalizacji dostawy
             
-            job = DeliveryJob(
+            job = VroomJob(
                     id=int(f"{index}{DELIVERY_VROOMJOB_OFFSET}"),
                     description=f"{order.id}",
                     location=[

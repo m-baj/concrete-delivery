@@ -142,13 +142,17 @@ const CourierMapView = () => {
       order_status = "Order picked up";
     } else if (nextStop.order_type === "delivery") {
       order_status = "Order delivered";
-    } else {
+    } else if (!nextStop.order_type) {
+      console.log("Następny przystanek to dom");
+    }
+    else {
       throw new Error("Nieznany typ zamówienia.");
     }
     if (nextStop.orderID) {
       console.log(nextStop.orderID);
       console.log(nextStop.order_type);
       try {
+        // @ts-ignore
         await changeOrderStatus(nextStop.orderID, order_status, token);
         toast({
           title: "Status paczki został zaktualizowany.",
