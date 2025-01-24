@@ -53,7 +53,7 @@ const CourierMapView = () => {
         setLoading(true);
         const token = localStorage.getItem("token");
         if (!token) {
-          throw new Error("Brak tokena uwierzytelniającego.");
+          throw new Error("No authentication token.");
         }
         const { sub: userId } = jwtDecode<JwtPayload>(token);
 
@@ -67,7 +67,7 @@ const CourierMapView = () => {
         console.log(courierResponse);
 
         if (!courierResponse.ok) {
-          throw new Error(`Błąd: ${courierResponse.status} - ${courierResponse.statusText}`);
+          throw new Error(`Error: ${courierResponse.status} - ${courierResponse.statusText}`);
         }
 
         const courier_id = (await courierResponse.text()).replace(/"/g, "");
@@ -99,7 +99,7 @@ const CourierMapView = () => {
     if (mapmarkers.length > 0) {
       fetchRoute(mapmarkers)
         .then((res) => setRoute(res))
-        .catch((error) => console.error("Błąd przy pobieraniu trasy:", error));
+        .catch((error) => console.error("Error retrieving route:", error));
     }
   }, [mapmarkers]);
 
@@ -120,7 +120,7 @@ const CourierMapView = () => {
   }
 
   if (mapmarkers.length === 0) {
-    return <Text>There is no more orders for today</Text>;
+    return <Text>There are no more orders for today</Text>;
   }
 
   const handleNavigate = (address: string) => {
@@ -130,11 +130,11 @@ const CourierMapView = () => {
 
   const handleDeliveryCompleted = async () => {
     if (!nextStop) {
-        throw new Error("Brak kolejnego przystanku.");
+        throw new Error("No next stop.");
     }
     const token = localStorage.getItem("token");
     if (!token) {
-      throw new Error("Brak tokena uwierzytelniającego.");
+      throw new Error("No authentication token.");
     }
     await markPackDelivered(courierId, token);
     let order_status;
@@ -143,7 +143,7 @@ const CourierMapView = () => {
     } else if (nextStop.order_type === "delivery") {
       order_status = "Order delivered";
     } else if (!nextStop.order_type) {
-      console.log("Następny przystanek to dom");
+      console.log("Next stop is home");
     }
     else {
       throw new Error("Nieznany typ zamówienia.");
@@ -155,8 +155,8 @@ const CourierMapView = () => {
         // @ts-ignore
         await changeOrderStatus(nextStop.orderID, order_status, token);
         toast({
-          title: "Status paczki został zaktualizowany.",
-          description: `Informacja o zmianie statusu została wysłana dla zamówienia ${nextStop.orderID}.`,
+          title: "The package status has been updated.",
+          description: `Information about the status change has been sent for the order ${nextStop.orderID}.`,
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -179,7 +179,7 @@ const CourierMapView = () => {
         setNextStop(mapmarkers[0]);
       } catch (error : any) {
         toast({
-          title: "Błąd",
+          title: "Error",
           description: error.message,
           status: "error",
           duration: 5000,
@@ -191,11 +191,11 @@ const CourierMapView = () => {
 
   const handleReportLost = async () => {
     if (!nextStop) {
-        throw new Error("Brak kolejnego przystanku.");
+        throw new Error("No next stop.");
     }
     const token = localStorage.getItem("token");
     if (!token) {
-      throw new Error("Brak tokena uwierzytelniającego.");
+      throw new Error("No authentication token.");
     }
 
     await markPackDelivered(courierId, token);
@@ -208,15 +208,15 @@ const CourierMapView = () => {
         await markPackDelivered(courierId, token);
         await loadMarkers();
         toast({
-          title: "Paczka zgłoszona jako zagubiona.",
-          description: `Zgłoszenie zostało wysłane dla zamówienia ${nextStop.orderID}.`,
+          title: "Package reported as lost.",
+          description: `The request has been sent for the order ${nextStop.orderID}.`,
           status: "success",
           duration: 5000,
           isClosable: true,
         });
       } catch (error : any) {
         toast({
-          title: "Błąd",
+          title: "Error",
           description: error.message,
           status: "error",
           duration: 5000,
@@ -229,8 +229,8 @@ const CourierMapView = () => {
   const startWork = async () => {
     if (!mapmarkers[1].orderID) {
         toast({
-          title: "Brak kolejnego przystanku",
-          description: "Nie ma juz więcej zleceń na dziś",
+          title: "No next stop",
+          description: "There are no more orders for today",
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -239,7 +239,7 @@ const CourierMapView = () => {
     console.log(nextStop);
     const token = localStorage.getItem("token");
     if (!token) {
-      throw new Error("Brak tokena uwierzytelniającego.");
+      throw new Error("No authentication token.");
     }
     try {
       if (mapmarkers[1].orderID) {
@@ -247,8 +247,8 @@ const CourierMapView = () => {
         await markPackDelivered(courierId, token);
         await loadMarkers();
         toast({
-          title: "Rozpoczęto pracę.",
-          description: "Wyruszono po pierwsze zamówienie.",
+          title: "Work has started.",
+          description: "First pickup started.",
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -257,7 +257,7 @@ const CourierMapView = () => {
     }
     catch (error : any) {
       toast({
-        title: "Błąd",
+        title: "Error",
         description: error.message,
         status: "error",
         duration: 5000,

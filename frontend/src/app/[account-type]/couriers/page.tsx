@@ -127,7 +127,7 @@ const AllCouriers = () => {
               spacing={6}
               width="100%"
         >
-          {couriers.map((courier) => (
+          {filteredCouriers.map((courier) => (
             <UserCard
               key={courier.id}
               id={courier.id}
