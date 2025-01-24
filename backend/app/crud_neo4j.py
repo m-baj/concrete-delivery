@@ -34,6 +34,10 @@ def connect_delivers_to(courier: Courier, location: Location):
     courier.delivers_to.connect(location)
 
 
+def connect_is_at(courier: Courier, location: Location):
+    courier.is_at.connect(location)
+
+
 def connect_next_location(previous_location: Location, next_location: Location):
     previous_location.next_location.connect(next_location)
 
@@ -54,7 +58,18 @@ def write_locations_to_courier(session: Session, courierID: str, locations: List
     courier = get_courier_by_id(courierID)
     if not courier:
         raise Exception(f"There is no courier with ID: {courierID}!")
-    existing_delivers_to = courier.delivers_to.all()
+
+    for location in courier.delivers_to.all():
+        while location:
+            next_location = location.next_location.single()
+            if next_location:
+                location.next_location.disconnect(next_location)
+            location = next_location
+
+    courier_starts_at = get_current_location(courier)
+    disconnect_current_location(courier, courier_starts_at)
+    disconnect_all_delivers_to(courier)
+
     locations_objects = []
     print(locations)
     for location in locations:
@@ -73,18 +88,20 @@ def write_locations_to_courier(session: Session, courierID: str, locations: List
                 )
         else:
             raise Exception("There is no address with these coordinates in the database!")
-        locations_objects.append(location_object)
+        if location_object in locations_objects:
+            pass
+        else:
+            locations_objects.append(location_object)
+        # locations_objects.append(location_object)
 
-    if existing_delivers_to:
-        last_existing_location = existing_delivers_to[-1]
-        connect_next_location(last_existing_location, locations_objects[0])
-    else:
+    if locations_objects:
+        connect_is_at(courier, locations_objects[0])
         connect_delivers_to(courier, locations_objects[0])
-
-    previous_location = locations_objects[0]
-    for location in locations_objects[1:]:
-        connect_next_location(previous_location, location)
-        previous_location = location
+        previous_location = locations_objects[0]
+        for location in locations_objects[1:]:
+            connect_next_location(previous_location, location)
+            previous_location = location
+        connect_next_location(locations_objects[-1], locations_objects[0])
 
 
 def get_courier_current_location(courierID: str) -> List[float]:
